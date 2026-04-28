@@ -1,0 +1,20 @@
+<ion-tabs>
+  <ion-router-outlet></ion-router-outlet>
+
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="feed" href="/tabs/feed" (click)="go('/tabs/feed', $event)">
+      <ion-icon name="play-circle-outline"></ion-icon>
+      <ion-label>Feed</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="post" href="/tabs/post" (click)="go('/tabs/post', $event)">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      <ion-label>Post</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="account" href="/tabs/account" (click)="go('/tabs/account', $event)">
+      <ion-icon name="person-circle-outline"></ion-icon>
+      <ion-label>Account</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

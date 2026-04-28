@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Contact details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="contactFields">
+    <div class="contact-field">
+      <label class="contact-field__label" for="contactName">Name</label>
+      <input
+        id="contactName"
+        class="contact-field__input"
+        type="text"
+        [(ngModel)]="name"
+        placeholder="Seller name"
+        autocomplete="name"
+      />
+    </div>
+
+    <div class="contact-field">
+      <label class="contact-field__label" for="contactMobile">Mobile</label>
+      <input
+        id="contactMobile"
+        class="contact-field__input"
+        type="tel"
+        [(ngModel)]="mobile"
+        placeholder="Mobile number"
+        inputmode="tel"
+        autocomplete="tel"
+      />
+    </div>
+
+    <div class="contact-field">
+      <label class="contact-field__label" for="contactPlace">Place</label>
+      <input
+        id="contactPlace"
+        class="contact-field__input"
+        type="text"
+        [(ngModel)]="place"
+        placeholder="Village / Town"
+        autocomplete="address-level2"
+      />
+    </div>
+  </div>
+
+  <ion-button expand="block" color="success" class="saveBtn" (click)="save()">
+    Save
+  </ion-button>
+</ion-content>
+

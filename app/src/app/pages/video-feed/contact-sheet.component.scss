@@ -1,0 +1,31 @@
+.contactFields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-field__label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--ion-text-color-step-650, var(--ion-color-medium-shade));
+}
+
+.contact-field__input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.22);
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.saveBtn {
+  margin-top: 16px;
+}
+

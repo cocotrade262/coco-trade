@@ -1,0 +1,79 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Post coconut video</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Choose or record a video</ion-card-title>
+      <ion-card-subtitle>Minimum duration: 30 seconds</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <div class="filePickRow">
+        <ion-item button="true" detail="false" [disabled]="busy">
+          <ion-label>
+            <div class="filePickRow__title">Record video (camera)</div>
+            <div class="filePickRow__sub">Opens camera when supported</div>
+          </ion-label>
+        </ion-item>
+        <input
+          type="file"
+          accept="video/*"
+          capture="environment"
+          class="filePickRow__input"
+          [disabled]="busy"
+          (change)="onFileSelected($event)"
+        />
+      </div>
+
+      <div class="filePickRow">
+        <ion-item button="true" detail="false" [disabled]="busy">
+          <ion-label>
+            <div class="filePickRow__title">Select video file</div>
+            <div class="filePickRow__sub">Pick from your device / laptop</div>
+          </ion-label>
+        </ion-item>
+        <input
+          type="file"
+          accept="video/*"
+          class="filePickRow__input"
+          [disabled]="busy"
+          (change)="onFileSelected($event)"
+        />
+      </div>
+
+      <div class="preview" *ngIf="selectedObjectUrl">
+        <video class="preview__video" [src]="selectedObjectUrl" controls playsinline></video>
+        <div class="preview__meta">
+          Duration: {{ durationSec | number: '1.0-0' }}s
+        </div>
+      </div>
+
+      <div class="caption-field">
+        <label class="caption-field__label" for="postCaption">Caption (optional)</label>
+        <textarea
+          id="postCaption"
+          class="caption-field__input"
+          [(ngModel)]="caption"
+          rows="4"
+          placeholder="Ex: Fresh coconuts available in my area"
+          autocomplete="on"
+          autocapitalize="sentences"
+        ></textarea>
+      </div>
+
+      <ion-button
+        type="button"
+        color="success"
+        expand="block"
+        (click)="publish()"
+        [disabled]="busy || !selectedObjectUrl || (durationSec ?? 0) < 30"
+      >
+        Post to feed
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

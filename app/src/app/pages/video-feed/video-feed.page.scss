@@ -1,0 +1,97 @@
+.reels {
+  --background: #000;
+}
+
+.reels__list {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+}
+
+.reels__item {
+  position: relative;
+  height: 100vh;
+  scroll-snap-align: start;
+  display: grid;
+  place-items: center;
+}
+
+.reels__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.reels__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
+}
+
+.reels__meta {
+  color: #fff;
+}
+
+.reels__actions {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 8px;
+}
+
+.reels__actionBtn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.reels__actionBtn ion-icon {
+  font-size: 28px;
+}
+
+.reels__actionBtn[disabled] {
+  opacity: 0.5;
+}
+
+.reels__actionText {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.reels__title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.reels__sub {
+  opacity: 0.85;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.reels__empty {
+  color: #fff;
+  text-align: center;
+  padding: 24px;
+}
+
+.reels__emptyTitle {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.reels__emptySub {
+  opacity: 0.85;
+  margin-top: 8px;
+}
+
