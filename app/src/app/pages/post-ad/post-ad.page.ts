@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { PostsService } from '../../services/posts.service';
 
@@ -9,6 +9,9 @@ import { PostsService } from '../../services/posts.service';
   standalone: false,
 })
 export class PostAdPage {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
+  
   caption = '';
   selectedObjectUrl: string | null = null;
   durationSec: number | null = null;
@@ -19,6 +22,14 @@ export class PostAdPage {
     private readonly toastCtrl: ToastController
   ) {}
 
+  selectVideoFile(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  selectCameraFile(): void {
+    this.cameraInput.nativeElement.click();
+  }
+
   async onFileSelected(ev: Event) {
     if (this.busy) return;
 
@@ -26,7 +37,6 @@ export class PostAdPage {
     const file = input.files?.[0];
     if (!file) return;
 
-    // Reset the input so selecting the same file again triggers change.
     input.value = '';
 
     if (!file.type.startsWith('video/')) {
@@ -36,7 +46,6 @@ export class PostAdPage {
 
     this.busy = true;
     try {
-      // Revoke any previous selection to avoid leaking memory.
       if (this.selectedObjectUrl) URL.revokeObjectURL(this.selectedObjectUrl);
 
       const objectUrl = URL.createObjectURL(file);
@@ -94,5 +103,4 @@ export class PostAdPage {
     const t = await this.toastCtrl.create({ message, duration: 1800, position: 'bottom' });
     await t.present();
   }
-
 }
