@@ -1,0 +1,34 @@
+<!-- Updated post-ad.page.html -->
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let ad of ads" (click)="onAdSelected(ad)">
+      <ion-label>{{ ad.title }}</ion-label>
+      <ion-button (click)="onButtonClick(ad.id)">View Details</ion-button>
+    </ion-item>
+  </ion-list>
+</ion-content>
+
+<script>
+import { Component, ViewChild } from '@angular/core';
+import { IonList } from '@ionic/angular';
+
+@Component({
+  selector: 'app-post-ad',
+  templateUrl: './post-ad.page.html',
+  styleUrls: ['./post-ad.page.scss'],
+})
+export class PostAdPage {
+  @ViewChild(IonList) ionList: IonList;
+
+  ads = [...]; // Your ad data here
+
+  onAdSelected(ad) {
+    // handle ad selection
+  }
+
+  onButtonClick(adId) {
+    // handle button click
+  }
+}
+</script>
