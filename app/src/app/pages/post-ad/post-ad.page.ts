@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, HostBinding, OnDestroy } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
+import { filter, Subscription } from 'rxjs';
 import { PostsService } from '../../services/posts.service';
 
 @Component({
@@ -8,16 +10,46 @@ import { PostsService } from '../../services/posts.service';
   styleUrls: ['./post-ad.page.scss'],
   standalone: false,
 })
-export class PostAdPage {
+export class PostAdPage implements OnDestroy {
   caption = '';
   selectedObjectUrl: string | null = null;
   durationSec: number | null = null;
   busy = false;
 
+  /** Stack above other tab pages that stay mounted (full-viewport feed). */
+  @HostBinding('style.z-index')
+  hostZIndex = 1;
+
+  private routeSub?: Subscription;
+
   constructor(
     private readonly postsService: PostsService,
-    private readonly toastCtrl: ToastController
-  ) {}
+    private readonly toastCtrl: ToastController,
+    private readonly router: Router
+  ) {
+    this.syncHostStack();
+    this.routeSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.syncHostStack());
+  }
+
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
+  }
+
+  private syncHostStack(): void {
+    const path = this.pathAfterHash(this.router.url);
+    const onPost = path.includes('/tabs/post');
+    this.hostZIndex = onPost ? 50 : 1;
+  }
+
+  private pathAfterHash(url: string): string {
+    const noQuery = url.split('?')[0] ?? url;
+    if (noQuery.includes('#')) {
+      return (noQuery.split('#').pop() ?? '').split('?')[0] ?? '';
+    }
+    return noQuery;
+  }
 
   async onFileSelected(ev: Event) {
     if (this.busy) return;

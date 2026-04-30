@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChildren } from '@angular/core';
-import { ModalController, ToastController } from '@ionic/angular';
-import { map, Subscription } from 'rxjs';
+import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChildren } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { ModalController, ToastController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import { filter, map, Subscription } from 'rxjs';
 import { PostsService, PostVideo } from '../../services/posts.service';
 import { ContactSheetComponent } from './contact-sheet.component';
 
@@ -10,7 +11,19 @@ import { ContactSheetComponent } from './contact-sheet.component';
   styleUrls: ['./video-feed.page.scss'],
   standalone: false,
 })
-export class VideoFeedPage implements AfterViewInit, OnDestroy {
+export class VideoFeedPage implements AfterViewInit, OnDestroy, ViewWillEnter, ViewWillLeave {
+  /**
+   * While another tab is active, this route can remain mounted (preload/tabs stack).
+   * The 100vh reel layer must not capture taps meant for Post / Account.
+   */
+  feedTabInactive = true;
+
+  /** Block the entire tab shell (`app-video-feed`), not only ion-content — lifecycle hooks alone are unreliable. */
+  @HostBinding('style.pointer-events')
+  get hostPointerEvents(): string {
+    return this.feedTabInactive ? 'none' : 'auto';
+  }
+
   readonly posts$ = this.postsService.posts$.pipe(
     map((posts) => (posts.length ? posts : this.getEmptyStatePosts()))
   );
@@ -19,13 +32,43 @@ export class VideoFeedPage implements AfterViewInit, OnDestroy {
 
   private io?: IntersectionObserver;
   private sub?: Subscription;
+  private routeSub?: Subscription;
   private latestPosts: PostVideo[] = [];
 
   constructor(
     private readonly postsService: PostsService,
     private readonly modalCtrl: ModalController,
-    private readonly toastCtrl: ToastController
-  ) {}
+    private readonly toastCtrl: ToastController,
+    private readonly router: Router
+  ) {
+    this.syncFeedInactiveFromUrl(this.router.url);
+    this.routeSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.syncFeedInactiveFromUrl(this.router.url));
+  }
+
+  ionViewWillEnter(): void {
+    this.syncFeedInactiveFromUrl(this.router.url);
+  }
+
+  ionViewWillLeave(): void {
+    this.feedTabInactive = true;
+  }
+
+  private syncFeedInactiveFromUrl(url: string): void {
+    const path = this.pathAfterHash(url);
+    // Inactive unless the active tab is really "feed" (hash or path routing).
+    const onFeedTab = /\/tabs\/feed(\/|$|\?)/.test(path) || path.endsWith('/tabs/feed');
+    this.feedTabInactive = !onFeedTab;
+  }
+
+  private pathAfterHash(url: string): string {
+    const noQuery = url.split('?')[0] ?? url;
+    if (noQuery.includes('#')) {
+      return (noQuery.split('#').pop() ?? '').split('?')[0] ?? '';
+    }
+    return noQuery;
+  }
 
   ngAfterViewInit(): void {
     // Keep a local copy so we can map element index -> post.
@@ -119,6 +162,7 @@ export class VideoFeedPage implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.io?.disconnect();
     this.sub?.unsubscribe();
+    this.routeSub?.unsubscribe();
   }
 
   private getEmptyStatePosts(): PostVideo[] {

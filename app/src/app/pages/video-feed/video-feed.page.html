@@ -1,4 +1,4 @@
-<ion-content class="reels">
+<ion-content [class.reels--inactive]="feedTabInactive" class="reels">
   <div class="reels__list">
     <div class="reels__item" *ngFor="let post of posts$ | async; trackBy: trackById">
       <ng-container *ngIf="post.objectUrl; else emptyState">

@@ -35,3 +35,12 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+/**
+ * Inactive tab routes stay in the DOM under ion-router-outlet. Full-viewport pages
+ * (e.g. 100vh video feed) can still sit above the active tab and eat all touches.
+ */
+ion-page.ion-page-hidden,
+ion-page.ion-page-invisible {
+  pointer-events: none !important;
+}

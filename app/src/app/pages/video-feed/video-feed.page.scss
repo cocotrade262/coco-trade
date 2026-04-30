@@ -2,6 +2,12 @@
   --background: #000;
 }
 
+/* See video-feed.page.ts — another tab is focused; do not intercept taps */
+.reels--inactive {
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
 .reels__list {
   height: 100%;
   overflow-y: auto;

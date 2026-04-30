@@ -4,83 +4,71 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding postPage">
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Choose or record a video</ion-card-title>
-      <ion-card-subtitle>Minimum duration: 30 seconds</ion-card-subtitle>
-    </ion-card-header>
+<ion-content [fullscreen]="false" class="ion-padding postPage">
+  <!-- Plain divs — ion-card/ion-card-content can flex-stretch children on mobile and trap touches -->
+  <div class="postAdCard">
+    <h2 class="postAdCard__title">Choose or record a video</h2>
+    <p class="postAdCard__subtitle">Minimum duration: 30 seconds</p>
 
-    <ion-card-content>
-      <!--
-        ion-item uses shadow DOM; an overlaid file input often stays *under* the item's
-        native button layer on mobile, so taps never hit <input type="file">.
-        A native <label> + input is the reliable mobile-browser pattern (HTTPS web app).
-      -->
-      <label
-        class="filePickRow"
-        [class.filePickRow--disabled]="busy"
-      >
-        <input
-          type="file"
-          accept="video/*"
-          capture="environment"
-          class="filePickRow__input"
-          [disabled]="busy"
-          (change)="onFileSelected($event)"
-        />
-        <span class="filePickRow__body">
-          <span class="filePickRow__title">Record video (camera)</span>
-          <span class="filePickRow__sub">Opens camera when supported</span>
-        </span>
-      </label>
-
-      <label
-        class="filePickRow"
-        [class.filePickRow--disabled]="busy"
-      >
-        <input
-          type="file"
-          accept="video/*"
-          class="filePickRow__input"
-          [disabled]="busy"
-          (change)="onFileSelected($event)"
-        />
-        <span class="filePickRow__body">
-          <span class="filePickRow__title">Select video file</span>
-          <span class="filePickRow__sub">Pick from your device / laptop</span>
-        </span>
-      </label>
-
-      <div class="preview" *ngIf="selectedObjectUrl">
-        <video class="preview__video" [src]="selectedObjectUrl" controls playsinline></video>
-        <div class="preview__meta">
-          Duration: {{ durationSec | number: '1.0-0' }}s
-        </div>
+    <div class="pickRow" [class.pickRow--disabled]="busy">
+      <input
+        type="file"
+        accept="video/*"
+        capture="environment"
+        class="pickRow__input"
+        [disabled]="busy"
+        (change)="onFileSelected($event)"
+        aria-label="Record video with camera"
+      />
+      <div class="pickRow__face" aria-hidden="true">
+        <span class="pickRow__title">Record video (camera)</span>
+        <span class="pickRow__sub">Opens camera when supported</span>
       </div>
+    </div>
 
-      <div class="caption-field">
-        <label class="caption-field__label" for="postCaption">Caption (optional)</label>
-        <textarea
-          id="postCaption"
-          class="caption-field__input"
-          [(ngModel)]="caption"
-          rows="4"
-          placeholder="Ex: Fresh coconuts available in my area"
-          autocomplete="on"
-          autocapitalize="sentences"
-        ></textarea>
+    <div class="pickRow" [class.pickRow--disabled]="busy">
+      <input
+        type="file"
+        accept="video/*"
+        class="pickRow__input"
+        [disabled]="busy"
+        (change)="onFileSelected($event)"
+        aria-label="Select video file from device"
+      />
+      <div class="pickRow__face" aria-hidden="true">
+        <span class="pickRow__title">Select video file</span>
+        <span class="pickRow__sub">Pick from your device / laptop</span>
       </div>
+    </div>
 
-      <ion-button
-        type="button"
-        color="success"
-        expand="block"
-        (click)="publish()"
-        [disabled]="busy || !selectedObjectUrl || (durationSec ?? 0) < 30"
-      >
-        Post to feed
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
+    <div class="preview" *ngIf="selectedObjectUrl">
+      <video class="preview__video" [src]="selectedObjectUrl" controls playsinline></video>
+      <div class="preview__meta">
+        Duration: {{ durationSec | number: '1.0-0' }}s
+      </div>
+    </div>
+
+    <div class="caption-field">
+      <label class="caption-field__label" for="postCaption">Caption (optional)</label>
+      <ion-textarea
+        id="postCaption"
+        class="caption-field__input"
+        [(ngModel)]="caption"
+        [rows]="4"
+        placeholder="Ex: Fresh coconuts available in my area"
+        autocapitalize="sentences"
+        enterkeyhint="done"
+      ></ion-textarea>
+    </div>
+
+    <ion-button
+      type="button"
+      color="success"
+      expand="block"
+      (click)="publish()"
+      [disabled]="busy || !selectedObjectUrl || (durationSec ?? 0) < 30"
+    >
+      Post to feed
+    </ion-button>
+  </div>
 </ion-content>
