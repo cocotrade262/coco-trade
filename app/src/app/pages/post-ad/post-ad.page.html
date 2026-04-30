@@ -4,7 +4,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
+<ion-content [fullscreen]="true" class="ion-padding postPage">
   <ion-card>
     <ion-card-header>
       <ion-card-title>Choose or record a video</ion-card-title>
@@ -12,15 +12,16 @@
     </ion-card-header>
 
     <ion-card-content>
-      <div class="filePickRow">
-        <ion-item button="true" detail="false" [disabled]="busy">
-          <ion-label>
-            <div class="filePickRow__title">Record video (camera)</div>
-            <div class="filePickRow__sub">Opens camera when supported</div>
-          </ion-label>
-        </ion-item>
+      <!--
+        ion-item uses shadow DOM; an overlaid file input often stays *under* the item's
+        native button layer on mobile, so taps never hit <input type="file">.
+        A native <label> + input is the reliable mobile-browser pattern (HTTPS web app).
+      -->
+      <label
+        class="filePickRow"
+        [class.filePickRow--disabled]="busy"
+      >
         <input
-          #cameraInput
           type="file"
           accept="video/*"
           capture="environment"
@@ -28,24 +29,28 @@
           [disabled]="busy"
           (change)="onFileSelected($event)"
         />
-      </div>
+        <span class="filePickRow__body">
+          <span class="filePickRow__title">Record video (camera)</span>
+          <span class="filePickRow__sub">Opens camera when supported</span>
+        </span>
+      </label>
 
-      <div class="filePickRow">
-        <ion-item button="true" detail="false" [disabled]="busy">
-          <ion-label>
-            <div class="filePickRow__title">Select video file</div>
-            <div class="filePickRow__sub">Pick from your device / laptop</div>
-          </ion-label>
-        </ion-item>
+      <label
+        class="filePickRow"
+        [class.filePickRow--disabled]="busy"
+      >
         <input
-          #fileInput
           type="file"
           accept="video/*"
           class="filePickRow__input"
           [disabled]="busy"
           (change)="onFileSelected($event)"
         />
-      </div>
+        <span class="filePickRow__body">
+          <span class="filePickRow__title">Select video file</span>
+          <span class="filePickRow__sub">Pick from your device / laptop</span>
+        </span>
+      </label>
 
       <div class="preview" *ngIf="selectedObjectUrl">
         <video class="preview__video" [src]="selectedObjectUrl" controls playsinline></video>
