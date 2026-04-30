@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { PostsService } from '../../services/posts.service';
 
@@ -9,9 +9,6 @@ import { PostsService } from '../../services/posts.service';
   standalone: false,
 })
 export class PostAdPage {
-  @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
   caption = '';
   selectedObjectUrl: string | null = null;
   durationSec: number | null = null;
@@ -21,16 +18,6 @@ export class PostAdPage {
     private readonly postsService: PostsService,
     private readonly toastCtrl: ToastController
   ) {}
-
-  selectCameraFile(): void {
-    if (this.busy) return;
-    this.cameraInput?.nativeElement.click();
-  }
-
-  selectVideoFile(): void {
-    if (this.busy) return;
-    this.fileInput?.nativeElement.click();
-  }
 
   async onFileSelected(ev: Event) {
     if (this.busy) return;

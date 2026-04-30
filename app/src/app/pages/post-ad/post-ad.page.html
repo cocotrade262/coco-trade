@@ -13,7 +13,7 @@
 
     <ion-card-content>
       <div class="filePickRow">
-        <ion-item button="true" detail="false" [disabled]="busy" (click)="selectCameraFile()">
+        <ion-item button="true" detail="false" [disabled]="busy">
           <ion-label>
             <div class="filePickRow__title">Record video (camera)</div>
             <div class="filePickRow__sub">Opens camera when supported</div>
@@ -31,7 +31,7 @@
       </div>
 
       <div class="filePickRow">
-        <ion-item button="true" detail="false" [disabled]="busy" (click)="selectVideoFile()">
+        <ion-item button="true" detail="false" [disabled]="busy">
           <ion-label>
             <div class="filePickRow__title">Select video file</div>
             <div class="filePickRow__sub">Pick from your device / laptop</div>
