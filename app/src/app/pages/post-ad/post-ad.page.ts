@@ -39,7 +39,6 @@ export class PostAdPage {
     const file = input.files?.[0];
     if (!file) return;
 
-    // Reset the input so selecting the same file again triggers change.
     input.value = '';
 
     if (!file.type.startsWith('video/')) {
@@ -49,7 +48,6 @@ export class PostAdPage {
 
     this.busy = true;
     try {
-      // Revoke any previous selection to avoid leaking memory.
       if (this.selectedObjectUrl) URL.revokeObjectURL(this.selectedObjectUrl);
 
       const objectUrl = URL.createObjectURL(file);
@@ -107,5 +105,4 @@ export class PostAdPage {
     const t = await this.toastCtrl.create({ message, duration: 1800, position: 'bottom' });
     await t.present();
   }
-
 }
