@@ -5,6 +5,7 @@
   min-height: 0;
   box-sizing: border-box;
   position: relative;
+  pointer-events: auto;
   /* z-index set in PostAdPage.syncHostStack when /tabs/post is active */
 }
 
@@ -20,6 +21,7 @@
   width: 100%;
   display: block;
   padding-bottom: 8px;
+  pointer-events: auto;
 }
 
 .postAdCard > * + * {
@@ -206,16 +208,14 @@
 }
 
 .caption-field {
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-end: 0;
+  --inner-padding-start: 0;
+  --background: transparent;
   position: relative;
   z-index: 5;
-}
-
-.caption-field__label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 8px;
-  color: var(--ion-text-color-step-650, var(--ion-color-medium-shade));
+  margin-top: 0;
 }
 
 .caption-field__input {

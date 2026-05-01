@@ -1,55 +1,57 @@
-<ion-content [class.reels--inactive]="feedTabInactive" class="reels">
-  <div class="reels__list">
-    <div class="reels__item" *ngFor="let post of posts$ | async; trackBy: trackById">
-      <ng-container *ngIf="post.objectUrl; else emptyState">
-        <video
-          #videoEl
-          class="reels__video"
-          [src]="post.objectUrl"
-          muted
-          loop
-          playsinline
-          preload="metadata"
-          controls
-        ></video>
+<!-- When another tab is active, render nothing so the Feed cannot cover Post/Account (full-viewport reel). -->
+<ng-container *ngIf="!feedTabInactive">
+  <ion-content class="reels">
+    <div class="reels__list">
+      <div class="reels__item" *ngFor="let post of posts$ | async; trackBy: trackById">
+        <ng-container *ngIf="post.objectUrl; else emptyState">
+          <video
+            #videoEl
+            class="reels__video"
+            [src]="post.objectUrl"
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            controls
+          ></video>
 
-        <div class="reels__overlay">
-          <div class="reels__meta">
-            <div class="reels__title">Coconut seller video</div>
-            <div class="reels__sub">Duration: {{ post.durationSec | number: '1.0-0' }}s</div>
+          <div class="reels__overlay">
+            <div class="reels__meta">
+              <div class="reels__title">Coconut seller video</div>
+              <div class="reels__sub">Duration: {{ post.durationSec | number: '1.0-0' }}s</div>
+            </div>
+
+            <div class="reels__actions">
+              <button class="reels__actionBtn" type="button" (click)="like(post)" aria-label="Like">
+                <ion-icon name="heart-outline"></ion-icon>
+                <div class="reels__actionText">{{ post.likes }}</div>
+              </button>
+
+              <button class="reels__actionBtn" type="button" (click)="openContact(post)" aria-label="Add contact">
+                <ion-icon name="call-outline"></ion-icon>
+                <div class="reels__actionText">Contact</div>
+              </button>
+
+              <button class="reels__actionBtn" type="button" (click)="share(post)" aria-label="Share">
+                <ion-icon name="paper-plane-outline"></ion-icon>
+                <div class="reels__actionText">Share</div>
+              </button>
+
+              <button class="reels__actionBtn" type="button" disabled aria-label="Comments (coming soon)">
+                <ion-icon name="chatbubble-outline"></ion-icon>
+                <div class="reels__actionText">{{ post.commentsCount }}</div>
+              </button>
+            </div>
           </div>
+        </ng-container>
 
-          <div class="reels__actions">
-            <button class="reels__actionBtn" type="button" (click)="like(post)" aria-label="Like">
-              <ion-icon name="heart-outline"></ion-icon>
-              <div class="reels__actionText">{{ post.likes }}</div>
-            </button>
-
-            <button class="reels__actionBtn" type="button" (click)="openContact(post)" aria-label="Add contact">
-              <ion-icon name="call-outline"></ion-icon>
-              <div class="reels__actionText">Contact</div>
-            </button>
-
-            <button class="reels__actionBtn" type="button" (click)="share(post)" aria-label="Share">
-              <ion-icon name="paper-plane-outline"></ion-icon>
-              <div class="reels__actionText">Share</div>
-            </button>
-
-            <button class="reels__actionBtn" type="button" disabled aria-label="Comments (coming soon)">
-              <ion-icon name="chatbubble-outline"></ion-icon>
-              <div class="reels__actionText">{{ post.commentsCount }}</div>
-            </button>
+        <ng-template #emptyState>
+          <div class="reels__empty">
+            <div class="reels__emptyTitle">No posts yet</div>
+            <div class="reels__emptySub">Go to the Post tab and add a 30s+ video.</div>
           </div>
-        </div>
-      </ng-container>
-
-      <ng-template #emptyState>
-        <div class="reels__empty">
-          <div class="reels__emptyTitle">No posts yet</div>
-          <div class="reels__emptySub">Go to the Post tab and add a 30s+ video.</div>
-        </div>
-      </ng-template>
+        </ng-template>
+      </div>
     </div>
-  </div>
-</ion-content>
-
+  </ion-content>
+</ng-container>

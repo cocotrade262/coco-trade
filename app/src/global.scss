@@ -45,6 +45,37 @@ ion-page.ion-page-invisible {
   pointer-events: none !important;
 }
 
+/* Ionic stacked tabs: visible route must accept clicks (override rule above when Post/Account is focused). */
+body[data-active-tab="post"] ion-page:has(app-post-ad),
+body[data-active-tab="account"] ion-page:has(app-account) {
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
+
+body[data-active-tab="post"] app-tabs,
+body[data-active-tab="account"] app-tabs {
+  pointer-events: auto !important;
+}
+
+body[data-active-tab="post"] app-post-ad .postAd-btn:not(:disabled) {
+  cursor: pointer !important;
+}
+
+body[data-active-tab="post"] app-post-ad ion-textarea {
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+/* Tabs stack: active page must paint above hidden stacked siblings so taps hit Post / Account. */
+ion-tabs ion-router-outlet ion-page:not(.ion-page-hidden):not(.ion-page-invisible) {
+  z-index: 100 !important;
+}
+
+ion-tabs ion-router-outlet ion-page.ion-page-hidden,
+ion-tabs ion-router-outlet ion-page.ion-page-invisible {
+  z-index: 0 !important;
+}
+
 /**
  * Post tab: fill the tab stack height so ion-content gets a bounded scroll area.
  * Without this, nested flex + full-viewport Feed siblings can leave Post's scroll
@@ -70,3 +101,37 @@ ion-tabs ion-router-outlet ion-page.ion-page-hidden .reels,
 ion-tabs ion-router-outlet ion-page.ion-page-invisible .reels {
   display: none !important;
 }
+
+/* app.component.ts sets body[data-active-tab] from location.hash (authoritative for useHash). */
+body[data-active-tab="post"] app-video-feed,
+body[data-active-tab="account"] app-video-feed {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/*
+ * `dataset.activeTab` can be correct while taps still fail: the Feed route’s **ion-page**
+ * wrapper often stays full-viewport above Post. Hiding `app-video-feed` is not enough —
+ * collapse the whole page shell that contains it, and lift the Post page shell.
+ */
+body[data-active-tab="post"] ion-page:has(app-video-feed),
+body[data-active-tab="account"] ion-page:has(app-video-feed) {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+body[data-active-tab="post"] ion-page:has(app-post-ad),
+body[data-active-tab="account"] ion-page:has(app-account) {
+  position: relative !important;
+  z-index: 2147483646 !important;
+  pointer-events: auto !important;
+}
+
+body[data-active-tab="post"] app-post-ad,
+body[data-active-tab="post"] app-post-ad ion-content.postPage {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+

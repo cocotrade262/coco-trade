@@ -61,18 +61,18 @@
       <div class="preview__meta">Duration: {{ durationSec | number: '1.0-0' }}s</div>
     </div>
 
-    <div class="caption-field">
-      <label class="caption-field__label" for="postCaption">Caption (optional)</label>
+    <ion-item lines="none" class="caption-field">
+      <ion-label position="stacked">Caption (optional)</ion-label>
       <ion-textarea
-        id="postCaption"
         class="caption-field__input"
         [(ngModel)]="caption"
         [rows]="4"
         placeholder="Ex: Fresh coconuts available in my area"
         autocapitalize="sentences"
         enterkeyhint="done"
+        aria-label="Caption (optional)"
       ></ion-textarea>
-    </div>
+    </ion-item>
 
     <button
       type="button"

@@ -1,8 +1,9 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChildren } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { ModalController, ToastController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
-import { filter, map, Subscription } from 'rxjs';
+import { defer, EMPTY, filter, fromEvent, map, merge, Observable, of, Subscription } from 'rxjs';
 import { PostsService, PostVideo } from '../../services/posts.service';
+import { getTabsRoutePath } from '../../utils/tab-route.util';
 import { ContactSheetComponent } from './contact-sheet.component';
 
 @Component({
@@ -16,6 +17,7 @@ export class VideoFeedPage implements AfterViewInit, OnDestroy, ViewWillEnter, V
    * While another tab is active, this route can remain mounted (preload/tabs stack).
    * The 100vh reel layer must not capture taps meant for Post / Account.
    */
+  /** True = Feed tab not focused — hide reel DOM until `syncFeedInactiveFromUrl` confirms `/tabs/feed`. */
   feedTabInactive = true;
 
   /** Block the entire tab shell (`app-video-feed`), not only ion-content — lifecycle hooks alone are unreliable. */
@@ -24,8 +26,14 @@ export class VideoFeedPage implements AfterViewInit, OnDestroy, ViewWillEnter, V
     return this.feedTabInactive ? 'none' : 'auto';
   }
 
-  readonly posts$ = this.postsService.posts$.pipe(
-    map((posts) => (posts.length ? posts : this.getEmptyStatePosts()))
+  /** Remove feed from layout when another tab is focused (`pointer-events` alone is unreliable in WebViews). */
+  @HostBinding('class.video-feed--inactive')
+  get feedShellInactive(): boolean {
+    return this.feedTabInactive;
+  }
+
+  readonly posts$: Observable<PostVideo[]> = this.postsService.posts$.pipe(
+    map((posts: PostVideo[]) => (posts.length ? posts : this.getEmptyStatePosts()))
   );
 
   @ViewChildren('videoEl') videoEls!: ElementRef<HTMLVideoElement>[];
@@ -41,33 +49,28 @@ export class VideoFeedPage implements AfterViewInit, OnDestroy, ViewWillEnter, V
     private readonly toastCtrl: ToastController,
     private readonly router: Router
   ) {
-    this.syncFeedInactiveFromUrl(this.router.url);
-    this.routeSub = this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(() => this.syncFeedInactiveFromUrl(this.router.url));
+    this.syncFeedInactiveFromUrl();
+    /** Hash + NavigationEnd + hashchange — Router.url can lag `location.hash` on tab taps. */
+    this.routeSub = merge(
+      defer(() => of(undefined)),
+      this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)),
+      typeof window !== 'undefined' ? fromEvent(window, 'hashchange') : EMPTY
+    ).subscribe(() => this.syncFeedInactiveFromUrl());
   }
 
   ionViewWillEnter(): void {
-    this.syncFeedInactiveFromUrl(this.router.url);
+    this.syncFeedInactiveFromUrl();
+    queueMicrotask(() => this.setupIntersectionObserver());
   }
 
   ionViewWillLeave(): void {
     this.feedTabInactive = true;
   }
 
-  private syncFeedInactiveFromUrl(url: string): void {
-    const path = this.pathAfterHash(url);
-    // Inactive unless the active tab is really "feed" (hash or path routing).
-    const onFeedTab = /\/tabs\/feed(\/|$|\?)/.test(path) || path.endsWith('/tabs/feed');
+  private syncFeedInactiveFromUrl(): void {
+    const path = getTabsRoutePath(this.router.url);
+    const onFeedTab = /^\/tabs\/feed(\/|$)/.test(path);
     this.feedTabInactive = !onFeedTab;
-  }
-
-  private pathAfterHash(url: string): string {
-    const noQuery = url.split('?')[0] ?? url;
-    if (noQuery.includes('#')) {
-      return (noQuery.split('#').pop() ?? '').split('?')[0] ?? '';
-    }
-    return noQuery;
   }
 
   ngAfterViewInit(): void {

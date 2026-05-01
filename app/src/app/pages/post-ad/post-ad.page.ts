@@ -1,8 +1,9 @@
 import { Component, HostBinding, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
-import { filter, Subscription } from 'rxjs';
+import { ToastController, ViewWillEnter } from '@ionic/angular';
+import { defer, EMPTY, filter, fromEvent, merge, of, Subscription } from 'rxjs';
 import { PostsService } from '../../services/posts.service';
+import { getTabsRoutePath } from '../../utils/tab-route.util';
 
 @Component({
   selector: 'app-post-ad',
@@ -10,7 +11,7 @@ import { PostsService } from '../../services/posts.service';
   styleUrls: ['./post-ad.page.scss'],
   standalone: false,
 })
-export class PostAdPage implements OnDestroy {
+export class PostAdPage implements OnDestroy, ViewWillEnter {
   caption = '';
   selectedObjectUrl: string | null = null;
   durationSec: number | null = null;
@@ -20,6 +21,10 @@ export class PostAdPage implements OnDestroy {
   @HostBinding('style.z-index')
   hostZIndex = 1;
 
+  /** Ensure this tab shell accepts taps (feed overlay uses pointer-events: none when inactive). */
+  @HostBinding('style.pointer-events')
+  hostPointerEvents = 'auto';
+
   private routeSub?: Subscription;
 
   constructor(
@@ -27,28 +32,25 @@ export class PostAdPage implements OnDestroy {
     private readonly toastCtrl: ToastController,
     private readonly router: Router
   ) {
-    this.syncHostStack();
-    this.routeSub = this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(() => this.syncHostStack());
+    this.routeSub = merge(
+      defer(() => of(undefined)),
+      this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)),
+      typeof window !== 'undefined' ? fromEvent(window, 'hashchange') : EMPTY
+    ).subscribe(() => this.syncHostStack());
   }
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
   }
 
-  private syncHostStack(): void {
-    const path = this.pathAfterHash(this.router.url);
-    const onPost = path.includes('/tabs/post');
-    this.hostZIndex = onPost ? 50 : 1;
+  ionViewWillEnter(): void {
+    this.syncHostStack();
   }
 
-  private pathAfterHash(url: string): string {
-    const noQuery = url.split('?')[0] ?? url;
-    if (noQuery.includes('#')) {
-      return (noQuery.split('#').pop() ?? '').split('?')[0] ?? '';
-    }
-    return noQuery;
+  private syncHostStack(): void {
+    const path = getTabsRoutePath(this.router.url);
+    const onPost = /^\/tabs\/post(\/|$)/.test(path);
+    this.hostZIndex = onPost ? 50 : 1;
   }
 
   async onFileSelected(ev: Event) {
