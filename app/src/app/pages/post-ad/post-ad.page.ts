@@ -1,8 +1,9 @@
 import { Component, HostBinding, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { ToastController, ViewWillEnter } from '@ionic/angular';
+import { ToastController, ViewDidEnter, ViewWillEnter } from '@ionic/angular';
 import { defer, EMPTY, filter, fromEvent, merge, of, Subscription } from 'rxjs';
 import { PostsService } from '../../services/posts.service';
+import { TabShellSyncService } from '../../services/tab-shell-sync.service';
 import { getTabsRoutePath } from '../../utils/tab-route.util';
 
 @Component({
@@ -11,7 +12,7 @@ import { getTabsRoutePath } from '../../utils/tab-route.util';
   styleUrls: ['./post-ad.page.scss'],
   standalone: false,
 })
-export class PostAdPage implements OnDestroy, ViewWillEnter {
+export class PostAdPage implements OnDestroy, ViewWillEnter, ViewDidEnter {
   caption = '';
   selectedObjectUrl: string | null = null;
   durationSec: number | null = null;
@@ -30,7 +31,8 @@ export class PostAdPage implements OnDestroy, ViewWillEnter {
   constructor(
     private readonly postsService: PostsService,
     private readonly toastCtrl: ToastController,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly tabShellSync: TabShellSyncService
   ) {
     this.routeSub = merge(
       defer(() => of(undefined)),
@@ -45,6 +47,10 @@ export class PostAdPage implements OnDestroy, ViewWillEnter {
 
   ionViewWillEnter(): void {
     this.syncHostStack();
+  }
+
+  ionViewDidEnter(): void {
+    this.tabShellSync.scheduleSync();
   }
 
   private syncHostStack(): void {

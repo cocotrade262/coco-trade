@@ -1,8 +1,9 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, ViewChildren } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { ModalController, ToastController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import { ModalController, ToastController, ViewDidEnter, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { defer, EMPTY, filter, fromEvent, map, merge, Observable, of, Subscription } from 'rxjs';
 import { PostsService, PostVideo } from '../../services/posts.service';
+import { TabShellSyncService } from '../../services/tab-shell-sync.service';
 import { getTabsRoutePath } from '../../utils/tab-route.util';
 import { ContactSheetComponent } from './contact-sheet.component';
 
@@ -12,7 +13,7 @@ import { ContactSheetComponent } from './contact-sheet.component';
   styleUrls: ['./video-feed.page.scss'],
   standalone: false,
 })
-export class VideoFeedPage implements AfterViewInit, OnDestroy, ViewWillEnter, ViewWillLeave {
+export class VideoFeedPage implements AfterViewInit, OnDestroy, ViewWillEnter, ViewWillLeave, ViewDidEnter {
   /**
    * While another tab is active, this route can remain mounted (preload/tabs stack).
    * The 100vh reel layer must not capture taps meant for Post / Account.
@@ -47,7 +48,8 @@ export class VideoFeedPage implements AfterViewInit, OnDestroy, ViewWillEnter, V
     private readonly postsService: PostsService,
     private readonly modalCtrl: ModalController,
     private readonly toastCtrl: ToastController,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly tabShellSync: TabShellSyncService
   ) {
     this.syncFeedInactiveFromUrl();
     /** Hash + NavigationEnd + hashchange — Router.url can lag `location.hash` on tab taps. */
@@ -60,6 +62,11 @@ export class VideoFeedPage implements AfterViewInit, OnDestroy, ViewWillEnter, V
 
   ionViewWillEnter(): void {
     this.syncFeedInactiveFromUrl();
+    queueMicrotask(() => this.setupIntersectionObserver());
+  }
+
+  ionViewDidEnter(): void {
+    this.tabShellSync.scheduleSync();
     queueMicrotask(() => this.setupIntersectionObserver());
   }
 

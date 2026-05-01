@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ViewDidEnter } from '@ionic/angular';
+import { TabShellSyncService } from '../../services/tab-shell-sync.service';
 
 @Component({
   selector: 'app-account',
@@ -6,11 +8,12 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./account.page.scss'],
   standalone: false,
 })
-export class AccountPage implements OnInit {
+export class AccountPage implements OnInit, ViewDidEnter {
+  constructor(private readonly tabShellSync: TabShellSyncService) {}
 
-  constructor() { }
+  ngOnInit() {}
 
-  ngOnInit() {
+  ionViewDidEnter(): void {
+    this.tabShellSync.scheduleSync();
   }
-
 }
