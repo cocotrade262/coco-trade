@@ -44,3 +44,29 @@ ion-page.ion-page-hidden,
 ion-page.ion-page-invisible {
   pointer-events: none !important;
 }
+
+/**
+ * Post tab: fill the tab stack height so ion-content gets a bounded scroll area.
+ * Without this, nested flex + full-viewport Feed siblings can leave Post's scroll
+ * region with wrong height (one giant flex child, clipped siblings).
+ */
+app-post-ad {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+app-post-ad ion-content.postPage {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+/**
+ * Feed tab stays mounted under ion-router-outlet; hide it fully when inactive so
+ * it cannot affect stacking or sizing of the active tab.
+ */
+ion-tabs ion-router-outlet ion-page.ion-page-hidden .reels,
+ion-tabs ion-router-outlet ion-page.ion-page-invisible .reels {
+  display: none !important;
+}

@@ -5,47 +5,60 @@
 </ion-header>
 
 <ion-content [fullscreen]="false" class="ion-padding postPage">
-  <!-- Plain divs — ion-card/ion-card-content can flex-stretch children on mobile and trap touches -->
   <div class="postAdCard">
     <h2 class="postAdCard__title">Choose or record a video</h2>
     <p class="postAdCard__subtitle">Minimum duration: 30 seconds</p>
 
-    <div class="pickRow" [class.pickRow--disabled]="busy">
-      <input
-        type="file"
-        accept="video/*"
-        capture="environment"
-        class="pickRow__input"
-        [disabled]="busy"
-        (change)="onFileSelected($event)"
-        aria-label="Record video with camera"
-      />
-      <div class="pickRow__face" aria-hidden="true">
-        <span class="pickRow__title">Record video (camera)</span>
-        <span class="pickRow__sub">Opens camera when supported</span>
-      </div>
-    </div>
+    <input
+      #cameraInput
+      type="file"
+      accept="video/*"
+      capture="environment"
+      class="postAd-fileInput"
+      [disabled]="busy"
+      (change)="onFileSelected($event)"
+      aria-label="Record video with camera"
+      tabindex="-1"
+    />
 
-    <div class="pickRow" [class.pickRow--disabled]="busy">
-      <input
-        type="file"
-        accept="video/*"
-        class="pickRow__input"
-        [disabled]="busy"
-        (change)="onFileSelected($event)"
-        aria-label="Select video file from device"
-      />
-      <div class="pickRow__face" aria-hidden="true">
-        <span class="pickRow__title">Select video file</span>
-        <span class="pickRow__sub">Pick from your device / laptop</span>
-      </div>
-    </div>
+    <button
+      type="button"
+      class="postAd-btn postAd-btn--primary"
+      [disabled]="busy"
+      (click)="cameraInput.click()"
+    >
+      <span class="postAd-btn__stack">
+        <span class="postAd-btn__title">Record video (camera)</span>
+        <span class="postAd-btn__sub">Opens camera when supported</span>
+      </span>
+    </button>
+
+    <input
+      #fileInput
+      type="file"
+      accept="video/*"
+      class="postAd-fileInput"
+      [disabled]="busy"
+      (change)="onFileSelected($event)"
+      aria-label="Select video file from device"
+      tabindex="-1"
+    />
+
+    <button
+      type="button"
+      class="postAd-btn postAd-btn--primary"
+      [disabled]="busy"
+      (click)="fileInput.click()"
+    >
+      <span class="postAd-btn__stack">
+        <span class="postAd-btn__title">Select video file</span>
+        <span class="postAd-btn__sub">Pick from your device / laptop</span>
+      </span>
+    </button>
 
     <div class="preview" *ngIf="selectedObjectUrl">
       <video class="preview__video" [src]="selectedObjectUrl" controls playsinline></video>
-      <div class="preview__meta">
-        Duration: {{ durationSec | number: '1.0-0' }}s
-      </div>
+      <div class="preview__meta">Duration: {{ durationSec | number: '1.0-0' }}s</div>
     </div>
 
     <div class="caption-field">
@@ -61,14 +74,13 @@
       ></ion-textarea>
     </div>
 
-    <ion-button
+    <button
       type="button"
-      color="success"
-      expand="block"
+      class="postAd-btn postAd-btn--success"
       (click)="publish()"
       [disabled]="busy || !selectedObjectUrl || (durationSec ?? 0) < 30"
     >
       Post to feed
-    </ion-button>
+    </button>
   </div>
 </ion-content>
