@@ -1,24 +1,41 @@
-<ion-tabs>
+<!--
+  Plain flex shell instead of ion-tabs: ion-tabs + slot layout often leaves a huge empty band
+  above tab content on Android WebView when the main slot isn’t ion-router-outlet.
+-->
+<div class="tabsShell">
   <div class="tabs-outlet">
     <app-video-feed *ngIf="activeTab === 'feed'"></app-video-feed>
     <app-post-ad *ngIf="activeTab === 'post'"></app-post-ad>
     <app-account *ngIf="activeTab === 'account'"></app-account>
   </div>
 
-  <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="feed" [routerLink]="['/tabs/feed']">
-      <ion-icon name="play-circle-outline"></ion-icon>
-      <ion-label>Feed</ion-label>
-    </ion-tab-button>
-
-    <ion-tab-button tab="post" [routerLink]="['/tabs/post']">
-      <ion-icon name="add-circle-outline"></ion-icon>
-      <ion-label>Post</ion-label>
-    </ion-tab-button>
-
-    <ion-tab-button tab="account" [routerLink]="['/tabs/account']">
-      <ion-icon name="person-circle-outline"></ion-icon>
-      <ion-label>Account</ion-label>
-    </ion-tab-button>
-  </ion-tab-bar>
-</ion-tabs>
+  <nav class="customTabBar" role="navigation" aria-label="Main navigation">
+    <a
+      class="customTabBar__link"
+      [routerLink]="['/tabs', 'feed']"
+      routerLinkActive="customTabBar__link--active"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <ion-icon name="play-circle-outline" aria-hidden="true"></ion-icon>
+      <span class="customTabBar__label">Feed</span>
+    </a>
+    <a
+      class="customTabBar__link"
+      [routerLink]="['/tabs', 'post']"
+      routerLinkActive="customTabBar__link--active"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <ion-icon name="add-circle-outline" aria-hidden="true"></ion-icon>
+      <span class="customTabBar__label">Post</span>
+    </a>
+    <a
+      class="customTabBar__link"
+      [routerLink]="['/tabs', 'account']"
+      routerLinkActive="customTabBar__link--active"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+      <span class="customTabBar__label">Account</span>
+    </a>
+  </nav>
+</div>

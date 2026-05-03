@@ -36,6 +36,16 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
 
+/* Routed shell fills the viewport so tab bodies don’t “float” with gaps above. */
+html,
+body {
+  height: 100%;
+}
+
+ion-app {
+  height: 100%;
+}
+
 /**
  * Inactive tab routes stay in the DOM under ion-router-outlet. Full-viewport pages
  * (e.g. 100vh video feed) can still sit above the active tab and eat all touches.
@@ -66,40 +76,33 @@ body[data-active-tab="post"] app-post-ad ion-textarea {
   pointer-events: auto !important;
 }
 
-/* Tabs stack: active page must paint above hidden stacked siblings so taps hit Post / Account. */
-ion-tabs ion-router-outlet ion-page:not(.ion-page-hidden):not(.ion-page-invisible) {
-  z-index: 100 !important;
-}
-
-ion-tabs ion-router-outlet ion-page.ion-page-hidden,
-ion-tabs ion-router-outlet ion-page.ion-page-invisible {
-  z-index: 0 !important;
+/**
+ * Tabs shell: stretch inside `ion-page` so content starts under the status bar,
+ * not vertically centered with empty space above.
+ */
+ion-router-outlet ion-page app-tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
 }
 
 /**
- * Post tab: fill the tab stack height so ion-content gets a bounded scroll area.
- * Without this, nested flex + full-viewport Feed siblings can leave Post's scroll
- * region with wrong height (one giant flex child, clipped siblings).
+ * Post tab: bounded scroll area below header.
  */
 app-post-ad {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   height: 100%;
   box-sizing: border-box;
 }
 
-app-post-ad ion-content.postPage {
+app-post-ad .postAdScroll {
   flex: 1 1 0;
   min-height: 0;
-}
-
-/**
- * Feed tab stays mounted under ion-router-outlet; hide it fully when inactive so
- * it cannot affect stacking or sizing of the active tab.
- */
-ion-tabs ion-router-outlet ion-page.ion-page-hidden .reels,
-ion-tabs ion-router-outlet ion-page.ion-page-invisible .reels {
-  display: none !important;
 }
 
 /* app.component.ts sets body[data-active-tab] from location.hash (authoritative for useHash). */
@@ -122,15 +125,19 @@ body[data-active-tab="account"] ion-page:has(app-video-feed) {
   visibility: hidden !important;
 }
 
+/**
+ * Do not set `position: relative` on `ion-page` — Ionic uses absolute inset fill here.
+ * Forcing relative broke the Post layout (large empty band above the toolbar, phantom scroll).
+ * Tab stacking is resolved via embedded tabs + *ngIf; z-index is harmless on absolute pages.
+ */
 body[data-active-tab="post"] ion-page:has(app-post-ad),
 body[data-active-tab="account"] ion-page:has(app-account) {
-  position: relative !important;
   z-index: 2147483646 !important;
   pointer-events: auto !important;
 }
 
 body[data-active-tab="post"] app-post-ad,
-body[data-active-tab="post"] app-post-ad ion-content.postPage {
+body[data-active-tab="post"] app-post-ad .postAdScroll {
   pointer-events: auto !important;
   touch-action: manipulation !important;
 }

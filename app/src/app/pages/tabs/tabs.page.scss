@@ -1,5 +1,21 @@
-ion-tab-bar {
-  --border: 0;
+/**
+ * Fill `ion-page` so tab bodies anchor to the top (no band above content).
+ */
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.tabsShell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
 }
 
 .tabs-outlet {
@@ -8,12 +24,58 @@ ion-tab-bar {
   width: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
 
   > * {
-    flex: 1;
+    flex: 1 1 0;
     min-height: 0;
     display: flex;
     flex-direction: column;
+    align-self: stretch;
   }
 }
 
+.customTabBar {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: stretch;
+  width: 100%;
+  min-height: 52px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--ion-toolbar-background, var(--ion-background-color, #fff));
+  border-top: 1px solid rgba(var(--ion-color-medium-rgb, 130, 130, 130), 0.22);
+  box-sizing: border-box;
+}
+
+.customTabBar__link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 6px;
+  min-height: 48px;
+  text-decoration: none;
+  color: var(--ion-color-medium, #666);
+  font-size: 0.75rem;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.customTabBar__link--active {
+  color: var(--ion-color-primary, #3880ff);
+}
+
+.customTabBar__link ion-icon {
+  font-size: 26px;
+}
+
+.customTabBar__label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.1;
+}
