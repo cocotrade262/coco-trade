@@ -4,17 +4,11 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { PostAdPageRoutingModule } from './post-ad-routing.module';
-
 import { PostAdPage } from './post-ad.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    PostAdPageRoutingModule
-  ],
-  declarations: [PostAdPage]
+  imports: [CommonModule, FormsModule, IonicModule],
+  declarations: [PostAdPage],
+  exports: [PostAdPage],
 })
 export class PostAdPageModule {}

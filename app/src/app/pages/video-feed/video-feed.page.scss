@@ -2,11 +2,6 @@
   --background: #000;
 }
 
-/* Tab inactive — shell removed from hit-testing (see video-feed.page.ts HostBinding) */
-:host.video-feed--inactive {
-  display: none !important;
-}
-
 .reels__list {
   height: 100%;
   overflow-y: auto;

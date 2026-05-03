@@ -1,5 +1,9 @@
 <ion-tabs>
-  <ion-router-outlet></ion-router-outlet>
+  <div class="tabs-outlet">
+    <app-video-feed *ngIf="activeTab === 'feed'"></app-video-feed>
+    <app-post-ad *ngIf="activeTab === 'post'"></app-post-ad>
+    <app-account *ngIf="activeTab === 'account'"></app-account>
+  </div>
 
   <ion-tab-bar slot="bottom">
     <ion-tab-button tab="feed" [routerLink]="['/tabs/feed']">

@@ -2,28 +2,16 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { TabsPage } from './tabs.page';
 
+/**
+ * One routed shell + `:tab` param. Tab bodies are embedded in `tabs.page.html` (*ngIf),
+ * not lazy-loaded as sibling ion-router-outlet routes — that stack left invisible ion-pages
+ * on Android WebView and swallowed taps above the tab bar.
+ */
 const routes: Routes = [
+  { path: '', redirectTo: 'feed', pathMatch: 'full' },
   {
-    path: '',
+    path: ':tab',
     component: TabsPage,
-    children: [
-      {
-        path: 'feed',
-        loadChildren: () =>
-          import('../video-feed/video-feed.module').then((m) => m.VideoFeedPageModule),
-      },
-      {
-        path: 'post',
-        loadChildren: () =>
-          import('../post-ad/post-ad.module').then((m) => m.PostAdPageModule),
-      },
-      {
-        path: 'account',
-        loadChildren: () =>
-          import('../account/account.module').then((m) => m.AccountPageModule),
-      },
-      { path: '', redirectTo: 'feed', pathMatch: 'full' },
-    ],
   },
 ];
 

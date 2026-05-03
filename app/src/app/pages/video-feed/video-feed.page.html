@@ -1,6 +1,4 @@
-<!-- When another tab is active, render nothing so the Feed cannot cover Post/Account (full-viewport reel). -->
-<ng-container *ngIf="!feedTabInactive">
-  <ion-content class="reels">
+<ion-content class="reels">
     <div class="reels__list">
       <div class="reels__item" *ngFor="let post of posts$ | async; trackBy: trackById">
         <ng-container *ngIf="post.objectUrl; else emptyState">
@@ -53,5 +51,4 @@
         </ng-template>
       </div>
     </div>
-  </ion-content>
-</ng-container>
+</ion-content>
