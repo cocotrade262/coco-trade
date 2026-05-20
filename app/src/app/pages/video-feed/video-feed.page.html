@@ -15,7 +15,8 @@
 
           <div class="reels__overlay">
             <div class="reels__meta">
-              <div class="reels__title">Coconut seller video</div>
+              <div class="reels__title">{{ post.name || 'Coconut seller video' }}</div>
+              <div class="reels__caption" *ngIf="post.caption">{{ post.caption }}</div>
               <div class="reels__sub">Duration: {{ post.durationSec | number: '1.0-0' }}s</div>
             </div>
 
@@ -25,7 +26,7 @@
                 <div class="reels__actionText">{{ post.likes }}</div>
               </button>
 
-              <button class="reels__actionBtn" type="button" (click)="openContact(post)" aria-label="Add contact">
+              <button class="reels__actionBtn" type="button" (click)="openContact(post)" aria-label="Contact details">
                 <ion-icon name="call-outline"></ion-icon>
                 <div class="reels__actionText">Contact</div>
               </button>
