@@ -1,31 +1,64 @@
-.contactFields {
+.coco-sheet {
+  --background: var(--ion-background-color);
+}
+
+.contact-info-list {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: center;
   gap: 16px;
+  padding: 12px;
+  background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.04);
+  border-radius: 16px;
 }
 
-.contact-field__label {
-  display: block;
-  font-size: 0.875rem;
+.contact-info-item ion-icon {
+  font-size: 24px;
+  color: var(--ion-color-primary);
+  flex-shrink: 0;
+}
+
+.contact-info-item__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-info-item__content label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ion-color-medium);
+  margin-bottom: 2px;
+}
+
+.contact-info-item__content input {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font-size: 1.05rem;
   font-weight: 500;
-  margin-bottom: 8px;
-  color: var(--ion-text-color-step-650, var(--ion-color-medium-shade));
-}
-
-.contact-field__input {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 48px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.22);
-  background: var(--ion-background-color);
   color: var(--ion-text-color);
-  font: inherit;
-  font-size: 1rem;
+  width: 100%;
 }
 
-.saveBtn {
-  margin-top: 16px;
+.contact-info-item__content input:focus {
+  outline: none;
 }
 
+.coco-sheet__actions {
+  margin-top: 24px;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.coco-save-btn {
+  --border-radius: 24px;
+  font-weight: 600;
+}

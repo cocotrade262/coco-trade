@@ -7,59 +7,45 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <div class="contactFields">
-    <div class="contact-field">
-      <label class="contact-field__label" for="contactName">Name</label>
-      <input
-        id="contactName"
-        class="contact-field__input"
-        type="text"
-        [(ngModel)]="name"
-        placeholder="Seller name"
-        autocomplete="name"
-      />
+<ion-content class="ion-padding coco-sheet">
+  <div class="contact-info-list">
+    <div class="contact-info-item">
+      <ion-icon name="person-outline"></ion-icon>
+      <div class="contact-info-item__content">
+        <label>Seller Name</label>
+        <input type="text" [(ngModel)]="name" placeholder="Name" />
+      </div>
     </div>
 
-    <div class="contact-field">
-      <label class="contact-field__label" for="contactMobile">Mobile</label>
-      <input
-        id="contactMobile"
-        class="contact-field__input"
-        type="tel"
-        [(ngModel)]="mobile"
-        placeholder="Mobile number"
-        inputmode="tel"
-        autocomplete="tel"
-      />
+    <div class="contact-info-item">
+      <ion-icon name="call-outline"></ion-icon>
+      <div class="contact-info-item__content">
+        <label>Mobile Number</label>
+        <input type="tel" [(ngModel)]="mobile" placeholder="Mobile" />
+      </div>
     </div>
 
-    <div class="contact-field">
-      <label class="contact-field__label" for="contactPlace">Area</label>
-      <input
-        id="contactPlace"
-        class="contact-field__input"
-        type="text"
-        [(ngModel)]="place"
-        placeholder="Village / Town"
-        autocomplete="address-level2"
-      />
+    <div class="contact-info-item">
+      <ion-icon name="location-outline"></ion-icon>
+      <div class="contact-info-item__content">
+        <label>Area / Place</label>
+        <input type="text" [(ngModel)]="place" placeholder="Location" />
+      </div>
     </div>
 
-    <div class="contact-field">
-      <label class="contact-field__label" for="contactCost">Cost</label>
-      <input
-        id="contactCost"
-        class="contact-field__input"
-        type="text"
-        [(ngModel)]="cost"
-        placeholder="Price/Rate"
-      />
+    <div class="contact-info-item">
+      <ion-icon name="cash-outline"></ion-icon>
+      <div class="contact-info-item__content">
+        <label>Expected Cost</label>
+        <input type="text" [(ngModel)]="cost" placeholder="Cost" />
+      </div>
     </div>
   </div>
 
-  <ion-button expand="block" color="success" class="saveBtn" (click)="save()">
-    Update Details
-  </ion-button>
+  <div class="coco-sheet__actions">
+    <ion-button expand="block" color="success" shape="round" class="coco-save-btn" (click)="save()">
+      Update Details
+    </ion-button>
+  </div>
 </ion-content>
 

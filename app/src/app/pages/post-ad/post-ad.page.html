@@ -68,38 +68,59 @@
       </div>
 
       <div class="post-fields">
-        <ion-item lines="none" class="post-field">
-          <ion-label position="stacked">Name</ion-label>
-          <ion-input type="text" [(ngModel)]="name" placeholder="Your name"></ion-input>
-        </ion-item>
-
-        <ion-item lines="none" class="post-field">
-          <ion-label position="stacked">Area</ion-label>
-          <ion-input type="text" [(ngModel)]="area" placeholder="Village / Town"></ion-input>
-        </ion-item>
-
-        <ion-item lines="none" class="post-field">
-          <ion-label position="stacked">Mobile Number</ion-label>
-          <ion-input type="tel" [(ngModel)]="mobile" placeholder="Mobile number"></ion-input>
-        </ion-item>
-
-        <ion-item lines="none" class="post-field">
-          <ion-label position="stacked">Cost</ion-label>
-          <ion-input type="text" [(ngModel)]="cost" placeholder="Price/Rate"></ion-input>
-        </ion-item>
-
-        <ion-item lines="none" class="caption-field">
-          <ion-label position="stacked">Caption (optional)</ion-label>
-          <ion-textarea
-            class="caption-field__input"
+        <div class="coco-field">
+          <label class="coco-field__label">Caption</label>
+          <input
+            type="text"
+            class="coco-field__input"
             [(ngModel)]="caption"
-            [rows]="4"
-            placeholder="Ex: Fresh coconuts available in my area"
-            autocapitalize="sentences"
-            enterkeyhint="done"
-            aria-label="Caption (optional)"
-          ></ion-textarea>
-        </ion-item>
+            placeholder="Short description"
+          />
+        </div>
+
+        <div class="coco-row">
+          <div class="coco-field">
+            <label class="coco-field__label">Name</label>
+            <input
+              type="text"
+              class="coco-field__input"
+              [(ngModel)]="name"
+              placeholder="Your name"
+            />
+          </div>
+
+          <div class="coco-field">
+            <label class="coco-field__label">Area</label>
+            <input
+              type="text"
+              class="coco-field__input"
+              [(ngModel)]="area"
+              placeholder="Village / Town"
+            />
+          </div>
+        </div>
+
+        <div class="coco-row">
+          <div class="coco-field">
+            <label class="coco-field__label">Mobile</label>
+            <input
+              type="tel"
+              class="coco-field__input"
+              [(ngModel)]="mobile"
+              placeholder="Mobile number"
+            />
+          </div>
+
+          <div class="coco-field">
+            <label class="coco-field__label">Cost</label>
+            <input
+              type="text"
+              class="coco-field__input"
+              [(ngModel)]="cost"
+              placeholder="Price/Rate"
+            />
+          </div>
+        </div>
       </div>
 
       <button
