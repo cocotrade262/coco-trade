@@ -85,17 +85,23 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
       breakpoints: [0, 0.5, 0.75, 0.95],
       initialBreakpoint: 0.75,
       componentProps: {
-        initialName: post.contact?.name ?? '',
-        initialMobile: post.contact?.mobile ?? '',
-        initialPlace: post.contact?.place ?? '',
+        initialName: post.name || post.contact?.name || '',
+        initialMobile: post.mobile || post.contact?.mobile || '',
+        initialPlace: post.area || post.contact?.place || '',
+        initialCost: post.cost || '',
       },
     });
 
     await modal.present();
-    const res = await modal.onDidDismiss<{ name: string; mobile: string; place: string }>();
+    const res = await modal.onDidDismiss<{ name: string; mobile: string; place: string; cost: string }>();
     if (res.role === 'save' && res.data) {
-      this.postsService.setContact(post.id, res.data);
-      await this.toast('Contact saved.');
+      this.postsService.updatePostDetails(post.id, {
+        name: res.data.name,
+        mobile: res.data.mobile,
+        area: res.data.place,
+        cost: res.data.cost,
+      });
+      await this.toast('Details updated.');
     }
   }
 

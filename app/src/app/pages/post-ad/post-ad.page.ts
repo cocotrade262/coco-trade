@@ -11,6 +11,10 @@ import { TabShellSyncService } from '../../services/tab-shell-sync.service';
 })
 export class PostAdPage implements OnInit {
   caption = '';
+  name = '';
+  area = '';
+  mobile = '';
+  cost = '';
   selectedObjectUrl: string | null = null;
   durationSec: number | null = null;
   busy = false;
@@ -52,12 +56,6 @@ export class PostAdPage implements OnInit {
         return;
       }
 
-      if (duration < 30) {
-        URL.revokeObjectURL(objectUrl);
-        await this.toast('Minimum video duration is 30 seconds.');
-        return;
-      }
-
       this.selectedObjectUrl = objectUrl;
       this.durationSec = duration;
     } finally {
@@ -67,10 +65,33 @@ export class PostAdPage implements OnInit {
 
   async publish() {
     if (!this.selectedObjectUrl || !this.durationSec) return;
-    this.postsService.addVideoPost({ objectUrl: this.selectedObjectUrl, durationSec: this.durationSec });
+
+    let finalUrl = this.selectedObjectUrl;
+    let finalDuration = this.durationSec;
+
+    if (this.durationSec > 30) {
+      finalUrl += '#t=0,30';
+      finalDuration = 30;
+    }
+
+    this.postsService.addVideoPost({
+      objectUrl: finalUrl,
+      durationSec: finalDuration,
+      caption: this.caption,
+      name: this.name,
+      area: this.area,
+      mobile: this.mobile,
+      cost: this.cost,
+    });
+
     this.selectedObjectUrl = null;
     this.durationSec = null;
     this.caption = '';
+    this.name = '';
+    this.area = '';
+    this.mobile = '';
+    this.cost = '';
+
     await this.toast('Posted to feed.');
   }
 

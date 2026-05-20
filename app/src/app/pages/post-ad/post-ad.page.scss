@@ -238,6 +238,24 @@
   opacity: 0.8;
 }
 
+.trim-badge {
+  color: var(--ion-color-warning, #ffc409);
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.post-fields {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.post-field {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
 .caption-field {
   --padding-start: 0;
   --padding-end: 0;

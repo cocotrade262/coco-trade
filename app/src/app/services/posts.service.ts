@@ -11,6 +11,11 @@ export type PostVideo = {
   objectUrl: string;
   likes: number;
   commentsCount: number;
+  caption?: string;
+  name?: string;
+  mobile?: string;
+  area?: string;
+  cost?: string;
   contact?: {
     name: string;
     mobile: string;
@@ -23,7 +28,15 @@ export class PostsService {
   private readonly _posts$ = new BehaviorSubject<PostVideo[]>([]);
   readonly posts$ = this._posts$.asObservable();
 
-  addVideoPost(params: { objectUrl: string; durationSec: number }) {
+  addVideoPost(params: {
+    objectUrl: string;
+    durationSec: number;
+    caption?: string;
+    name?: string;
+    mobile?: string;
+    area?: string;
+    cost?: string;
+  }) {
     const post: PostVideo = {
       id: crypto.randomUUID(),
       createdAt: Date.now(),
@@ -31,6 +44,11 @@ export class PostsService {
       objectUrl: params.objectUrl,
       likes: 0,
       commentsCount: 0,
+      caption: params.caption,
+      name: params.name,
+      mobile: params.mobile,
+      area: params.area,
+      cost: params.cost,
     };
     this._posts$.next([post, ...this._posts$.value]);
     return post;
@@ -40,6 +58,14 @@ export class PostsService {
     const next = this._posts$.value.map((p) =>
       p.id === postId ? { ...p, likes: Math.max(0, p.likes + 1) } : p
     );
+    this._posts$.next(next);
+  }
+
+  updatePostDetails(
+    postId: string,
+    details: { name?: string; mobile?: string; area?: string; cost?: string }
+  ) {
+    const next = this._posts$.value.map((p) => (p.id === postId ? { ...p, ...details } : p));
     this._posts$.next(next);
   }
 
