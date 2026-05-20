@@ -72,11 +72,6 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
     return post.id;
   }
 
-  like(post: PostVideo) {
-    if (post.id === 'empty') return;
-    this.postsService.toggleLike(post.id);
-  }
-
   async openContact(post: PostVideo) {
     if (post.id === 'empty') return;
 

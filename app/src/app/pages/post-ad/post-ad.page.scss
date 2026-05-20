@@ -29,14 +29,14 @@
 }
 
 .postAdScreenHeader {
-  margin: 0 0 12px;
+  margin: 16px 0 12px;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(var(--ion-color-medium-rgb, 100, 100, 100), 0.2);
 }
 
 .postAdScreenHeader__title {
-  font-size: 1.06rem;
+  font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
   line-height: 1.3;
@@ -245,36 +245,46 @@
 }
 
 .post-fields {
-  margin-top: 20px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
-.post-field {
-  --padding-start: 0;
-  --inner-padding-end: 0;
-}
-
-.caption-field {
-  --padding-start: 0;
-  --padding-end: 0;
-  --inner-padding-end: 0;
-  --inner-padding-start: 0;
-  --background: transparent;
-  position: relative;
-  z-index: 5;
-  margin-top: 16px;
-}
-
-.caption-field__input {
-  --padding-top: 12px;
-  --padding-end: 12px;
-  --padding-bottom: 12px;
-  --padding-start: 12px;
+.coco-row {
+  display: flex;
+  gap: 12px;
   width: 100%;
-  min-height: 120px;
+}
+
+.coco-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.coco-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ion-text-color);
+}
+
+.coco-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.14);
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
+  font: inherit;
   font-size: 1rem;
-  line-height: 1.45;
-  pointer-events: auto;
+}
+
+.coco-input:focus {
+  outline: none;
+  border-color: var(--ion-color-primary, #3880ff);
 }

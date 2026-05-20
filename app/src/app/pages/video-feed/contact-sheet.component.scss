@@ -1,28 +1,45 @@
 .contactFields {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
-.contact-field__label {
+.coco-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.coco-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.coco-label {
   display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 8px;
-  color: var(--ion-text-color-step-650, var(--ion-color-medium-shade));
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ion-text-color);
 }
 
-.contact-field__input {
+.coco-input {
   width: 100%;
   box-sizing: border-box;
-  min-height: 48px;
-  padding: 12px 14px;
+  min-height: 44px;
+  padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.22);
+  border: 1px solid rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.14);
   background: var(--ion-background-color);
   color: var(--ion-text-color);
   font: inherit;
   font-size: 1rem;
+}
+
+.coco-input:focus {
+  outline: none;
+  border-color: var(--ion-color-primary, #3880ff);
 }
 
 .saveBtn {

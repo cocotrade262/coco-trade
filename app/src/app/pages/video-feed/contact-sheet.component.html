@@ -9,52 +9,56 @@
 
 <ion-content class="ion-padding">
   <div class="contactFields">
-    <div class="contact-field">
-      <label class="contact-field__label" for="contactName">Name</label>
-      <input
-        id="contactName"
-        class="contact-field__input"
-        type="text"
-        [(ngModel)]="name"
-        placeholder="Seller name"
-        autocomplete="name"
-      />
+    <div class="coco-row">
+      <div class="coco-field">
+        <label class="coco-label" for="contactName">Name</label>
+        <input
+          id="contactName"
+          class="coco-input"
+          type="text"
+          [(ngModel)]="name"
+          placeholder="Seller name"
+          autocomplete="name"
+        />
+      </div>
+
+      <div class="coco-field">
+        <label class="coco-label" for="contactMobile">Mobile</label>
+        <input
+          id="contactMobile"
+          class="coco-input"
+          type="tel"
+          [(ngModel)]="mobile"
+          placeholder="Mobile number"
+          inputmode="tel"
+          autocomplete="tel"
+        />
+      </div>
     </div>
 
-    <div class="contact-field">
-      <label class="contact-field__label" for="contactMobile">Mobile</label>
-      <input
-        id="contactMobile"
-        class="contact-field__input"
-        type="tel"
-        [(ngModel)]="mobile"
-        placeholder="Mobile number"
-        inputmode="tel"
-        autocomplete="tel"
-      />
-    </div>
+    <div class="coco-row">
+      <div class="coco-field">
+        <label class="coco-label" for="contactPlace">Area</label>
+        <input
+          id="contactPlace"
+          class="coco-input"
+          type="text"
+          [(ngModel)]="place"
+          placeholder="Village / Town"
+          autocomplete="address-level2"
+        />
+      </div>
 
-    <div class="contact-field">
-      <label class="contact-field__label" for="contactPlace">Area</label>
-      <input
-        id="contactPlace"
-        class="contact-field__input"
-        type="text"
-        [(ngModel)]="place"
-        placeholder="Village / Town"
-        autocomplete="address-level2"
-      />
-    </div>
-
-    <div class="contact-field">
-      <label class="contact-field__label" for="contactCost">Cost</label>
-      <input
-        id="contactCost"
-        class="contact-field__input"
-        type="text"
-        [(ngModel)]="cost"
-        placeholder="Price/Rate"
-      />
+      <div class="coco-field">
+        <label class="coco-label" for="contactCost">Cost</label>
+        <input
+          id="contactCost"
+          class="coco-input"
+          type="text"
+          [(ngModel)]="cost"
+          placeholder="Price/Rate"
+        />
+      </div>
     </div>
   </div>
 
