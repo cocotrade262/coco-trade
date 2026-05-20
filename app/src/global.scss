@@ -142,3 +142,43 @@ body[data-active-tab="post"] app-post-ad .postAdScroll {
   touch-action: manipulation !important;
 }
 
+/**
+ * Shared CocoTrade form components
+ */
+.coco-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.coco-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.coco-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ion-text-color);
+}
+
+.coco-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.14);
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.coco-input:focus {
+  outline: none;
+  border-color: var(--ion-color-primary, #3880ff);
+}
