@@ -4,7 +4,7 @@ name: Deploy Ionic App to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - feature/video-post-trimming-and-details-4003348517881803566
 
 permissions:
   contents: read
