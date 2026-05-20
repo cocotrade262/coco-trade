@@ -6,6 +6,14 @@
   <div class="postAdInner">
     <header class="postAdScreenHeader">
       <h1 class="postAdScreenHeader__title">Post coconut video</h1>
+      <button
+        type="button"
+        class="postAd-btn postAd-btn--success postAd-headerBtn"
+        (click)="publish()"
+        [disabled]="busy || !selectedObjectUrl"
+      >
+        Post to feed
+      </button>
     </header>
 
     <div class="postAdCard">
@@ -104,14 +112,6 @@
         </div>
       </div>
 
-      <button
-        type="button"
-        class="postAd-btn postAd-btn--success"
-        (click)="publish()"
-        [disabled]="busy || !selectedObjectUrl"
-      >
-        Post to feed
-      </button>
     </div>
   </div>
 </div>
