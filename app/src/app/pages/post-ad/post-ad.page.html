@@ -10,7 +10,7 @@
 
     <div class="postAdCard">
       <h2 class="postAdCard__title">Choose or record a video</h2>
-      <p class="postAdCard__subtitle">Minimum duration: 30 seconds</p>
+      <p class="postAdCard__subtitle">Videos longer than 30 seconds will be trimmed.</p>
 
       <input
         #cameraInput
@@ -61,27 +61,73 @@
 
       <div class="preview" *ngIf="selectedObjectUrl">
         <video class="preview__video" [src]="selectedObjectUrl" controls playsinline></video>
-        <div class="preview__meta">Duration: {{ durationSec | number: '1.0-0' }}s</div>
+        <div class="preview__meta">
+          Duration: {{ durationSec | number: '1.0-0' }}s
+          <span *ngIf="(durationSec ?? 0) > 30" class="trim-badge">(will be trimmed to 30s)</span>
+        </div>
       </div>
 
-      <ion-item lines="none" class="caption-field">
-        <ion-label position="stacked">Caption (optional)</ion-label>
-        <ion-textarea
-          class="caption-field__input"
-          [(ngModel)]="caption"
-          [rows]="4"
-          placeholder="Ex: Fresh coconuts available in my area"
-          autocapitalize="sentences"
-          enterkeyhint="done"
-          aria-label="Caption (optional)"
-        ></ion-textarea>
-      </ion-item>
+      <div class="post-fields">
+        <div class="coco-field">
+          <label class="coco-field__label">Caption</label>
+          <input
+            type="text"
+            class="coco-field__input"
+            [(ngModel)]="caption"
+            placeholder="Short description"
+          />
+        </div>
+
+        <div class="coco-row">
+          <div class="coco-field">
+            <label class="coco-field__label">Name</label>
+            <input
+              type="text"
+              class="coco-field__input"
+              [(ngModel)]="name"
+              placeholder="Your name"
+            />
+          </div>
+
+          <div class="coco-field">
+            <label class="coco-field__label">Area</label>
+            <input
+              type="text"
+              class="coco-field__input"
+              [(ngModel)]="area"
+              placeholder="Village / Town"
+            />
+          </div>
+        </div>
+
+        <div class="coco-row">
+          <div class="coco-field">
+            <label class="coco-field__label">Mobile</label>
+            <input
+              type="tel"
+              class="coco-field__input"
+              [(ngModel)]="mobile"
+              placeholder="Mobile number"
+            />
+          </div>
+
+          <div class="coco-field">
+            <label class="coco-field__label">Cost</label>
+            <input
+              type="text"
+              class="coco-field__input"
+              [(ngModel)]="cost"
+              placeholder="Price/Rate"
+            />
+          </div>
+        </div>
+      </div>
 
       <button
         type="button"
         class="postAd-btn postAd-btn--success"
         (click)="publish()"
-        [disabled]="busy || !selectedObjectUrl || (durationSec ?? 0) < 30"
+        [disabled]="busy || !selectedObjectUrl"
       >
         Post to feed
       </button>

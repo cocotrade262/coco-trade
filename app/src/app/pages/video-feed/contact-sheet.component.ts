@@ -11,10 +11,12 @@ export class ContactSheetComponent {
   @Input({ required: true }) initialName = '';
   @Input({ required: true }) initialMobile = '';
   @Input({ required: true }) initialPlace = '';
+  @Input() initialCost = '';
 
   name = '';
   mobile = '';
   place = '';
+  cost = '';
 
   constructor(
     private readonly modalCtrl: ModalController,
@@ -25,15 +27,17 @@ export class ContactSheetComponent {
     this.name = this.initialName;
     this.mobile = this.initialMobile;
     this.place = this.initialPlace;
+    this.cost = this.initialCost;
   }
 
   async save() {
     const name = this.name.trim();
     const mobile = this.mobile.trim();
     const place = this.place.trim();
+    const cost = this.cost.trim();
 
     if (!name || !mobile || !place) {
-      await this.toast('Please enter name, mobile and place.');
+      await this.toast('Please enter name, mobile and area.');
       return;
     }
 
@@ -43,7 +47,7 @@ export class ContactSheetComponent {
       return;
     }
 
-    await this.modalCtrl.dismiss({ name, mobile, place }, 'save');
+    await this.modalCtrl.dismiss({ name, mobile, place, cost }, 'save');
   }
 
   cancel() {
