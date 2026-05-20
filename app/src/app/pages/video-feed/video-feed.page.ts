@@ -131,8 +131,6 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
         createdAt: Date.now(),
         durationSec: 0,
         objectUrl: '',
-        likes: 0,
-        commentsCount: 0,
       },
     ];
   }

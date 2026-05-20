@@ -9,8 +9,6 @@ export type PostVideo = {
    * In-memory object URL. Not persisted across reloads.
    */
   objectUrl: string;
-  likes: number;
-  commentsCount: number;
   caption?: string;
   name?: string;
   mobile?: string;
@@ -42,8 +40,6 @@ export class PostsService {
       createdAt: Date.now(),
       durationSec: params.durationSec,
       objectUrl: params.objectUrl,
-      likes: 0,
-      commentsCount: 0,
       caption: params.caption,
       name: params.name,
       mobile: params.mobile,
@@ -52,13 +48,6 @@ export class PostsService {
     };
     this._posts$.next([post, ...this._posts$.value]);
     return post;
-  }
-
-  toggleLike(postId: string) {
-    const next = this._posts$.value.map((p) =>
-      p.id === postId ? { ...p, likes: Math.max(0, p.likes + 1) } : p
-    );
-    this._posts$.next(next);
   }
 
   updatePostDetails(
