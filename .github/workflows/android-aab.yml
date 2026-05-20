@@ -39,7 +39,10 @@ jobs:
           java-version: 17
 
       - name: Build debug AAB
-        run: cd android && ./gradlew :app:bundleDebug
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew :app:bundleDebug
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
