@@ -4,18 +4,6 @@
 -->
 <div class="postAdScroll">
   <div class="postAdInner">
-    <header class="postAdScreenHeader">
-      <div class="postAdScreenHeader__spacer"></div>
-      <button
-        type="button"
-        class="postAd-btn postAd-btn--success postAd-headerBtn"
-        (click)="publish()"
-        [disabled]="busy || !selectedObjectUrl"
-      >
-        Post to feed
-      </button>
-    </header>
-
     <div class="postAdCard">
       <h2 class="postAdCard__title">Choose or record a video</h2>
       <p class="postAdCard__subtitle">Videos longer than 30 seconds will be trimmed.</p>
@@ -110,6 +98,17 @@
             <input id="postCost" type="text" class="coco-input" [(ngModel)]="cost" placeholder="Price/Rate" />
           </div>
         </div>
+      </div>
+
+      <div class="postAd-actions">
+        <button
+          type="button"
+          class="postAd-btn postAd-btn--success"
+          (click)="publish()"
+          [disabled]="busy || !selectedObjectUrl"
+        >
+          Post to feed
+        </button>
       </div>
 
     </div>
