@@ -41,7 +41,7 @@ jobs:
           path: app/www
 
   deploy:
- 
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     environment:
