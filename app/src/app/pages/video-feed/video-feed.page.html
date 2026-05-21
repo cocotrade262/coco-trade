@@ -21,6 +21,10 @@
                 <ion-icon name="play"></ion-icon>
               </div>
 
+              <button class="reels__mute-btn" (click)="toggleMute($event)" aria-label="Toggle mute">
+                <ion-icon [name]="isMuted ? 'volume-mute-outline' : 'volume-high-outline'"></ion-icon>
+              </button>
+
               <div class="reels__progress-container">
                 <div class="reels__progress-bar" [style.width.%]="getProgress(post.id)"></div>
               </div>

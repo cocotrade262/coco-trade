@@ -23,6 +23,7 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
 
   isCommentsOpen = false;
   activePostForComments?: PostVideo;
+  isMuted = true;
 
   private videoStates = new Map<string, { paused: boolean; progress: number }>();
 
@@ -54,6 +55,7 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
           const video = entry.target as HTMLVideoElement;
           const postId = this.getPostIdFromVideo(video);
           if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+            video.muted = this.isMuted;
             void video.play().catch(() => {
               // Autoplay may be blocked until user interacts
             });
@@ -69,7 +71,7 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
 
     for (const el of this.videoEls) {
       const video = el.nativeElement;
-      video.muted = true;
+      video.muted = this.isMuted;
       video.loop = true;
       video.playsInline = true;
       this.io.observe(video);
@@ -88,6 +90,14 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
 
   trackById(_: number, post: PostVideo) {
     return post.id;
+  }
+
+  toggleMute(event: Event) {
+    event.stopPropagation();
+    this.isMuted = !this.isMuted;
+    for (const el of this.videoEls) {
+      el.nativeElement.muted = this.isMuted;
+    }
   }
 
   togglePlay(postId: string, event: Event) {
