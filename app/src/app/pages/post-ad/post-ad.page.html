@@ -8,52 +8,54 @@
       <h2 class="postAdCard__title">Post Coconut Video</h2>
       <p class="postAdCard__subtitle">Videos longer than 30 seconds will be trimmed.</p>
 
-      <input
-        #cameraInput
-        type="file"
-        accept="video/*"
-        capture="environment"
-        class="postAd-fileInput"
-        [disabled]="busy"
-        (change)="onFileSelected($event)"
-        aria-label="Record video with camera"
-        tabindex="-1"
-      />
+      <div class="coco-row">
+        <input
+          #cameraInput
+          type="file"
+          accept="video/*"
+          capture="environment"
+          class="postAd-fileInput"
+          [disabled]="busy"
+          (change)="onFileSelected($event)"
+          aria-label="Record video with camera"
+          tabindex="-1"
+        />
 
-      <button
-        type="button"
-        class="postAd-btn postAd-btn--primary"
-        [disabled]="busy"
-        (click)="cameraInput.click()"
-      >
-        <span class="postAd-btn__stack">
-          <span class="postAd-btn__title">Record video (camera)</span>
-          <span class="postAd-btn__sub">Opens camera when supported</span>
-        </span>
-      </button>
+        <button
+          type="button"
+          class="postAd-btn postAd-btn--primary"
+          [disabled]="busy"
+          (click)="cameraInput.click()"
+        >
+          <span class="postAd-btn__stack">
+            <span class="postAd-btn__title">Record video</span>
+            <span class="postAd-btn__sub">Camera</span>
+          </span>
+        </button>
 
-      <input
-        #fileInput
-        type="file"
-        accept="video/*"
-        class="postAd-fileInput"
-        [disabled]="busy"
-        (change)="onFileSelected($event)"
-        aria-label="Select video file from device"
-        tabindex="-1"
-      />
+        <input
+          #fileInput
+          type="file"
+          accept="video/*"
+          class="postAd-fileInput"
+          [disabled]="busy"
+          (change)="onFileSelected($event)"
+          aria-label="Select video file from device"
+          tabindex="-1"
+        />
 
-      <button
-        type="button"
-        class="postAd-btn postAd-btn--primary"
-        [disabled]="busy"
-        (click)="fileInput.click()"
-      >
-        <span class="postAd-btn__stack">
-          <span class="postAd-btn__title">Select video file</span>
-          <span class="postAd-btn__sub">Pick from your device</span>
-        </span>
-      </button>
+        <button
+          type="button"
+          class="postAd-btn postAd-btn--primary"
+          [disabled]="busy"
+          (click)="fileInput.click()"
+        >
+          <span class="postAd-btn__stack">
+            <span class="postAd-btn__title">Select video</span>
+            <span class="postAd-btn__sub">Gallery</span>
+          </span>
+        </button>
+      </div>
 
       <div class="preview" *ngIf="selectedObjectUrl">
         <video class="preview__video" [src]="selectedObjectUrl" controls playsinline></video>

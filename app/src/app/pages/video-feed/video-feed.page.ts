@@ -24,6 +24,8 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
   isCommentsOpen = false;
   activePostForComments?: PostVideo;
 
+  private videoStates = new Map<string, { paused: boolean; progress: number }>();
+
   constructor(
     public readonly postsService: PostsService,
     private readonly modalCtrl: ModalController,
@@ -50,12 +52,15 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
       (entries) => {
         for (const entry of entries) {
           const video = entry.target as HTMLVideoElement;
+          const postId = this.getPostIdFromVideo(video);
           if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
             void video.play().catch(() => {
-              // Autoplay may be blocked until user interacts; keep controls visible.
+              // Autoplay may be blocked until user interacts
             });
+            if (postId) this.setVideoState(postId, { paused: false });
           } else {
             video.pause();
+            if (postId) this.setVideoState(postId, { paused: true });
           }
         }
       },
@@ -71,8 +76,51 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private getPostIdFromVideo(video: HTMLVideoElement): string | undefined {
+    // This is a bit brittle, but works if we assume one video per post
+    // Better way would be to pass the post object to the component and use it
+    const el = this.videoEls.find((v) => v.nativeElement === video);
+    if (!el) return undefined;
+    // We can't easily get the post object here without more structure
+    // Let's rely on event emitters or data attributes
+    return video.getAttribute('data-post-id') || undefined;
+  }
+
   trackById(_: number, post: PostVideo) {
     return post.id;
+  }
+
+  togglePlay(postId: string, event: Event) {
+    event.stopPropagation();
+    const video = this.videoEls.find((v) => v.nativeElement.getAttribute('data-post-id') === postId)?.nativeElement;
+    if (video) {
+      if (video.paused) {
+        void video.play();
+        this.setVideoState(postId, { paused: false });
+      } else {
+        video.pause();
+        this.setVideoState(postId, { paused: true });
+      }
+    }
+  }
+
+  onTimeUpdate(postId: string, event: Event) {
+    const video = event.target as HTMLVideoElement;
+    const progress = (video.currentTime / video.duration) * 100;
+    this.setVideoState(postId, { progress });
+  }
+
+  isPaused(postId: string): boolean {
+    return this.videoStates.get(postId)?.paused ?? true;
+  }
+
+  getProgress(postId: string): number {
+    return this.videoStates.get(postId)?.progress ?? 0;
+  }
+
+  private setVideoState(postId: string, state: Partial<{ paused: boolean; progress: number }>) {
+    const current = this.videoStates.get(postId) || { paused: true, progress: 0 };
+    this.videoStates.set(postId, { ...current, ...state });
   }
 
   openComments(post: PostVideo) {
