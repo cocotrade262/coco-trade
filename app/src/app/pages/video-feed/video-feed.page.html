@@ -15,14 +15,15 @@
             ></video>
 
             <div class="reels__overlay">
+              <div class="reels__badges" *ngIf="post.area || post.cost">
+                <span class="reels__info-badge" *ngIf="post.area">{{ post.area }}</span>
+                <span class="reels__info-badge reels__info-badge--cost" *ngIf="post.cost">₹{{ post.cost }}</span>
+              </div>
+
               <div class="reels__meta">
-                <div class="reels__info-row" *ngIf="post.area || post.cost">
-                  <span class="reels__info-badge" *ngIf="post.area">{{ post.area }}</span>
-                  <span class="reels__info-badge reels__info-badge--cost" *ngIf="post.cost">₹{{ post.cost }}</span>
-                </div>
                 <div class="reels__title">{{ post.name || 'Coconut seller video' }}</div>
                 <div class="reels__caption" *ngIf="post.caption">{{ post.caption }}</div>
-                <div class="reels__sub">Duration: {{ post.durationSec | number: '1.0-0' }}s</div>
+                <div class="reels__sub">{{ post.createdAt | date: 'MMM yyyy' }}</div>
               </div>
 
               <div class="reels__actions">
