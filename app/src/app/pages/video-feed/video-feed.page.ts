@@ -21,8 +21,11 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
   private io?: IntersectionObserver;
   private sub?: Subscription;
 
+  isCommentsOpen = false;
+  activePostForComments?: PostVideo;
+
   constructor(
-    private readonly postsService: PostsService,
+    public readonly postsService: PostsService,
     private readonly modalCtrl: ModalController,
     private readonly toastCtrl: ToastController,
     private readonly tabShellSync: TabShellSyncService
@@ -70,6 +73,12 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
 
   trackById(_: number, post: PostVideo) {
     return post.id;
+  }
+
+  openComments(post: PostVideo) {
+    if (post.id === 'empty') return;
+    this.activePostForComments = post;
+    this.isCommentsOpen = true;
   }
 
   async openContact(post: PostVideo) {

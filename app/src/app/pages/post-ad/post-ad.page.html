@@ -51,7 +51,7 @@
       >
         <span class="postAd-btn__stack">
           <span class="postAd-btn__title">Select video file</span>
-          <span class="postAd-btn__sub">Pick from your device / laptop</span>
+          <span class="postAd-btn__sub">Pick from your device</span>
         </span>
       </button>
 
@@ -74,13 +74,21 @@
             placeholder="Ex: Fresh coconuts available in my area"
             autocapitalize="sentences"
             enterkeyhint="done"
+            maxlength="50"
           />
         </div>
 
         <div class="coco-row">
           <div class="coco-field">
             <label class="coco-label" for="postName">Name</label>
-            <input id="postName" type="text" class="coco-input" [(ngModel)]="name" placeholder="Your name" />
+            <input
+              id="postName"
+              type="text"
+              class="coco-input"
+              [(ngModel)]="name"
+              placeholder="Your name"
+              maxlength="30"
+            />
           </div>
           <div class="coco-field">
             <label class="coco-label" for="postMobile">Mobile Number</label>
@@ -95,7 +103,14 @@
           </div>
           <div class="coco-field">
             <label class="coco-label" for="postCost">Cost</label>
-            <input id="postCost" type="text" class="coco-input" [(ngModel)]="cost" placeholder="Price/Rate" />
+            <input
+              id="postCost"
+              type="number"
+              inputmode="decimal"
+              class="coco-input"
+              [(ngModel)]="cost"
+              placeholder="Price/Rate"
+            />
           </div>
         </div>
       </div>

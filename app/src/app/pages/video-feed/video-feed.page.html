@@ -2,35 +2,45 @@
     <div class="reels__list">
       <div class="reels__item" *ngFor="let post of posts$ | async; trackBy: trackById">
         <ng-container *ngIf="post.objectUrl; else emptyState">
-          <video
-            #videoEl
-            class="reels__video"
-            [src]="post.objectUrl"
-            muted
-            loop
-            playsinline
-            preload="metadata"
-            controls
-          ></video>
+          <div class="reels__video-container">
+            <video
+              #videoEl
+              class="reels__video"
+              [src]="post.objectUrl"
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              controls
+            ></video>
 
-          <div class="reels__overlay">
-            <div class="reels__meta">
-              <div class="reels__title">{{ post.name || 'Coconut seller video' }}</div>
-              <div class="reels__caption" *ngIf="post.caption">{{ post.caption }}</div>
-              <div class="reels__sub">Duration: {{ post.durationSec | number: '1.0-0' }}s</div>
-            </div>
+            <div class="reels__overlay">
+              <div class="reels__meta">
+                <div class="reels__info-row" *ngIf="post.area || post.cost">
+                  <span class="reels__info-badge" *ngIf="post.area">{{ post.area }}</span>
+                  <span class="reels__info-badge reels__info-badge--cost" *ngIf="post.cost">₹{{ post.cost }}</span>
+                </div>
+                <div class="reels__title">{{ post.name || 'Coconut seller video' }}</div>
+                <div class="reels__caption" *ngIf="post.caption">{{ post.caption }}</div>
+                <div class="reels__sub">Duration: {{ post.durationSec | number: '1.0-0' }}s</div>
+              </div>
 
-            <div class="reels__actions">
-              <button class="reels__actionBtn" type="button" (click)="openContact(post)" aria-label="Contact details">
-                <ion-icon name="call-outline"></ion-icon>
-                <div class="reels__actionText">Contact</div>
-              </button>
+              <div class="reels__actions">
+                <button class="reels__actionBtn" type="button" (click)="openContact(post)" aria-label="Contact details">
+                  <ion-icon name="call-outline"></ion-icon>
+                  <div class="reels__actionText">Contact</div>
+                </button>
 
-              <button class="reels__actionBtn" type="button" (click)="share(post)" aria-label="Share">
-                <ion-icon name="paper-plane-outline"></ion-icon>
-                <div class="reels__actionText">Share</div>
-              </button>
+                <button class="reels__actionBtn" type="button" aria-label="Comments" (click)="openComments(post)">
+                  <ion-icon name="chatbubble-outline"></ion-icon>
+                  <div class="reels__actionText">Comment</div>
+                </button>
 
+                <button class="reels__actionBtn" type="button" (click)="share(post)" aria-label="Share">
+                  <ion-icon name="paper-plane-outline"></ion-icon>
+                  <div class="reels__actionText">Share</div>
+                </button>
+              </div>
             </div>
           </div>
         </ng-container>
@@ -43,4 +53,29 @@
         </ng-template>
       </div>
     </div>
+
+  <ion-modal #commentModal [isOpen]="isCommentsOpen" (didDismiss)="isCommentsOpen = false" [initialBreakpoint]="0.5" [breakpoints]="[0, 0.5, 0.8]">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Comments</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isCommentsOpen = false">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <div class="comment-placeholder">
+          <ion-icon name="chatbubbles-outline" size="large"></ion-icon>
+          <p>No comments yet. Be the first to comment!</p>
+        </div>
+        <div class="comment-input-area">
+          <ion-item lines="none" class="coco-comment-item">
+            <ion-input placeholder="Add a comment..."></ion-input>
+            <ion-button fill="clear" slot="end">Post</ion-button>
+          </ion-item>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>
