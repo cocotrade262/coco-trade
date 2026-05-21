@@ -81,7 +81,8 @@ export class PostAdPage implements OnInit {
   let authorName: string | undefined;
   this.auth.user$.subscribe(user => {
     if (user) {
-      authorName = user.displayName;
+      // Use email prefix as author name
+      authorName = user.email.split('@')[0];
     }
   }).unsubscribe();
 
