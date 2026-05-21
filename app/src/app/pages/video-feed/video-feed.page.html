@@ -1,4 +1,16 @@
 <ion-content class="reels">
+  <div class="upload-status" *ngIf="showUploadStatus">
+    <div class="upload-status__content">
+      <div class="upload-status__progress">
+        <div class="upload-status__fill"></div>
+      </div>
+      <div class="upload-status__text">
+        <ion-icon name="checkmark-circle" *ngIf="uploadFinished"></ion-icon>
+        <span>{{ uploadFinished ? 'Finished' : 'Uploading...' }}</span>
+      </div>
+    </div>
+  </div>
+
     <div class="reels__list">
       <div class="reels__item" *ngFor="let post of posts$ | async; trackBy: trackById">
         <ng-container *ngIf="post.objectUrl; else emptyState">
@@ -53,6 +65,9 @@
           </div>
 
           <div class="reels__meta">
+            <div class="reels__author" *ngIf="post.authorName">
+              <span class="reels__author-name">@{{ post.authorName }}</span>
+            </div>
             <div class="reels__title">{{ post.name || 'Coconut seller video' }}</div>
             <div class="reels__caption" *ngIf="post.caption">{{ post.caption }}</div>
             <div class="reels__sub">{{ post.createdAt | date: 'dd MMM yyyy' }}</div>

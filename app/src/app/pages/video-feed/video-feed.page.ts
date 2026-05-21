@@ -24,6 +24,8 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
   isCommentsOpen = false;
   activePostForComments?: PostVideo;
   isMuted = true;
+  showUploadStatus = false;
+  uploadFinished = false;
 
   private videoStates = new Map<string, { paused: boolean; progress: number }>();
 
@@ -36,6 +38,23 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.tabShellSync.scheduleSync();
+    this.checkUploadStatus();
+  }
+
+  private checkUploadStatus() {
+    if (sessionStorage.getItem('post_uploading') === 'true') {
+      sessionStorage.removeItem('post_uploading');
+      this.showUploadStatus = true;
+      this.uploadFinished = false;
+
+      // Simulate upload progress
+      setTimeout(() => {
+        this.uploadFinished = true;
+        setTimeout(() => {
+          this.showUploadStatus = false;
+        }, 1500);
+      }, 2000);
+    }
   }
 
   ngAfterViewInit(): void {

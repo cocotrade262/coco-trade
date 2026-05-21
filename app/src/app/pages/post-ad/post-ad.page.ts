@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
+import { AuthService } from '../../services/auth.service';
 import { PostsService } from '../../services/posts.service';
 import { TabShellSyncService } from '../../services/tab-shell-sync.service';
 
@@ -21,7 +23,9 @@ export class PostAdPage implements OnInit {
 
   constructor(
     private readonly postsService: PostsService,
+    private readonly auth: AuthService,
     private readonly toastCtrl: ToastController,
+    private readonly router: Router,
     private readonly tabShellSync: TabShellSyncService
   ) {}
 
@@ -74,6 +78,13 @@ export class PostAdPage implements OnInit {
       finalDuration = 30;
     }
 
+  let authorName: string | undefined;
+  this.auth.user$.subscribe(user => {
+    if (user) {
+      authorName = user.displayName;
+    }
+  }).unsubscribe();
+
     this.postsService.addVideoPost({
       objectUrl: finalUrl,
       durationSec: finalDuration,
@@ -82,6 +93,7 @@ export class PostAdPage implements OnInit {
       area: this.area,
       mobile: this.mobile,
       cost: this.cost,
+    authorName: authorName
     });
 
     this.selectedObjectUrl = null;
@@ -92,7 +104,17 @@ export class PostAdPage implements OnInit {
     this.mobile = '';
     this.cost = '';
 
-    await this.toast('Posted to feed.');
+    // Set a flag in session storage to trigger upload status on feed
+    sessionStorage.setItem('post_uploading', 'true');
+
+    await this.router.navigate(['/tabs/feed']);
+
+    // Reset fields
+    this.caption = '';
+    this.name = '';
+    this.area = '';
+    this.mobile = '';
+    this.cost = '';
   }
 
   private getVideoDurationSec(objectUrl: string): Promise<number> {

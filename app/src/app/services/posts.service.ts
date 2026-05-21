@@ -14,6 +14,7 @@ export type PostVideo = {
   mobile?: string;
   area?: string;
   cost?: string;
+  authorName?: string;
   contact?: {
     name: string;
     mobile: string;
@@ -34,6 +35,7 @@ export class PostsService {
     mobile?: string;
     area?: string;
     cost?: string;
+    authorName?: string;
   }) {
     const post: PostVideo = {
       id: crypto.randomUUID(),
@@ -45,6 +47,7 @@ export class PostsService {
       mobile: params.mobile,
       area: params.area,
       cost: params.cost,
+      authorName: params.authorName,
     };
     this._posts$.next([post, ...this._posts$.value]);
     return post;

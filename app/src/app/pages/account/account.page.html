@@ -4,10 +4,43 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">account</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="account-container">
+    <div *ngIf="!(auth.user$ | async)" class="login-box">
+      <h2 class="title">My Account</h2>
+      <p class="subtitle">Sign in to post videos and manage your profile.</p>
+
+      <button class="coco-btn coco-btn--google" (click)="signIn()">
+        <ion-icon name="logo-google"></ion-icon>
+        <span>Sign in with Google</span>
+      </button>
+    </div>
+
+    <div *ngIf="auth.user$ | async as user" class="profile-box">
+      <div class="avatar-row">
+        <div class="avatar">{{ user.displayName[0] || user.email[0] | uppercase }}</div>
+        <div class="user-info">
+          <h2 class="user-name">{{ user.displayName }}</h2>
+          <p class="user-email">{{ user.email }}</p>
+        </div>
+      </div>
+
+      <div class="setup-form" *ngIf="isEditing">
+        <div class="coco-field">
+          <label class="coco-label">Display Name (Optional)</label>
+          <input type="text" class="coco-input" [(ngModel)]="newName" placeholder="Enter your name" maxlength="20">
+          <p class="helper-text">This name will be shown on your posts.</p>
+        </div>
+        <div class="coco-row">
+          <button class="coco-btn coco-btn--success" (click)="saveName()">Save Name</button>
+          <button class="coco-btn coco-btn--outline" (click)="isEditing = false">Cancel</button>
+        </div>
+      </div>
+
+      <div class="actions" *ngIf="!isEditing">
+        <button class="coco-btn coco-btn--primary" (click)="startEdit()">Edit Profile Name</button>
+        <button class="coco-btn coco-btn--danger" (click)="auth.logout()">Sign Out</button>
+      </div>
+    </div>
+  </div>
 </ion-content>
