@@ -21,10 +21,10 @@ import { BehaviorSubject, map, Observable, from, switchMap, of } from 'rxjs';
 import { AuthService } from './auth.service';
 
 export type PostVideo = {
-  id?: string;
+  id: string; // Made required for easier template handling, empty string for new
   createdAt: number;
   durationSec: number;
-  objectUrl: string; // This will now be the Firebase Storage URL
+  objectUrl: string;
   caption?: string;
   name?: string;
   mobile?: string;
@@ -39,7 +39,6 @@ export type PostVideo = {
 export class PostsService {
   private readonly _posts$ = new BehaviorSubject<PostVideo[]>([]);
 
-  // Public feed: Not sold, ordered by date
   readonly posts$ = this._posts$.asObservable().pipe(
     map(posts => posts.filter(p => !p.isSold))
   );
@@ -75,14 +74,12 @@ export class PostsService {
       if (user) authorId = user.email;
     }).unsubscribe();
 
-    // 1. Upload to Storage
     const filePath = `videos/${Date.now()}_${authorId || 'anon'}`;
     const storageRef = ref(this.storage, filePath);
     const uploadTask = await uploadBytes(storageRef, params.file);
     const downloadUrl = await getDownloadURL(uploadTask.ref);
 
-    // 2. Save to Firestore
-    const post: PostVideo = {
+    const post: Omit<PostVideo, 'id'> = {
       createdAt: Date.now(),
       durationSec: params.durationSec,
       objectUrl: downloadUrl,
@@ -100,9 +97,13 @@ export class PostsService {
     return addDoc(postsCol, post);
   }
 
-  async markAsSold(postId: string) {
+  async updatePostDetails(postId: string, details: Partial<PostVideo>) {
     const postDoc = doc(this.firestore, `posts/${postId}`);
-    return updateDoc(postDoc, { isSold: true });
+    return updateDoc(postDoc, details);
+  }
+
+  async markAsSold(postId: string) {
+    return this.updatePostDetails(postId, { isSold: true });
   }
 
   async deletePost(postId: string) {
@@ -124,7 +125,6 @@ export class PostsService {
       to: 'cocotrade262@gmail.com'
     });
 
-    // Also trigger mailto as a fallback/direct action
     const body = encodeURIComponent(`User: ${report.userEmail}\n\n${report.message}`);
     const mailto = `mailto:cocotrade262@gmail.com?subject=Report/Suggestion: ${report.type}&body=${body}`;
     window.open(mailto, '_blank');

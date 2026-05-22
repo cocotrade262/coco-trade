@@ -166,9 +166,9 @@ export class VideoFeedPage implements OnInit, AfterViewInit, OnDestroy {
       breakpoints: [0, 0.5, 0.75, 0.95],
       initialBreakpoint: 0.75,
       componentProps: {
-        initialName: post.name || post.contact?.name || '',
-        initialMobile: post.mobile || post.contact?.mobile || '',
-        initialPlace: post.area || post.contact?.place || '',
+        initialName: post.name || '',
+        initialMobile: post.mobile || '',
+        initialPlace: post.area || '',
         initialCost: post.cost || '',
       },
     });
