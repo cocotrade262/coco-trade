@@ -43,11 +43,12 @@
   justify-content: space-around;
   align-items: stretch;
   width: 100%;
-  min-height: 52px;
+  height: 64px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--ion-toolbar-background, var(--ion-background-color, #fff));
-  border-top: 1px solid rgba(var(--ion-color-medium-rgb, 130, 130, 130), 0.22);
+  border-top: 1px solid rgba(var(--ion-color-medium-rgb, 130, 130, 130), 0.15);
   box-sizing: border-box;
+  z-index: 1000;
 }
 
 .customTabBar__link {
@@ -56,12 +57,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 6px;
-  min-height: 48px;
+  gap: 2px;
+  padding: 4px 2px;
   text-decoration: none;
   color: var(--ion-color-medium, #666);
-  font-size: 0.75rem;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
@@ -75,7 +74,10 @@
 }
 
 .customTabBar__label {
-  font-size: 0.72rem;
-  font-weight: 500;
-  line-height: 1.1;
+  display: block !important;
+  visibility: visible !important;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  margin-top: 2px;
 }
