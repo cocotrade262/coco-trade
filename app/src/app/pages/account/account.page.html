@@ -1,11 +1,6 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>account</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="account-container">
+    <!-- Unauthenticated View -->
     <div *ngIf="!(auth.user$ | async)" class="login-box">
       <h2 class="title">My Account</h2>
       <p class="subtitle">Sign in to post videos and manage your profile.</p>
@@ -16,31 +11,154 @@
       </button>
     </div>
 
-    <div *ngIf="auth.user$ | async as user" class="profile-box">
-      <div class="avatar-row">
-        <div class="avatar">{{ user.displayName[0] || user.email[0] | uppercase }}</div>
-        <div class="user-info">
+    <!-- Authenticated View -->
+    <div *ngIf="auth.user$ | async as user" class="profile-layout">
+
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="avatar-cell">
+          <div class="avatar">{{ user.displayName[0] || user.email[0] | uppercase }}</div>
+        </div>
+        <div class="info-cell">
           <h2 class="user-name">{{ user.displayName }}</h2>
           <p class="user-email">{{ user.email }}</p>
+          <div class="profile-stats">
+            <div class="stat">
+              <span class="stat-val">{{ (userPosts$ | async)?.length || 0 }}</span>
+              <span class="stat-lbl">Posts</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="setup-form" *ngIf="isEditing">
-        <div class="coco-field">
-          <label class="coco-label">Display Name (Optional)</label>
-          <input type="text" class="coco-input" [(ngModel)]="newName" placeholder="Enter your name" maxlength="20">
-          <p class="helper-text">This name will be shown on your posts.</p>
-        </div>
-        <div class="coco-row">
-          <button class="coco-btn coco-btn--success" (click)="saveName()">Save Name</button>
-          <button class="coco-btn coco-btn--outline" (click)="isEditing = false">Cancel</button>
-        </div>
+      <!-- Segment Toggle -->
+      <div class="profile-nav">
+        <button
+          class="nav-item"
+          [class.active]="activeSegment === 'profile'"
+          (click)="activeSegment = 'profile'"
+        >
+          <ion-icon [name]="activeSegment === 'profile' ? 'grid' : 'grid-outline'"></ion-icon>
+          <span>My Posts</span>
+        </button>
+        <button
+          class="nav-item"
+          [class.active]="activeSegment === 'settings'"
+          (click)="activeSegment = 'settings'"
+        >
+          <ion-icon [name]="activeSegment === 'settings' ? 'settings' : 'settings-outline'"></ion-icon>
+          <span>Settings</span>
+        </button>
+        <button
+          class="nav-item"
+          [class.active]="activeSegment === 'report'"
+          (click)="activeSegment = 'report'"
+        >
+          <ion-icon [name]="activeSegment === 'report' ? 'megaphone' : 'megaphone-outline'"></ion-icon>
+          <span>Report</span>
+        </button>
       </div>
 
-      <div class="actions" *ngIf="!isEditing">
-        <button class="coco-btn coco-btn--primary" (click)="startEdit()">Edit Profile Name</button>
-        <button class="coco-btn coco-btn--danger" (click)="auth.logout()">Sign Out</button>
+      <!-- Views -->
+      <div class="profile-content">
+
+        <!-- 1. Posts Grid (Instagram Style) -->
+        <div *ngIf="activeSegment === 'profile'" class="posts-view">
+          <div *ngIf="(userPosts$ | async) as posts; else loading">
+            <div *ngIf="posts.length === 0" class="empty-state">
+              <ion-icon name="videocam-outline"></ion-icon>
+              <p>You haven't posted any videos yet.</p>
+            </div>
+
+            <div class="posts-grid">
+              <div *ngFor="let post of posts" class="post-thumb">
+                <video [src]="post.objectUrl" muted playsinline></video>
+                <div class="sold-overlay" *ngIf="post.isSold">
+                  <span>SOLD</span>
+                </div>
+                <div class="post-actions-overlay">
+                  <button *ngIf="!post.isSold" class="action-btn sold" (click)="markAsSold(post.id!)" title="Mark as Sold">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                  </button>
+                  <button class="action-btn delete" (click)="deletePost(post.id!)" title="Delete">
+                    <ion-icon name="trash"></ion-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #loading>
+            <div class="loading-spinner">
+              <ion-spinner name="crescent"></ion-spinner>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- 2. Settings View -->
+        <div *ngIf="activeSegment === 'settings'" class="settings-view">
+          <div class="setup-form" *ngIf="isEditing; else settingsActions">
+            <div class="coco-field">
+              <label class="coco-label">Display Name</label>
+              <input type="text" class="coco-input" [(ngModel)]="newName" placeholder="Enter your name" maxlength="20">
+            </div>
+            <div class="coco-row">
+              <button class="coco-btn coco-btn--success" (click)="saveName()">Save Changes</button>
+              <button class="coco-btn coco-btn--outline" (click)="isEditing = false">Cancel</button>
+            </div>
+          </div>
+          <ng-template #settingsActions>
+            <div class="settings-list">
+              <button class="list-item" (click)="startEdit()">
+                <ion-icon name="person-outline"></ion-icon>
+                <span>Edit Profile Name</span>
+              </button>
+              <button class="list-item danger" (click)="auth.logout()">
+                <ion-icon name="log-out-outline"></ion-icon>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- 3. Report/Suggestion View -->
+        <div *ngIf="activeSegment === 'report'" class="report-view">
+          <h3>Report or Suggestion</h3>
+          <p>Help us improve CocoTrade. Submit your feedback below.</p>
+
+          <div class="coco-field">
+            <label class="coco-label">Type</label>
+            <select class="coco-input" [(ngModel)]="reportType">
+              <option value="suggestion">Suggestion</option>
+              <option value="bug">Bug Report</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="coco-field">
+            <label class="coco-label">Message</label>
+            <textarea
+              class="coco-input"
+              [(ngModel)]="reportMessage"
+              rows="5"
+              placeholder="Tell us what's on your mind..."
+            ></textarea>
+          </div>
+
+          <button
+            class="coco-btn coco-btn--primary full-width"
+            (click)="submitReport()"
+            [disabled]="!reportMessage.trim()"
+          >
+            Submit Feedback
+          </button>
+
+          <p class="admin-note">
+            Your feedback will be sent to cocotrade262@gmail.com
+          </p>
+        </div>
+
       </div>
+
     </div>
   </div>
 </ion-content>

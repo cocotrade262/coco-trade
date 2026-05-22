@@ -4,6 +4,7 @@ import { ToastController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { PostsService } from '../../services/posts.service';
 import { TabShellSyncService } from '../../services/tab-shell-sync.service';
+import { checkAndCompressVideo } from '../../utils/compression.util';
 
 @Component({
   selector: 'app-post-ad',
@@ -18,6 +19,7 @@ export class PostAdPage implements OnInit {
   mobile = '';
   cost = '';
   selectedObjectUrl: string | null = null;
+  selectedFile: File | null = null;
   durationSec: number | null = null;
   busy = false;
 
@@ -61,6 +63,7 @@ export class PostAdPage implements OnInit {
       }
 
       this.selectedObjectUrl = objectUrl;
+      this.selectedFile = file;
       this.durationSec = duration;
     } finally {
       this.busy = false;
@@ -68,36 +71,36 @@ export class PostAdPage implements OnInit {
   }
 
   async publish() {
-    if (!this.selectedObjectUrl || !this.durationSec) return;
+    if (!this.selectedFile || !this.durationSec) return;
 
-    let finalUrl = this.selectedObjectUrl;
-    let finalDuration = this.durationSec;
+    this.busy = true;
+    try {
+      let finalFile: File | Blob = await checkAndCompressVideo(this.selectedFile);
+      let finalDuration = this.durationSec;
 
-    if (this.durationSec > 30) {
-      finalUrl += '#t=0,30';
-      finalDuration = 30;
-    }
+      if (this.durationSec > 30) {
+        finalDuration = 30;
+      }
+      let authorName: string | undefined;
+      this.auth.user$.subscribe(user => {
+        if (user) {
+          authorName = user.email.split('@')[0];
+        }
+      }).unsubscribe();
 
-  let authorName: string | undefined;
-  this.auth.user$.subscribe(user => {
-    if (user) {
-      // Use email prefix as author name
-      authorName = user.email.split('@')[0];
-    }
-  }).unsubscribe();
+      await this.postsService.addVideoPost({
+        file: finalFile,
+        durationSec: finalDuration,
+        caption: this.caption,
+        name: this.name,
+        area: this.area,
+        mobile: this.mobile,
+        cost: this.cost,
+        authorName: authorName
+      });
 
-    this.postsService.addVideoPost({
-      objectUrl: finalUrl,
-      durationSec: finalDuration,
-      caption: this.caption,
-      name: this.name,
-      area: this.area,
-      mobile: this.mobile,
-      cost: this.cost,
-    authorName: authorName
-    });
-
-    this.selectedObjectUrl = null;
+      this.selectedObjectUrl = null;
+      this.selectedFile = null;
     this.durationSec = null;
     this.caption = '';
     this.name = '';
@@ -109,6 +112,12 @@ export class PostAdPage implements OnInit {
     sessionStorage.setItem('post_uploading', 'true');
 
     await this.router.navigate(['/tabs/feed']);
+    } catch (e) {
+      console.error('Publish failed', e);
+      await this.toast('Failed to publish video. Try again.');
+    } finally {
+      this.busy = false;
+    }
 
     // Reset fields
     this.caption = '';

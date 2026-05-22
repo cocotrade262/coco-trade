@@ -1,77 +1,207 @@
 .account-container {
-  max-width: 400px;
-  margin: 40px auto;
-  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.login-box, .profile-box {
+.login-box {
+  margin-top: 40px;
+  text-align: center;
   background: var(--ion-background-color);
   padding: 24px;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 8px;
+.title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+.subtitle { color: var(--ion-color-medium); margin-bottom: 24px; }
+
+/* Profile Layout */
+.profile-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.subtitle {
-  color: var(--ion-color-medium);
-  margin-bottom: 24px;
-}
-
-.avatar-row {
+.profile-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  text-align: left;
-  margin-bottom: 24px;
+  gap: 24px;
+  padding: 16px 8px;
 }
 
 .avatar {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: var(--ion-color-primary);
+  background: linear-gradient(45deg, var(--ion-color-primary), var(--ion-color-secondary));
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-.user-name {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
+.info-cell {
+  flex: 1;
 }
 
-.user-email {
-  color: var(--ion-color-medium);
-  margin: 0;
-  font-size: 0.9rem;
+.user-name { font-size: 1.4rem; font-weight: 700; margin: 0; }
+.user-email { color: var(--ion-color-medium); margin: 4px 0 12px; font-size: 0.9rem; }
+
+.profile-stats {
+  display: flex;
+  gap: 20px;
 }
 
-.setup-form {
-  text-align: left;
-  margin-bottom: 20px;
-}
-
-.helper-text {
-  font-size: 0.8rem;
-  color: var(--ion-color-medium);
-  margin-top: 4px;
-}
-
-.actions {
+.stat {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
+.stat-val { font-weight: 700; font-size: 1.1rem; }
+.stat-lbl { font-size: 0.8rem; color: var(--ion-color-medium); }
+
+/* Navigation */
+.profile-nav {
+  display: flex;
+  border-top: 1px solid var(--ion-color-light);
+  border-bottom: 1px solid var(--ion-color-light);
+}
+
+.nav-item {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--ion-color-medium);
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s;
+
+  ion-icon { font-size: 1.4rem; }
+
+  &.active {
+    color: var(--ion-color-primary);
+    border-bottom: 2px solid var(--ion-color-primary);
+  }
+}
+
+/* Views */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.post-thumb {
+  position: relative;
+  aspect-ratio: 1/1;
+  background: #000;
+  overflow: hidden;
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.sold-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  span {
+    background: var(--ion-color-success);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    transform: rotate(-15deg);
+  }
+}
+
+.post-actions-overlay {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  display: flex;
+  gap: 4px;
+
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+
+    &.sold { background: var(--ion-color-success); }
+    &.delete { background: var(--ion-color-danger); }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ion-color-medium);
+
+  ion-icon { font-size: 4rem; opacity: 0.3; margin-bottom: 12px; }
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--ion-color-light);
+  border-radius: 12px;
+  overflow: hidden;
+
+  .list-item {
+    background: var(--ion-background-color);
+    border: none;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: left;
+
+    ion-icon { font-size: 1.4rem; color: var(--ion-color-primary); }
+    &.danger { color: var(--ion-color-danger); ion-icon { color: var(--ion-color-danger); } }
+  }
+}
+
+.report-view {
+  padding: 16px;
+  h3 { margin-top: 0; font-weight: 700; }
+  p { color: var(--ion-color-medium); margin-bottom: 24px; }
+}
+
+.full-width { width: 100%; margin-top: 12px; }
+.admin-note {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  text-align: center;
+  margin-top: 24px;
+}
+
+/* Global Button & Input styles inherited from shared CSS */
 .coco-btn {
   appearance: none;
   border: 0;
@@ -84,32 +214,14 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 100%;
 }
 
-.coco-btn--google {
-  background: #fff;
-  color: #444;
-  border: 1px solid #ddd;
-}
+.coco-btn--google { background: #fff; color: #444; border: 1px solid #ddd; width: 100%; }
+.coco-btn--primary { background: var(--ion-color-primary); color: #fff; }
+.coco-btn--success { background: var(--ion-color-success); color: #fff; }
+.coco-btn--danger { background: var(--ion-color-danger); color: #fff; }
+.coco-btn--outline { background: transparent; color: var(--ion-color-medium); border: 1px solid var(--ion-color-medium); }
 
-.coco-btn--primary {
-  background: var(--ion-color-primary);
-  color: #fff;
-}
-
-.coco-btn--success {
-  background: var(--ion-color-success);
-  color: #fff;
-}
-
-.coco-btn--danger {
-  background: var(--ion-color-danger);
-  color: #fff;
-}
-
-.coco-btn--outline {
-  background: transparent;
-  color: var(--ion-color-medium);
-  border: 1px solid var(--ion-color-medium);
+.alert-danger {
+  color: var(--ion-color-danger) !important;
 }
