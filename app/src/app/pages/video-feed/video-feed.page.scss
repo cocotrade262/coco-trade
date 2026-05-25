@@ -284,7 +284,7 @@
   height: 100%;
   background: var(--ion-color-primary);
   width: 0;
-  animation: uploadProgress 2s ease-in-out forwards;
+  transition: width 0.3s ease-out;
 }
 
 .upload-status__text {
@@ -298,9 +298,4 @@
     color: var(--ion-color-success);
     font-size: 16px;
   }
-}
-
-@keyframes uploadProgress {
-  0% { width: 0; }
-  100% { width: 100%; }
 }

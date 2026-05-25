@@ -1,12 +1,13 @@
 <ion-content class="reels">
-  <div class="upload-status" *ngIf="showUploadStatus">
+  <div class="upload-status" *ngIf="postsService.uploadProgress$ | async as progress">
     <div class="upload-status__content">
       <div class="upload-status__progress">
-        <div class="upload-status__fill"></div>
+        <div class="upload-status__fill" [style.width.%]="progress"></div>
       </div>
       <div class="upload-status__text">
-        <ion-icon name="checkmark-circle" *ngIf="uploadFinished"></ion-icon>
-        <span>{{ uploadFinished ? 'Finished' : 'Uploading...' }}</span>
+        <ion-icon name="cloud-upload-outline" *ngIf="progress < 100"></ion-icon>
+        <ion-icon name="checkmark-circle" *ngIf="progress === 100"></ion-icon>
+        <span>{{ progress === 100 ? 'Finishing up...' : 'Uploading Video (' + (progress | number:'1.0-0') + '%)' }}</span>
       </div>
     </div>
   </div>

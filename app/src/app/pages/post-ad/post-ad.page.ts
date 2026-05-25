@@ -73,34 +73,22 @@ export class PostAdPage implements OnInit {
   async publish() {
     if (!this.selectedFile || !this.durationSec) return;
 
-    this.busy = true;
-    try {
-      let finalFile: File | Blob = await checkAndCompressVideo(this.selectedFile);
-      let finalDuration = this.durationSec;
+    const fileToUpload = this.selectedFile;
+    const durationToUpload = this.durationSec;
+    const captionToUpload = this.caption;
+    const nameToUpload = this.name;
+    const mobileToUpload = this.mobile;
+    const areaToUpload = this.area;
+    const costToUpload = this.cost;
 
-      if (this.durationSec > 30) {
-        finalDuration = 30;
-      }
-      let authorName: string | undefined;
-      this.auth.user$.subscribe(user => {
-        if (user) {
-          authorName = user.email.split('@')[0];
-        }
-      }).unsubscribe();
+    let authorName: string | undefined;
+    this.auth.user$.subscribe(user => {
+      if (user) authorName = user.email.split('@')[0];
+    }).unsubscribe();
 
-      await this.postsService.addVideoPost({
-        file: finalFile,
-        durationSec: finalDuration,
-        caption: this.caption,
-        name: this.name,
-        area: this.area,
-        mobile: this.mobile,
-        cost: this.cost,
-        authorName: authorName
-      });
-
-      this.selectedObjectUrl = null;
-      this.selectedFile = null;
+    // 1. Reset local state immediately
+    this.selectedObjectUrl = null;
+    this.selectedFile = null;
     this.durationSec = null;
     this.caption = '';
     this.name = '';
@@ -108,10 +96,25 @@ export class PostAdPage implements OnInit {
     this.mobile = '';
     this.cost = '';
 
-    // Set a flag in session storage to trigger upload status on feed
-    sessionStorage.setItem('post_uploading', 'true');
-
+    // 2. Navigate to feed immediately
     await this.router.navigate(['/tabs/feed']);
+
+    // 3. Start upload in background
+    try {
+      let finalFile: File | Blob = await checkAndCompressVideo(fileToUpload);
+      let finalDuration = durationToUpload;
+      if (finalDuration > 30) finalDuration = 30;
+
+      await this.postsService.addVideoPost({
+        file: finalFile,
+        durationSec: finalDuration,
+        caption: captionToUpload,
+        name: nameToUpload,
+        area: areaToUpload,
+        mobile: mobileToUpload,
+        cost: costToUpload,
+        authorName: authorName
+      });
     } catch (e) {
       console.error('Publish failed', e);
       await this.toast('Failed to publish video. Try again.');

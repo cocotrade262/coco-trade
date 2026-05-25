@@ -14,14 +14,14 @@ import {
 import {
   Storage,
   ref,
-  uploadBytes,
+  uploadBytesResumable,
   getDownloadURL
 } from '@angular/fire/storage';
 import { BehaviorSubject, map, Observable, from, switchMap, of } from 'rxjs';
 import { AuthService } from './auth.service';
 
 export type PostVideo = {
-  id: string; // Made required for easier template handling, empty string for new
+  id: string;
   createdAt: number;
   durationSec: number;
   objectUrl: string;
@@ -38,10 +38,13 @@ export type PostVideo = {
 @Injectable({ providedIn: 'root' })
 export class PostsService {
   private readonly _posts$ = new BehaviorSubject<PostVideo[]>([]);
+  private readonly _uploadProgress$ = new BehaviorSubject<number | null>(null);
 
   readonly posts$ = this._posts$.asObservable().pipe(
     map(posts => posts.filter(p => !p.isSold))
   );
+
+  readonly uploadProgress$ = this._uploadProgress$.asObservable();
 
   constructor(
     private auth: AuthService,
@@ -76,25 +79,46 @@ export class PostsService {
 
     const filePath = `videos/${Date.now()}_${authorId || 'anon'}`;
     const storageRef = ref(this.storage, filePath);
-    const uploadTask = await uploadBytes(storageRef, params.file);
-    const downloadUrl = await getDownloadURL(uploadTask.ref);
+    const uploadTask = uploadBytesResumable(storageRef, params.file);
 
-    const post: Omit<PostVideo, 'id'> = {
-      createdAt: Date.now(),
-      durationSec: params.durationSec,
-      objectUrl: downloadUrl,
-      caption: params.caption,
-      name: params.name,
-      mobile: params.mobile,
-      area: params.area,
-      cost: params.cost,
-      authorName: params.authorName,
-      authorId: authorId,
-      isSold: false
-    };
+    return new Promise<void>((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          this._uploadProgress$.next(progress);
+        },
+        (error) => {
+          this._uploadProgress$.next(null);
+          reject(error);
+        },
+        async () => {
+          try {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            const post: Omit<PostVideo, 'id'> = {
+              createdAt: Date.now(),
+              durationSec: params.durationSec,
+              objectUrl: downloadUrl,
+              caption: params.caption,
+              name: params.name,
+              mobile: params.mobile,
+              area: params.area,
+              cost: params.cost,
+              authorName: params.authorName,
+              authorId: authorId,
+              isSold: false
+            };
 
-    const postsCol = collection(this.firestore, 'posts');
-    return addDoc(postsCol, post);
+            const postsCol = collection(this.firestore, 'posts');
+            await addDoc(postsCol, post);
+            this._uploadProgress$.next(null);
+            resolve();
+          } catch (e) {
+            this._uploadProgress$.next(null);
+            reject(e);
+          }
+        }
+      );
+    });
   }
 
   async updatePostDetails(postId: string, details: Partial<PostVideo>) {
