@@ -115,9 +115,14 @@ export class PostAdPage implements OnInit {
         cost: costToUpload,
         authorName: authorName
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error('Publish failed', e);
-      await this.toast('Failed to publish video. Try again.');
+      if (e.message === 'AUTH_REQUIRED') {
+        await this.toast('Please sign in with Google first.');
+        await this.router.navigate(['/tabs/account']);
+      } else {
+        await this.toast('Failed to publish video. Try again.');
+      }
     } finally {
       this.busy = false;
     }

@@ -4,6 +4,7 @@ import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { isPlatform } from '@ionic/angular';
 
 export interface UserProfile {
+  uid: string;
   email: string;
   displayName: string;
   photoUrl?: string;
@@ -16,18 +17,22 @@ export class AuthService {
 
   constructor() {
     if (!isPlatform('capacitor')) {
-      GoogleAuth.initialize();
+      GoogleAuth.initialize({
+        clientId: '274853330536-vlt0nphh115t707f1o90q9l56asolp3q.apps.googleusercontent.com',
+        scopes: ['profile', 'email'],
+        grantOfflineAccess: true,
+      });
     }
   }
 
   async login() {
     try {
       const googleUser = await GoogleAuth.signIn();
-      // Adjust property names based on @codetrix-studio/capacitor-google-auth User type
-      // Usually it is displayName or name, let's cast or check documentation
+
       const user: UserProfile = {
+        uid: googleUser.id,
         email: googleUser.email,
-        displayName: (googleUser as any).displayName || (googleUser as any).name || googleUser.email.split('@')[0],
+        displayName: (googleUser as any).displayName || googleUser.email.split('@')[0],
         photoUrl: googleUser.imageUrl
       };
       localStorage.setItem('coco_user', JSON.stringify(user));
@@ -35,13 +40,13 @@ export class AuthService {
     } catch (error) {
       console.error('Google Auth Error', error);
       if (!isPlatform('hybrid')) {
-         this.mockLogin('user@gmail.com', 'Dev User');
+         this.mockLogin('mock_uid_123', 'user@gmail.com', 'Dev User');
       }
     }
   }
 
-  mockLogin(email: string, displayName: string) {
-    const user: UserProfile = { email, displayName };
+  mockLogin(uid: string, email: string, displayName: string) {
+    const user: UserProfile = { uid, email, displayName };
     localStorage.setItem('coco_user', JSON.stringify(user));
     this._user$.next(user);
   }

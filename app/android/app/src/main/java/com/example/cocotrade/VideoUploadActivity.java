@@ -78,7 +78,10 @@ public class VideoUploadActivity extends AppCompatActivity {
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
-            Toast.makeText(this, "Please sign in first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please sign in with Google first.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(VideoUploadActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
             return;
         }
 
@@ -154,7 +157,7 @@ public class VideoUploadActivity extends AppCompatActivity {
 
     private void videoUrlData(Map<String, Object> data, String url, String userId) {
         data.put("videoUrl", url);
-        data.put("userId", userId);
+        data.put("uploadedBy", userId);
         data.put("timestamp", System.currentTimeMillis());
     }
 

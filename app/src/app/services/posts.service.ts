@@ -24,7 +24,7 @@ export type PostVideo = {
   area?: string;
   cost?: string;
   authorName?: string;
-  authorId?: string;
+  uploadedBy?: string; // Authentic Firebase UID
   isSold?: boolean;
 };
 
@@ -54,7 +54,8 @@ export class PostsService {
       const posts: PostVideo[] = [];
       if (data) {
         Object.keys(data).forEach(key => {
-          posts.push({ id: key, ...data[key] });
+          const item = data[key];
+          posts.push({ id: key, ...item });
         });
       }
       this._posts$.next(posts.reverse());
@@ -71,15 +72,20 @@ export class PostsService {
     cost?: string;
     authorName?: string;
   }) {
-    let authorId: string | undefined;
+    let currentUser: any;
     this.auth.user$.subscribe(user => {
-      if (user) authorId = user.email;
+      currentUser = user;
     }).unsubscribe();
 
+    if (!currentUser) {
+       throw new Error('AUTH_REQUIRED');
+    }
+
+    const authorId = currentUser.uid;
+
     // 1. Upload to Cloudinary via Signed/Unsigned REST API
-    // Using a direct fetch to Cloudinary's upload API for the web layer
     const cloudName = 'dt8dfsjjv';
-    const uploadPreset = 'cocotrade_unsigned'; // You need to create this in Cloudinary
+    const uploadPreset = 'cocotrade_unsigned';
 
     const formData = new FormData();
     formData.append('file', params.file);
@@ -103,7 +109,7 @@ export class PostsService {
           const downloadUrl = response.secure_url;
 
           // 2. Save to Firebase Realtime Database
-          const postData: Omit<PostVideo, 'id'> = {
+          const postData = {
             createdAt: Date.now(),
             durationSec: params.durationSec,
             objectUrl: downloadUrl,
@@ -113,8 +119,9 @@ export class PostsService {
             area: params.area,
             cost: params.cost,
             authorName: params.authorName,
-            authorId: authorId,
-            isSold: false
+            uploadedBy: authorId,
+            isSold: false,
+            timestamp: Date.now()
           };
 
           const newUserVideoRef = push(dbRef(this.db, 'UserVideos'));
@@ -153,7 +160,7 @@ export class PostsService {
 
   getUserPosts(userId: string): Observable<PostVideo[]> {
     return this._posts$.asObservable().pipe(
-      map(posts => posts.filter(p => p.authorId === userId))
+      map(posts => posts.filter(p => p.uploadedBy === userId))
     );
   }
 
