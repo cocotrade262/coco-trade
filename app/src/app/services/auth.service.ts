@@ -12,10 +12,17 @@ export interface UserProfile {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  // Use a new storage key to invalidate all legacy mock sessions
+  private static readonly AUTH_KEY = 'cocotrade_v1_auth';
+
   private readonly _user$ = new BehaviorSubject<UserProfile | null>(this.getStoredUser());
   readonly user$ = this._user$.asObservable();
 
   constructor() {
+    this.initialize();
+  }
+
+  private async initialize() {
     if (!isPlatform('capacitor')) {
       GoogleAuth.initialize({
         clientId: '274853330536-vlt0nphh115t707f1o90q9l56asolp3q.apps.googleusercontent.com',
@@ -23,37 +30,56 @@ export class AuthService {
         grantOfflineAccess: true,
       });
     }
+
+    // Attempt to refresh/verify existing session on load
+    try {
+      const user = await GoogleAuth.refresh();
+      if (user) {
+        this.updateUserState(user);
+      } else {
+        // If refresh fails or returns null, ensure local state is cleared
+        this.clearUserState();
+      }
+    } catch (e) {
+      console.log('No active session found on load');
+      // If we had a stored user but refresh failed, we might want to clear it
+      // to avoid the "mock user" appearance if it was stale.
+      this.clearUserState();
+    }
   }
 
   async login() {
     try {
       const googleUser = await GoogleAuth.signIn();
-
-      const user: UserProfile = {
-        uid: googleUser.id,
-        email: googleUser.email,
-        displayName: (googleUser as any).displayName || googleUser.email.split('@')[0],
-        photoUrl: googleUser.imageUrl
-      };
-      localStorage.setItem('coco_user', JSON.stringify(user));
-      this._user$.next(user);
+      this.updateUserState(googleUser);
     } catch (error) {
       console.error('Google Auth Error', error);
-      // Removed mock fallback to ensure real auth is used.
     }
   }
 
-  mockLogin(uid: string, email: string, displayName: string) {
-    const user: UserProfile = { uid, email, displayName };
-    localStorage.setItem('coco_user', JSON.stringify(user));
+  private updateUserState(googleUser: any) {
+    const user: UserProfile = {
+      uid: googleUser.id || googleUser.uid,
+      email: googleUser.email,
+      displayName: googleUser.displayName || googleUser.name || googleUser.email.split('@')[0],
+      photoUrl: googleUser.imageUrl
+    };
+    localStorage.setItem(AuthService.AUTH_KEY, JSON.stringify(user));
     this._user$.next(user);
+  }
+
+  private clearUserState() {
+    localStorage.removeItem(AuthService.AUTH_KEY);
+    // Also remove the old key if it exists
+    localStorage.removeItem('coco_user');
+    this._user$.next(null);
   }
 
   updateDisplayName(name: string) {
     const current = this._user$.value;
     if (current) {
       const updated = { ...current, displayName: name };
-      localStorage.setItem('coco_user', JSON.stringify(updated));
+      localStorage.setItem(AuthService.AUTH_KEY, JSON.stringify(updated));
       this._user$.next(updated);
     }
   }
@@ -62,15 +88,19 @@ export class AuthService {
     try {
       await GoogleAuth.signOut();
     } catch (e) {}
-    localStorage.removeItem('coco_user');
-    this._user$.next(null);
+    this.clearUserState();
   }
 
   private getStoredUser(): UserProfile | null {
-    const stored = localStorage.getItem('coco_user');
+    const stored = localStorage.getItem(AuthService.AUTH_KEY);
     if (stored) {
        try {
-         return JSON.parse(stored);
+         const user = JSON.parse(stored);
+         // Basic validation: ensure it's not the old mock user
+         if (user.email === 'user@gmail.com' && user.uid === 'mock_uid_123') {
+           return null;
+         }
+         return user;
        } catch (e) {
          return null;
        }
