@@ -37,13 +37,14 @@ export class AccountPage implements OnInit {
     );
   }
 
-  signIn() {
-    // Simulate Google Sign-In with a mock email
-    const mockEmail = 'user@gmail.com';
-    const mockName = mockEmail.split('@')[0];
-    this.auth.login(mockEmail, mockName);
-    this.isEditing = true;
-    this.newName = mockName;
+  async signIn() {
+    await this.auth.login();
+    this.auth.user$.subscribe(user => {
+      if (user) {
+        this.isEditing = true;
+        this.newName = user.displayName;
+      }
+    }).unsubscribe();
   }
 
   startEdit() {

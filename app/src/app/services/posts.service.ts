@@ -1,30 +1,23 @@
 import { Injectable } from '@angular/core';
 import {
-  Firestore,
-  collection,
-  addDoc,
-  collectionData,
-  doc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy
-} from '@angular/fire/firestore';
-import {
-  Storage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL
-} from '@angular/fire/storage';
-import { BehaviorSubject, map, Observable, from, switchMap, of } from 'rxjs';
+  Database,
+  ref as dbRef,
+  push,
+  set,
+  onValue,
+  update,
+  remove,
+  query as dbQuery,
+  orderByChild
+} from '@angular/fire/database';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
 export type PostVideo = {
   id: string;
   createdAt: number;
   durationSec: number;
-  objectUrl: string;
+  objectUrl: string; // This will be the Cloudinary URL
   caption?: string;
   name?: string;
   mobile?: string;
@@ -48,17 +41,23 @@ export class PostsService {
 
   constructor(
     private auth: AuthService,
-    private firestore: Firestore,
-    private storage: Storage
+    private db: Database
   ) {
     this.loadPosts();
   }
 
   private loadPosts() {
-    const postsCol = collection(this.firestore, 'posts');
-    const q = query(postsCol, orderBy('createdAt', 'desc'));
-    collectionData(q, { idField: 'id' }).subscribe(posts => {
-      this._posts$.next(posts as PostVideo[]);
+    const postsRef = dbRef(this.db, 'UserVideos');
+    const q = dbQuery(postsRef, orderByChild('createdAt'));
+    onValue(q, (snapshot) => {
+      const data = snapshot.val();
+      const posts: PostVideo[] = [];
+      if (data) {
+        Object.keys(data).forEach(key => {
+          posts.push({ id: key, ...data[key] });
+        });
+      }
+      this._posts$.next(posts.reverse());
     });
   }
 
@@ -77,53 +76,70 @@ export class PostsService {
       if (user) authorId = user.email;
     }).unsubscribe();
 
-    const filePath = `videos/${Date.now()}_${authorId || 'anon'}`;
-    const storageRef = ref(this.storage, filePath);
-    const uploadTask = uploadBytesResumable(storageRef, params.file);
+    // 1. Upload to Cloudinary via Signed/Unsigned REST API
+    // Using a direct fetch to Cloudinary's upload API for the web layer
+    const cloudName = 'dt8dfsjjv';
+    const uploadPreset = 'cocotrade_unsigned'; // You need to create this in Cloudinary
+
+    const formData = new FormData();
+    formData.append('file', params.file);
+    formData.append('upload_preset', uploadPreset);
+    formData.append('resource_type', 'video');
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, true);
 
     return new Promise<void>((resolve, reject) => {
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const progress = (e.loaded / e.total) * 100;
           this._uploadProgress$.next(progress);
-        },
-        (error) => {
-          this._uploadProgress$.next(null);
-          reject(error);
-        },
-        async () => {
-          try {
-            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            const post: Omit<PostVideo, 'id'> = {
-              createdAt: Date.now(),
-              durationSec: params.durationSec,
-              objectUrl: downloadUrl,
-              caption: params.caption,
-              name: params.name,
-              mobile: params.mobile,
-              area: params.area,
-              cost: params.cost,
-              authorName: params.authorName,
-              authorId: authorId,
-              isSold: false
-            };
-
-            const postsCol = collection(this.firestore, 'posts');
-            await addDoc(postsCol, post);
-            this._uploadProgress$.next(null);
-            resolve();
-          } catch (e) {
-            this._uploadProgress$.next(null);
-            reject(e);
-          }
         }
-      );
+      };
+
+      xhr.onload = async () => {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          const downloadUrl = response.secure_url;
+
+          // 2. Save to Firebase Realtime Database
+          const postData: Omit<PostVideo, 'id'> = {
+            createdAt: Date.now(),
+            durationSec: params.durationSec,
+            objectUrl: downloadUrl,
+            caption: params.caption,
+            name: params.name,
+            mobile: params.mobile,
+            area: params.area,
+            cost: params.cost,
+            authorName: params.authorName,
+            authorId: authorId,
+            isSold: false
+          };
+
+          const newUserVideoRef = push(dbRef(this.db, 'UserVideos'));
+          await set(newUserVideoRef, postData);
+
+          this._uploadProgress$.next(null);
+          resolve();
+        } else {
+          this._uploadProgress$.next(null);
+          reject(new Error('Cloudinary upload failed'));
+        }
+      };
+
+      xhr.onerror = () => {
+        this._uploadProgress$.next(null);
+        reject(new Error('Network error during upload'));
+      };
+
+      xhr.send(formData);
     });
   }
 
   async updatePostDetails(postId: string, details: Partial<PostVideo>) {
-    const postDoc = doc(this.firestore, `posts/${postId}`);
-    return updateDoc(postDoc, details);
+    const postRef = dbRef(this.db, `UserVideos/${postId}`);
+    return update(postRef, details);
   }
 
   async markAsSold(postId: string) {
@@ -131,8 +147,8 @@ export class PostsService {
   }
 
   async deletePost(postId: string) {
-    const postDoc = doc(this.firestore, `posts/${postId}`);
-    return deleteDoc(postDoc);
+    const postRef = dbRef(this.db, `UserVideos/${postId}`);
+    return remove(postRef);
   }
 
   getUserPosts(userId: string): Observable<PostVideo[]> {
@@ -142,8 +158,9 @@ export class PostsService {
   }
 
   async submitReport(report: { type: string, message: string, userEmail: string }) {
-    const reportsCol = collection(this.firestore, 'reports');
-    await addDoc(reportsCol, {
+    const reportsRef = dbRef(this.db, 'reports');
+    const newReportRef = push(reportsRef);
+    await set(newReportRef, {
       ...report,
       createdAt: Date.now(),
       to: 'cocotrade262@gmail.com'
