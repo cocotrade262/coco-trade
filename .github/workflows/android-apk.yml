@@ -24,7 +24,7 @@ jobs:
           cache-dependency-path: app/package-lock.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build Ionic / Angular app
         run: npm run build
