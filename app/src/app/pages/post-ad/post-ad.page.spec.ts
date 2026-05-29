@@ -5,6 +5,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';
 import { PostAdPage } from './post-ad.page';
 import { PostsService } from '../../services/posts.service';
+import { AuthService } from '../../services/auth.service';
+import { of } from 'rxjs';
 
 describe('PostAdPage', () => {
   let component: PostAdPage;
@@ -12,6 +14,9 @@ describe('PostAdPage', () => {
 
   beforeEach(async () => {
     const postsServiceMock = {};
+    const authServiceMock = {
+      user$: of(null)
+    };
 
     await TestBed.configureTestingModule({
       declarations: [PostAdPage],
@@ -23,7 +28,8 @@ describe('PostAdPage', () => {
         RouterTestingModule
       ],
       providers: [
-        { provide: PostsService, useValue: postsServiceMock }
+        { provide: PostsService, useValue: postsServiceMock },
+        { provide: AuthService, useValue: authServiceMock }
       ]
     }).compileComponents();
 

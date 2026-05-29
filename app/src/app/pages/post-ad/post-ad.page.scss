@@ -24,7 +24,7 @@
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  padding: 16px 16px 32px;
+  padding: 8px 16px 24px;
   text-align: start;
 }
 
@@ -42,7 +42,7 @@
 }
 
 .postAdCard > * + * {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 /** Screen-reader / programmatic open only — fixed so it never affects card layout. */
@@ -69,8 +69,8 @@
   display: block;
   width: 100%;
   margin: 0;
-  padding: 12px 16px;
-  min-height: 3.25rem;
+  padding: 8px 16px;
+  min-height: 2.75rem;
   max-height: none;
   border: 0;
   border-radius: 10px;
@@ -93,9 +93,9 @@
 }
 
 .postAd-btn--success {
-  min-height: 48px;
+  min-height: 44px;
   max-height: none;
-  padding-block: 12px;
+  padding-block: 10px;
   background: var(--ion-color-success, #2dd36f);
   color: var(--ion-color-success-contrast, #fff);
 }
@@ -135,15 +135,15 @@
 }
 
 .postAdCard__title {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  margin: 24px 0 4px;
+  margin: 12px 0 2px;
   color: var(--ion-text-color);
 }
 
 .postAdCard__subtitle {
   font-size: 0.875rem;
-  margin: 0 0 4px;
+  margin: 0 0 2px;
   color: var(--ion-color-medium);
 }
 
@@ -213,13 +213,13 @@
 
 .preview__video {
   width: 100%;
-  max-height: 320px;
+  max-height: 180px;
   background: #000;
   border-radius: 12px;
 }
 
 .preview__meta {
-  margin-top: 8px;
+  margin-top: 4px;
   font-size: 13px;
   opacity: 0.8;
 }
@@ -231,14 +231,14 @@
 }
 
 .post-fields {
-  margin-top: 12px;
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .postAd-actions {
-  margin-top: 16px;
+  margin-top: 12px;
   display: flex;
   justify-content: center;
 }

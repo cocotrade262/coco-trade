@@ -33,7 +33,7 @@ export class AccountPage implements OnInit {
   ngOnInit(): void {
     this.tabShellSync.scheduleSync();
     this.userPosts$ = this.auth.user$.pipe(
-      switchMap(user => user ? this.postsService.getUserPosts(user.email) : of([]))
+      switchMap(user => user ? this.postsService.getUserPosts(user.uid) : of([]))
     );
   }
 

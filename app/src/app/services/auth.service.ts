@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { isPlatform } from '@ionic/angular';
+import { Auth, signInWithPopup, GoogleAuthProvider, signOut, user as firebaseUser } from '@angular/fire/auth';
 
 export interface UserProfile {
   uid: string;
@@ -12,6 +13,8 @@ export interface UserProfile {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly fbAuth = inject(Auth);
+
   // Use a new storage key to invalidate all legacy mock sessions
   private static readonly AUTH_KEY = 'cocotrade_v1_auth';
 
@@ -20,15 +23,31 @@ export class AuthService {
 
   constructor() {
     this.initialize();
+
+    // Listen to Firebase Auth state changes
+    firebaseUser(this.fbAuth).subscribe(fbUser => {
+      if (fbUser) {
+        this.updateUserState({
+          id: fbUser.uid,
+          email: fbUser.email,
+          displayName: fbUser.displayName,
+          imageUrl: fbUser.photoURL
+        });
+      }
+    });
   }
 
   private async initialize() {
     if (!isPlatform('capacitor')) {
-      GoogleAuth.initialize({
-        clientId: '274853330536-vlt0nphh115t707f1o90q9l56asolp3q.apps.googleusercontent.com',
-        scopes: ['profile', 'email'],
-        grantOfflineAccess: true,
-      });
+      try {
+        GoogleAuth.initialize({
+          clientId: '274853330536-vlt0nphh115t707f1o90q9l56asolp3q.apps.googleusercontent.com',
+          scopes: ['profile', 'email'],
+          grantOfflineAccess: true,
+        });
+      } catch (e) {
+        console.warn('GoogleAuth.initialize failed or already initialized', e);
+      }
     }
 
     // Attempt to refresh/verify existing session on load
@@ -49,11 +68,33 @@ export class AuthService {
   }
 
   async login() {
+    if (!isPlatform('capacitor')) {
+      // Web flow using Firebase Auth directly
+      try {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(this.fbAuth, provider);
+        if (result.user) {
+          this.updateUserState({
+            id: result.user.uid,
+            email: result.user.email,
+            displayName: result.user.displayName,
+            imageUrl: result.user.photoURL
+          });
+        }
+      } catch (error: any) {
+        console.error('Firebase Web Auth Error', error);
+        alert('Login failed: ' + (error.message || 'Unknown error'));
+      }
+      return;
+    }
+
+    // Capacitor flow
     try {
       const googleUser = await GoogleAuth.signIn();
       this.updateUserState(googleUser);
-    } catch (error) {
-      console.error('Google Auth Error', error);
+    } catch (error: any) {
+      console.error('Capacitor Google Auth Error', error);
+      alert('Mobile Login failed: ' + (error.message || 'Unknown error'));
     }
   }
 
@@ -86,6 +127,7 @@ export class AuthService {
 
   async logout() {
     try {
+      await signOut(this.fbAuth);
       await GoogleAuth.signOut();
     } catch (e) {}
     this.clearUserState();

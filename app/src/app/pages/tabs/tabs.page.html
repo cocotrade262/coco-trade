@@ -4,13 +4,8 @@
 -->
 <div class="tabsShell">
   <div class="tabs-outlet">
-    <ng-container *ngIf="auth.user$ | async; else loginRedirect">
-      <app-video-feed *ngIf="activeTab === 'feed'"></app-video-feed>
-      <app-post-ad *ngIf="activeTab === 'post'"></app-post-ad>
-    </ng-container>
-    <ng-template #loginRedirect>
-      <!-- Always show account if not logged in and trying to access feed/post -->
-    </ng-template>
+    <app-video-feed *ngIf="activeTab === 'feed'"></app-video-feed>
+    <app-post-ad *ngIf="activeTab === 'post'"></app-post-ad>
     <app-account *ngIf="activeTab === 'account'"></app-account>
   </div>
 
