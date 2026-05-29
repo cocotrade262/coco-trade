@@ -121,7 +121,7 @@ export class PostAdPage implements OnInit {
         await this.toast('Please sign in with Google first.');
         await this.router.navigate(['/tabs/account']);
       } else {
-        await this.toast('Failed to publish video. Try again.');
+        await this.toast(`Upload Error: ${e.message}`);
       }
     } finally {
       this.busy = false;

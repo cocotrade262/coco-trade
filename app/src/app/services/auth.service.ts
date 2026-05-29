@@ -39,9 +39,7 @@ export class AuthService {
       this._user$.next(user);
     } catch (error) {
       console.error('Google Auth Error', error);
-      if (!isPlatform('hybrid')) {
-         this.mockLogin('mock_uid_123', 'user@gmail.com', 'Dev User');
-      }
+      // Removed mock fallback to ensure real auth is used.
     }
   }
 

@@ -131,7 +131,14 @@ export class PostsService {
           resolve();
         } else {
           this._uploadProgress$.next(null);
-          reject(new Error('Cloudinary upload failed'));
+          let errorMsg = 'Cloudinary upload failed';
+          try {
+            const resp = JSON.parse(xhr.responseText);
+            if (resp.error && resp.error.message) {
+              errorMsg = resp.error.message;
+            }
+          } catch (e) {}
+          reject(new Error(errorMsg));
         }
       };
 
