@@ -26,6 +26,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="cocotrade" android:host="auth-callback" />
             </intent-filter>
+            <!-- Reversed Client ID Scheme for Firebase Auth -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.googleusercontent.apps.274853330536-vlt0nphh115t707f1o90q9l56asolp3q" />
+            </intent-filter>
         </activity>
 
         <activity

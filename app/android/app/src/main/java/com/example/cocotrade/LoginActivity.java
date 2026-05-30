@@ -25,8 +25,10 @@ public class LoginActivity extends AppCompatActivity {
     // Use the Firebase project's Auth Domain
     private static final String AUTH_DOMAIN = "cocotrade-fc1a5.firebaseapp.com";
     // Construct the Auth URL with a redirect back to our app's deep link
-    private static final String REDIRECT_URI = "cocotrade://auth-callback";
-    private static final String AUTH_URL = "https://" + AUTH_DOMAIN + "/__/auth/handler?apiKey=AIzaSyDo3ff8V73OkrZ5Hh2r-DaLltBX3uyPtQc&appName=%5BDEFAULT%5D&authType=signInWithPopup&providerId=google.com&scopes=profile%2Cemail&redirect_uri=" + Uri.encode(REDIRECT_URI);
+    // Using reversed client ID scheme as expected by Google/Firebase for native redirects
+    private static final String REVERSED_CLIENT_ID_SCHEME = "com.googleusercontent.apps.274853330536-vlt0nphh115t707f1o90q9l56asolp3q";
+    private static final String REDIRECT_URI = REVERSED_CLIENT_ID_SCHEME + ":/auth-callback";
+    private static final String AUTH_URL = "https://" + AUTH_DOMAIN + "/__/auth/handler?apiKey=AIzaSyDo3ff8V73OkrZ5Hh2r-DaLltBX3uyPtQc&appName=%5BDEFAULT%5D&authType=signInWithRedirect&providerId=google.com&scopes=profile%2Cemail&redirect_uri=" + Uri.encode(REDIRECT_URI);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void handleDeepLink(Intent intent) {
         Uri data = intent.getData();
-        if (data != null && REDIRECT_URI.equals(data.getScheme() + "://" + data.getHost())) {
+        if (data != null && (REDIRECT_URI.startsWith(data.getScheme()) || "cocotrade".equals(data.getScheme()))) {
             Log.d(TAG, "Deep link received: " + data.toString());
             // In a real Firebase flow, the redirect would contain a token or session info.
             // For simplicity in this secure-window bypass, we wait for Firebase Auth to sync the state.
