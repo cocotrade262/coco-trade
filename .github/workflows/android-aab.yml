@@ -32,6 +32,12 @@ jobs:
       - name: Sync Capacitor (Android)
         run: npx cap sync android
 
+      - name: Create Placeholder google-services.json
+        run: |
+          if [ ! -f "android/app/google-services.json" ]; then
+            echo '{"project_info":{"project_number":"0","project_id":"placeholder","storage_bucket":"placeholder"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.example.cocotrade"}},"api_key":[{"current_key":"placeholder"}],"services":{"appinvite_service":{"status":1}}}]}' > android/app/google-services.json
+          fi
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
