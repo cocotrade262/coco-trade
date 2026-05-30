@@ -85,7 +85,7 @@ export class PostsService {
 
     // 1. Upload to Cloudinary via Signed/Unsigned REST API
     const cloudName = 'dt8dfsjjv';
-    const uploadPreset = 'cocotrade_unsigned';
+    const uploadPreset = 'ml_default';
 
     const formData = new FormData();
     formData.append('file', params.file);

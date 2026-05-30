@@ -91,7 +91,7 @@ public class VideoUploadActivity extends AppCompatActivity {
         statusText.setText("Uploading to Cloudinary...");
 
         MediaManager.get().upload(selectedVideoUri)
-                .unsigned("cocotrade_unsigned")
+                .unsigned("ml_default")
                 .option("resource_type", "video")
                 .callback(new UploadCallback() {
                     @Override
