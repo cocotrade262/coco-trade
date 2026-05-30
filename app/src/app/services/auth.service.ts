@@ -47,7 +47,7 @@ export class AuthService {
   }
 
   private async initialize() {
-    if (isPlatform('android')) {
+    if (isPlatform('capacitor') && isPlatform('android')) {
       try {
         const nativeUser = await NativeAuth.getCurrentUser();
         if (nativeUser) {
@@ -91,8 +91,8 @@ export class AuthService {
   }
 
   async login() {
-    if (isPlatform('android')) {
-      // Android flow using NativeAuth plugin (WebView)
+    if (isPlatform('capacitor') && isPlatform('android')) {
+      // Native Android flow using our custom WebView plugin
       try {
         await NativeAuth.login();
       } catch (error: any) {
@@ -102,33 +102,23 @@ export class AuthService {
       return;
     }
 
-    if (!isPlatform('capacitor')) {
-      // Web flow using Firebase Auth directly
-      try {
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(this.fbAuth, provider);
-        if (result.user) {
-          this.updateUserState({
-            id: result.user.uid,
-            email: result.user.email,
-            displayName: result.user.displayName,
-            imageUrl: result.user.photoURL
-          });
-        }
-      } catch (error: any) {
-        console.error('Firebase Web Auth Error', error);
-        alert('Login failed: ' + (error.message || 'Unknown error'));
-      }
-      return;
-    }
-
-    // Other Capacitor flows (iOS, etc.)
+    // Web Browser or other non-Android Capacitor platforms
     try {
-      const googleUser = await GoogleAuth.signIn();
-      this.updateUserState(googleUser);
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(this.fbAuth, provider);
+      if (result.user) {
+        this.updateUserState({
+          id: result.user.uid,
+          email: result.user.email,
+          displayName: result.user.displayName,
+          imageUrl: result.user.photoURL
+        });
+      }
     } catch (error: any) {
-      console.error('Capacitor Google Auth Error', error);
-      alert('Mobile Login failed: ' + (error.message || 'Unknown error'));
+      // If it's a capacitor environment but not Android, we could try GoogleAuth.signIn()
+      // but the user specifically asked for Web Auth fallback to fix the github.io preview.
+      console.error('Firebase Web Auth Error', error);
+      alert('Login failed: ' + (error.message || 'Unknown error'));
     }
   }
 
@@ -161,7 +151,7 @@ export class AuthService {
 
   async logout() {
     try {
-      if (isPlatform('android')) {
+      if (isPlatform('capacitor') && isPlatform('android')) {
         await NativeAuth.logout();
       }
       await signOut(this.fbAuth);
