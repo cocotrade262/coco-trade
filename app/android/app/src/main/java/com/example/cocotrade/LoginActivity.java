@@ -1,38 +1,36 @@
 package com.example.cocotrade;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.credentials.ClearCredentialStateRequest;
-import androidx.credentials.CredentialManager;
-import androidx.credentials.GetCredentialRequest;
-import androidx.credentials.GetCredentialResponse;
-import androidx.credentials.exceptions.GetCredentialException;
 
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private FirebaseAuth mAuth;
-    private CredentialManager credentialManager;
     private ProgressBar progressBar;
     private Button btnSignIn;
+    private WebView webView;
+    private LinearLayout loginUi;
+
+    // Use the Firebase project's Auth Domain
+    private static final String AUTH_DOMAIN = "cocotrade-fc1a5.firebaseapp.com";
+    private static final String AUTH_URL = "https://" + AUTH_DOMAIN + "/__/auth/handler?apiKey=AIzaSyDo3ff8V73OkrZ5Hh2r-DaLltBX3uyPtQc&appName=%5BDEFAULT%5D&authType=signInWithPopup&providerId=google.com&scopes=profile%2Cemail";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +38,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-        credentialManager = CredentialManager.create(this);
         progressBar = findViewById(R.id.progress_bar);
         btnSignIn = findViewById(R.id.btn_google_signin);
+        webView = findViewById(R.id.webview);
+        loginUi = findViewById(R.id.login_ui);
+
+        setupWebView();
 
         // Check if user is already signed in
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -50,72 +51,79 @@ public class LoginActivity extends AppCompatActivity {
             updateUI(currentUser);
         }
 
-        btnSignIn.setOnClickListener(v -> signInWithGoogle());
+        btnSignIn.setOnClickListener(v -> startWebAuth());
     }
 
-    private void signInWithGoogle() {
-        progressBar.setVisibility(View.VISIBLE);
-        btnSignIn.setEnabled(false);
+    private void setupWebView() {
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setSupportMultipleWindows(true);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
-        // Web Client ID for your project
-        String webClientId = "274853330536-vlt0nphh115t707f1o90q9l56asolp3q.apps.googleusercontent.com";
+        CookieManager.getInstance().setAcceptCookie(true);
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
 
-        GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
-                .setFilterByAuthorizedAccounts(false)
-                .setServerClientId(webClientId)
-                .setAutoSelectEnabled(true)
-                .build();
-
-        GetCredentialRequest request = new GetCredentialRequest.Builder()
-                .addCredentialOption(googleIdOption)
-                .build();
-
-        Executor executor = Executors.newSingleThreadExecutor();
-
-        credentialManager.getCredentialAsync(this, request, null, executor, new androidx.credentials.CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+        webView.setWebViewClient(new WebViewClient() {
             @Override
-            public void onResult(GetCredentialResponse result) {
-                String idToken = GoogleIdTokenCredential.createFrom(result.getCredential().getData()).getIdToken();
-                firebaseAuthWithGoogle(idToken);
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                progressBar.setVisibility(View.VISIBLE);
+                Log.d(TAG, "Page started: " + url);
             }
 
             @Override
-            public void onError(@NonNull GetCredentialException e) {
-                runOnUiThread(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    btnSignIn.setEnabled(true);
-                    Log.e(TAG, "Credential Manager Error", e);
-                    Toast.makeText(LoginActivity.this, "Sign in failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                progressBar.setVisibility(View.GONE);
+                Log.d(TAG, "Page finished: " + url);
+
+                // If the URL contains signs of a successful auth redirect or callback
+                // Note: In a real Firebase setup with popup, we'd listen for the redirect back to the app or a success page.
+                // Since this is a simple implementation, we check for the Firebase user periodically or on redirect.
+                checkFirebaseAuth();
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                Log.d(TAG, "Loading URL: " + url);
+                return false;
             }
         });
     }
 
-    private void firebaseAuthWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    runOnUiThread(() -> {
-                        progressBar.setVisibility(View.GONE);
-                        btnSignIn.setEnabled(true);
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            Log.w(TAG, "Firebase Auth Failed", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                });
+    private void startWebAuth() {
+        loginUi.setVisibility(View.GONE);
+        webView.setVisibility(View.VISIBLE);
+        webView.loadUrl(AUTH_URL);
+    }
+
+    private void checkFirebaseAuth() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            updateUI(user);
+        }
     }
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            Toast.makeText(this, "Welcome " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
-            // Transition to MainActivity (the Capacitor Bridge)
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Welcome " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            });
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (webView.getVisibility() == View.VISIBLE) {
+            webView.setVisibility(View.GONE);
+            loginUi.setVisibility(View.VISIBLE);
+            webView.stopLoading();
+        } else {
+            super.onBackPressed();
         }
     }
 }

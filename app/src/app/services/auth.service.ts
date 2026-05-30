@@ -3,6 +3,15 @@ import { BehaviorSubject } from 'rxjs';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { isPlatform } from '@ionic/angular';
 import { Auth, signInWithPopup, GoogleAuthProvider, signOut, user as firebaseUser } from '@angular/fire/auth';
+import { registerPlugin } from '@capacitor/core';
+
+export interface NativeAuthPlugin {
+  login(): Promise<void>;
+  getCurrentUser(): Promise<{ uid: string; email: string; displayName: string; photoUrl: string; idToken: string }>;
+  logout(): Promise<void>;
+}
+
+const NativeAuth = registerPlugin<NativeAuthPlugin>('NativeAuth');
 
 export interface UserProfile {
   uid: string;
@@ -38,6 +47,20 @@ export class AuthService {
   }
 
   private async initialize() {
+    if (isPlatform('android')) {
+      try {
+        const nativeUser = await NativeAuth.getCurrentUser();
+        if (nativeUser) {
+           this.updateUserState({
+             id: nativeUser.uid,
+             email: nativeUser.email,
+             displayName: nativeUser.displayName,
+             imageUrl: nativeUser.photoUrl
+           });
+        }
+      } catch (e) {}
+    }
+
     if (!isPlatform('capacitor')) {
       try {
         GoogleAuth.initialize({
@@ -68,6 +91,17 @@ export class AuthService {
   }
 
   async login() {
+    if (isPlatform('android')) {
+      // Android flow using NativeAuth plugin (WebView)
+      try {
+        await NativeAuth.login();
+      } catch (error: any) {
+        console.error('Native Auth Error', error);
+        alert('Android Login failed: ' + (error.message || 'Unknown error'));
+      }
+      return;
+    }
+
     if (!isPlatform('capacitor')) {
       // Web flow using Firebase Auth directly
       try {
@@ -88,7 +122,7 @@ export class AuthService {
       return;
     }
 
-    // Capacitor flow
+    // Other Capacitor flows (iOS, etc.)
     try {
       const googleUser = await GoogleAuth.signIn();
       this.updateUserState(googleUser);
@@ -127,6 +161,9 @@ export class AuthService {
 
   async logout() {
     try {
+      if (isPlatform('android')) {
+        await NativeAuth.logout();
+      }
       await signOut(this.fbAuth);
       await GoogleAuth.signOut();
     } catch (e) {}
