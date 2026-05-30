@@ -2,8 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches:
-      - ["**"]
+    branches: ["**"]
 
 jobs:
   build:
