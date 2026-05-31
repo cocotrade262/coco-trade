@@ -151,6 +151,10 @@ body[data-active-tab="post"] app-post-ad .postAdScroll {
   width: 100%;
 }
 
+.coco-row--btns {
+  gap: 12px;
+}
+
 .coco-field {
   flex: 1;
   display: flex;
@@ -159,7 +163,7 @@ body[data-active-tab="post"] app-post-ad .postAdScroll {
 
 .coco-label {
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   margin-bottom: 4px;
   padding-left: 4px;
@@ -169,14 +173,15 @@ body[data-active-tab="post"] app-post-ad .postAdScroll {
 .coco-input {
   width: 100%;
   box-sizing: border-box;
-  min-height: 40px;
-  padding: 8px 12px;
+  min-height: 44px;
+  padding: 10px 14px;
   border-radius: 12px;
   border: 1px solid rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.14);
   background: var(--ion-background-color);
   color: var(--ion-text-color);
   font: inherit;
   font-size: 1rem;
+  font-weight: 500;
 }
 
 .coco-input:focus {

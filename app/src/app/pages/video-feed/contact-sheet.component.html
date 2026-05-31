@@ -9,19 +9,19 @@
 
 <ion-content class="ion-padding">
   <div class="contactFields">
-    <div class="coco-row">
-      <div class="coco-field">
-        <label class="coco-label" for="contactName">Name</label>
-        <input
-          id="contactName"
-          class="coco-input"
-          type="text"
-          [(ngModel)]="name"
-          placeholder="Seller name"
-          autocomplete="name"
-        />
-      </div>
+    <div class="coco-field">
+      <label class="coco-label" for="contactName">Name</label>
+      <input
+        id="contactName"
+        class="coco-input"
+        type="text"
+        [(ngModel)]="name"
+        placeholder="Seller name"
+        autocomplete="name"
+      />
+    </div>
 
+    <div class="coco-row">
       <div class="coco-field">
         <label class="coco-label" for="contactMobile">Mobile</label>
         <input
@@ -32,20 +32,6 @@
           placeholder="Mobile number"
           inputmode="tel"
           autocomplete="tel"
-        />
-      </div>
-    </div>
-
-    <div class="coco-row">
-      <div class="coco-field">
-        <label class="coco-label" for="contactPlace">Area</label>
-        <input
-          id="contactPlace"
-          class="coco-input"
-          type="text"
-          [(ngModel)]="place"
-          placeholder="Village / Town"
-          autocomplete="address-level2"
         />
       </div>
 
@@ -60,10 +46,24 @@
         />
       </div>
     </div>
+
+    <div class="coco-field">
+      <label class="coco-label" for="contactPlace">Area</label>
+      <input
+        id="contactPlace"
+        class="coco-input"
+        type="text"
+        [(ngModel)]="place"
+        placeholder="Village / Town"
+        autocomplete="address-level2"
+      />
+    </div>
   </div>
 
-  <ion-button expand="block" color="success" class="saveBtn" (click)="save()">
-    Update Details
-  </ion-button>
+  <div class="modal-actions">
+    <button type="button" class="postAd-btn postAd-btn--success" (click)="save()">
+      Update Details
+    </button>
+  </div>
 </ion-content>
 

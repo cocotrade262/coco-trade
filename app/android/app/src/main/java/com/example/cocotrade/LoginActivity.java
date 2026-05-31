@@ -25,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     // Use the Firebase project's Auth Domain
     private static final String AUTH_DOMAIN = "cocotrade-fc1a5.firebaseapp.com";
     // Use the web app as the authentication gateway
-    private static final String WEB_AUTH_URL = "https://cocotrade262.github.io/#/tabs/account?native=true";
+    private static final String WEB_AUTH_URL = "https://cocotrade262.github.io/coco-trade/#/tabs/account?native=true";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

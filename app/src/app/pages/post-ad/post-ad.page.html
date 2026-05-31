@@ -6,9 +6,9 @@
   <div class="postAdInner">
     <div class="postAdCard">
       <h2 class="postAdCard__title">Post Coconut Video</h2>
-      <p class="postAdCard__subtitle">Videos longer than 30 seconds will be trimmed.</p>
+      <p class="postAdCard__subtitle">Max 30 seconds video.</p>
 
-      <div class="coco-row">
+      <div class="coco-row coco-row--btns">
         <input
           #cameraInput
           type="file"
@@ -59,10 +59,6 @@
 
       <div class="preview" *ngIf="selectedObjectUrl">
         <video class="preview__video" [src]="selectedObjectUrl" controls playsinline></video>
-        <div class="preview__meta">
-          Duration: {{ durationSec | number: '1.0-0' }}s
-          <span *ngIf="(durationSec ?? 0) > 30" class="trim-badge">(will be trimmed to 30s)</span>
-        </div>
       </div>
 
       <div class="post-fields">
