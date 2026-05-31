@@ -210,6 +210,17 @@ export class AuthService {
       await GoogleAuth.signOut();
     } catch (e) {}
     this.clearUserState();
+
+    // Clear legacy redirect hints if any
+    localStorage.removeItem('coco_native_bridge');
+  }
+
+  async getIdToken(): Promise<string | null> {
+    const user = this.fbAuth.currentUser;
+    if (user) {
+      return user.getIdToken(true);
+    }
+    return null;
   }
 
   private getStoredUser(): UserProfile | null {

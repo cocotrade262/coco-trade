@@ -35,6 +35,20 @@ export class AccountPage implements OnInit {
     this.userPosts$ = this.auth.user$.pipe(
       switchMap(user => user ? this.postsService.getUserPosts(user.uid) : of([]))
     );
+
+    // Native Bridge Fallback
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('native') === 'true' || url.hash.includes('native=true')) {
+      this.auth.user$.subscribe(async user => {
+        if (user) {
+          const token = await this.auth.getIdToken();
+          if (token) {
+            // Redirect back to app with token
+            window.location.href = `cocotrade://auth-callback?token=${token}`;
+          }
+        }
+      }).unsubscribe();
+    }
   }
 
   async signIn() {
