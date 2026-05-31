@@ -3,7 +3,8 @@ import { BehaviorSubject } from 'rxjs';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { isPlatform } from '@ionic/angular';
 import { Auth, signInWithPopup, GoogleAuthProvider, signOut, user as firebaseUser } from '@angular/fire/auth';
-import { registerPlugin } from '@capacitor/core';
+import { registerPlugin, Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 
 export interface NativeAuthPlugin {
   login(): Promise<void>;
@@ -44,22 +45,21 @@ export class AuthService {
         });
       }
     });
+
+    // 1. Absolute Fallback: Listen for App URL Opens (Deep Links)
+    if (Capacitor.isNativePlatform()) {
+      App.addListener('appUrlOpen', data => {
+        console.log('App opened with URL:', data.url);
+        if (data.url.includes('auth-callback') || data.url.includes('googleusercontent.apps')) {
+          // Force a state refresh from the native layer
+          this.refreshSession();
+        }
+      });
+    }
   }
 
   private async initialize() {
-    if (isPlatform('capacitor') && isPlatform('android')) {
-      try {
-        const nativeUser = await NativeAuth.getCurrentUser();
-        if (nativeUser) {
-           this.updateUserState({
-             id: nativeUser.uid,
-             email: nativeUser.email,
-             displayName: nativeUser.displayName,
-             imageUrl: nativeUser.photoUrl
-           });
-        }
-      } catch (e) {}
-    }
+    await this.refreshSession();
 
     if (!isPlatform('capacitor')) {
       try {
@@ -113,12 +113,63 @@ export class AuthService {
           displayName: result.user.displayName,
           imageUrl: result.user.photoURL
         });
+
+        // 2. In-App Web Browser Close Hack: If we are in a popup, try to self-close
+        try {
+          if (window.opener) {
+            window.close();
+          }
+        } catch (e) {}
       }
     } catch (error: any) {
       // If it's a capacitor environment but not Android, we could try GoogleAuth.signIn()
       // but the user specifically asked for Web Auth fallback to fix the github.io preview.
       console.error('Firebase Web Auth Error', error);
       alert('Login failed: ' + (error.message || 'Unknown error'));
+    }
+  }
+
+  private async refreshSession() {
+    if (isPlatform('capacitor') && isPlatform('android')) {
+      try {
+        const nativeUser = await NativeAuth.getCurrentUser();
+        if (nativeUser) {
+           this.updateUserState({
+             id: nativeUser.uid,
+             email: nativeUser.email,
+             displayName: nativeUser.displayName,
+             imageUrl: nativeUser.photoUrl
+           });
+        }
+      } catch (e) {}
+    }
+
+    if (!isPlatform('capacitor')) {
+      try {
+        GoogleAuth.initialize({
+          clientId: '274853330536-vlt0nphh115t707f1o90q9l56asolp3q.apps.googleusercontent.com',
+          scopes: ['profile', 'email'],
+          grantOfflineAccess: true,
+        });
+      } catch (e) {
+        console.warn('GoogleAuth.initialize failed or already initialized', e);
+      }
+    }
+
+    // Attempt to refresh/verify existing session on load
+    try {
+      const user = await GoogleAuth.refresh();
+      if (user) {
+        this.updateUserState(user);
+      } else if (!isPlatform('android')) {
+        // If refresh fails or returns null, ensure local state is cleared (non-android only as android is checked above)
+        this.clearUserState();
+      }
+    } catch (e) {
+      console.log('No active session found on load');
+      if (!isPlatform('android')) {
+        this.clearUserState();
+      }
     }
   }
 
@@ -129,6 +180,7 @@ export class AuthService {
       displayName: googleUser.displayName || googleUser.name || googleUser.email.split('@')[0],
       photoUrl: googleUser.imageUrl
     };
+    // 3. Hardcode State Synchronization: Save to localStorage immediately
     localStorage.setItem(AuthService.AUTH_KEY, JSON.stringify(user));
     this._user$.next(user);
   }
