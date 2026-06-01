@@ -18,6 +18,13 @@ export class AccountPage implements OnInit {
 
   userPosts$: Observable<PostVideo[]> = of([]);
 
+  // Auth fields
+  authMode: 'login' | 'signup' = 'login';
+  email = '';
+  password = '';
+  name = '';
+  authBusy = false;
+
   // Report fields
   reportType = 'suggestion';
   reportMessage = '';
@@ -73,14 +80,41 @@ export class AccountPage implements OnInit {
     }
   }
 
-  async signIn() {
-    await this.auth.login();
-    this.auth.user$.subscribe(user => {
-      if (user) {
-        this.isEditing = true;
-        this.newName = user.displayName;
+  async handleAuth() {
+    if (!this.email || !this.password) {
+      const t = await this.toastCtrl.create({ message: 'Email and password required', duration: 2000 });
+      await t.present();
+      return;
+    }
+
+    this.authBusy = true;
+    try {
+      if (this.authMode === 'login') {
+        await this.auth.loginWithEmail(this.email, this.password);
+      } else {
+        if (!this.name) {
+           const t = await this.toastCtrl.create({ message: 'Name required for signup', duration: 2000 });
+           await t.present();
+           this.authBusy = false;
+           return;
+        }
+        await this.auth.signUpWithEmail(this.email, this.password, this.name);
       }
-    }).unsubscribe();
+    } catch (e: any) {
+      const t = await this.toastCtrl.create({ message: e.message || 'Auth failed', duration: 3000, color: 'danger' });
+      await t.present();
+    } finally {
+      this.authBusy = false;
+    }
+  }
+
+  toggleAuthMode() {
+    this.authMode = this.authMode === 'login' ? 'signup' : 'login';
+  }
+
+  async signIn() {
+    // This now refers to the native trigger if applicable
+    await this.auth.login();
   }
 
   startEdit() {

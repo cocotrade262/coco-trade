@@ -2,7 +2,16 @@ import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { isPlatform } from '@ionic/angular';
-import { Auth, signInWithPopup, GoogleAuthProvider, signOut, user as firebaseUser } from '@angular/fire/auth';
+import {
+  Auth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  user as firebaseUser,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile
+} from '@angular/fire/auth';
 import { registerPlugin, Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 
@@ -90,14 +99,38 @@ export class AuthService {
     }
   }
 
+  async loginWithEmail(email: string, pass: string) {
+    try {
+      const result = await signInWithEmailAndPassword(this.fbAuth, email, pass);
+      if (result.user) {
+        this.updateUserState(result.user);
+      }
+    } catch (error: any) {
+      console.error('Login Error', error);
+      throw error;
+    }
+  }
+
+  async signUpWithEmail(email: string, pass: string, name: string) {
+    try {
+      const result = await createUserWithEmailAndPassword(this.fbAuth, email, pass);
+      if (result.user) {
+        await updateProfile(result.user, { displayName: name });
+        this.updateUserState(result.user);
+      }
+    } catch (error: any) {
+      console.error('Signup Error', error);
+      throw error;
+    }
+  }
+
   async login() {
     if (isPlatform('capacitor') && isPlatform('android')) {
-      // Native Android flow using our custom WebView plugin
+      // Native Android flow
       try {
         await NativeAuth.login();
       } catch (error: any) {
         console.error('Native Auth Error', error);
-        alert('Android Login failed: ' + (error.message || 'Unknown error'));
       }
       return;
     }

@@ -33,7 +33,38 @@
             android:text="Sign in to continue"
             android:textSize="16sp"
             android:textColor="#666666"
-            android:layout_marginBottom="48dp"/>
+            android:layout_marginBottom="32dp"/>
+
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:padding="16dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginBottom="24dp"/>
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Login"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#3880ff"
+            android:layout_marginBottom="16dp" />
 
         <Button
             android:id="@+id/btn_google_signin"
@@ -44,8 +75,7 @@
             android:textSize="16sp"
             android:textColor="#FFFFFF"
             android:backgroundTint="#4285F4"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+            android:visibility="gone" />
 
         <ProgressBar
             android:id="@+id/progress_bar"

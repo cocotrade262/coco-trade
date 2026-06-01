@@ -23,6 +23,8 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private ProgressBar progressBar;
     private Button btnSignIn;
+    private Button btnLogin;
+    private android.widget.EditText etEmail, etPassword;
 
     // Use the Firebase project's Auth Domain
     private static final String AUTH_DOMAIN = "cocotrade-fc1a5.firebaseapp.com";
@@ -37,6 +39,9 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         progressBar = findViewById(R.id.progress_bar);
         btnSignIn = findViewById(R.id.btn_google_signin);
+        btnLogin = findViewById(R.id.btn_login);
+        etEmail = findViewById(R.id.et_email);
+        etPassword = findViewById(R.id.et_password);
 
         // Check if user is already signed in
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -48,7 +53,31 @@ public class LoginActivity extends AppCompatActivity {
         // Handle intent if started via deep link
         handleDeepLink(getIntent());
 
+        btnLogin.setOnClickListener(v -> handleEmailLogin());
         btnSignIn.setOnClickListener(v -> startCustomTabsAuth());
+    }
+
+    private void handleEmailLogin() {
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Email and password required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressBar.setVisibility(View.VISIBLE);
+        btnLogin.setEnabled(false);
+
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            progressBar.setVisibility(View.GONE);
+            btnLogin.setEnabled(true);
+            if (task.isSuccessful()) {
+                updateUI(mAuth.getCurrentUser());
+            } else {
+                Toast.makeText(this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void startCustomTabsAuth() {
