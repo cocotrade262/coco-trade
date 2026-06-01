@@ -12,8 +12,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -39,8 +41,12 @@ public class LoginActivity extends AppCompatActivity {
         // Check if user is already signed in
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
+            Log.d(TAG, "Already signed in as: " + currentUser.getEmail());
             updateUI(currentUser);
         }
+
+        // Handle intent if started via deep link
+        handleDeepLink(getIntent());
 
         btnSignIn.setOnClickListener(v -> startCustomTabsAuth());
     }
@@ -72,20 +78,21 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void firebaseAuthWithToken(String token) {
+    private void firebaseAuthWithToken(String idToken) {
+        Log.d(TAG, "Attempting Firebase Auth with ID Token: " + idToken.substring(0, Math.min(10, idToken.length())) + "...");
         progressBar.setVisibility(View.VISIBLE);
         btnSignIn.setEnabled(false);
 
-        mAuth.signInWithCustomToken(token).addOnCompleteListener(this, task -> {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
+                Log.d(TAG, "Sign-in successful");
                 updateUI(mAuth.getCurrentUser());
             } else {
-                // If custom token fails, try standard credential (token might be ID token)
-                // Note: Firebase Custom Token is different from ID Token.
-                // But we can also use signInWithIdToken if we had a credential.
-                // For now, assume it's a custom token or fallback to sync.
-                Log.w(TAG, "Custom Token Sign-in failed", task.getException());
-                checkFirebaseAuth();
+                Log.e(TAG, "Sign-in failed", task.getException());
+                progressBar.setVisibility(View.GONE);
+                btnSignIn.setEnabled(true);
+                Toast.makeText(this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

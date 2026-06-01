@@ -30,6 +30,8 @@ export class AccountPage implements OnInit {
     private readonly toastCtrl: ToastController
   ) {}
 
+  isNativeBridge = false;
+
   ngOnInit(): void {
     this.tabShellSync.scheduleSync();
     this.userPosts$ = this.auth.user$.pipe(
@@ -39,15 +41,35 @@ export class AccountPage implements OnInit {
     // Native Bridge Fallback
     const url = new URL(window.location.href);
     if (url.searchParams.get('native') === 'true' || url.hash.includes('native=true')) {
-      this.auth.user$.subscribe(async user => {
-        if (user) {
-          const token = await this.auth.getIdToken();
-          if (token) {
-            // Redirect back to app with token
-            window.location.href = `cocotrade://auth-callback?token=${token}`;
-          }
+      this.isNativeBridge = true;
+      this.setupNativeRedirect();
+    }
+  }
+
+  private setupNativeRedirect() {
+    this.auth.user$.subscribe(async user => {
+      if (user) {
+        const token = await this.auth.getIdToken();
+        if (token) {
+          console.log('User authenticated via bridge, redirecting to app...');
+          // Attempt automatic redirect back to app
+          const redirectUrl = `cocotrade://auth-callback?token=${encodeURIComponent(token)}`;
+          window.location.href = redirectUrl;
         }
-      }).unsubscribe();
+      }
+    });
+  }
+
+  async returnToApp() {
+    const user = await new Promise(resolve => this.auth.user$.subscribe(u => resolve(u)).unsubscribe());
+    if (user) {
+      const token = await this.auth.getIdToken();
+      if (token) {
+        const redirectUrl = `cocotrade://auth-callback?token=${encodeURIComponent(token)}`;
+        window.location.href = redirectUrl;
+      }
+    } else {
+      await this.signIn();
     }
   }
 
