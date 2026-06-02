@@ -12,28 +12,28 @@
         android:gravity="center"
         android:padding="24dp">
 
-        <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@mipmap/ic_launcher"
-            android:layout_marginBottom="32dp"/>
-
         <TextView
+            android:id="@+id/tv_login_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome to CocoTrade"
-            android:textSize="24sp"
+            android:text="Login"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="48dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sign in to continue"
-            android:textSize="16sp"
-            android:textColor="#666666"
-            android:layout_marginBottom="32dp"/>
+        <EditText
+            android:id="@+id/et_name"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Full Name"
+            android:inputType="textPersonName"
+            android:padding="16dp"
+            android:textColor="#000000"
+            android:textColorHint="#999999"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone"/>
 
         <EditText
             android:id="@+id/et_email"
@@ -42,6 +42,8 @@
             android:hint="Email"
             android:inputType="textEmailAddress"
             android:padding="16dp"
+            android:textColor="#000000"
+            android:textColorHint="#999999"
             android:background="@android:drawable/edit_text"
             android:layout_marginBottom="12dp"/>
 
@@ -52,6 +54,8 @@
             android:hint="Password"
             android:inputType="textPassword"
             android:padding="16dp"
+            android:textColor="#000000"
+            android:textColorHint="#999999"
             android:background="@android:drawable/edit_text"
             android:layout_marginBottom="24dp"/>
 
@@ -65,6 +69,18 @@
             android:textColor="#FFFFFF"
             android:backgroundTint="#3880ff"
             android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/tv_toggle_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't have an account? Sign Up"
+            android:textSize="15sp"
+            android:textColor="#3880ff"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true"/>
 
         <Button
             android:id="@+id/btn_google_signin"
