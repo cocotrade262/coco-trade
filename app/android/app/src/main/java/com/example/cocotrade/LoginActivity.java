@@ -172,6 +172,9 @@ public class LoginActivity extends AppCompatActivity {
                 case "ERROR_WEAK_PASSWORD":
                     message = "The password is too weak.";
                     break;
+                case "ERROR_API_KEY_NOT_SET":
+                    message = "API key not configured correctly.";
+                    break;
                 default:
                     message = exception.getMessage();
             }

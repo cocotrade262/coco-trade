@@ -101,7 +101,20 @@ export class AccountPage implements OnInit {
         await this.auth.signUpWithEmail(this.email, this.password, this.name);
       }
     } catch (e: any) {
-      const t = await this.toastCtrl.create({ message: e.message || 'Auth failed', duration: 3000, color: 'danger' });
+      let msg = 'Authentication failed';
+      if (e.code) {
+        switch(e.code) {
+          case 'auth/invalid-email': msg = 'The email address is badly formatted.'; break;
+          case 'auth/user-not-found': msg = 'No account found with this email.'; break;
+          case 'auth/wrong-password': msg = 'The password you entered is incorrect.'; break;
+          case 'auth/email-already-in-use': msg = 'This email is already registered.'; break;
+          case 'auth/weak-password': msg = 'The password is too weak.'; break;
+          default: msg = e.message;
+        }
+      } else {
+        msg = e.message || 'Auth failed';
+      }
+      const t = await this.toastCtrl.create({ message: msg, duration: 3000, color: 'danger' });
       await t.present();
     } finally {
       this.authBusy = false;
