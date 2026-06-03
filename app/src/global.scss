@@ -40,51 +40,35 @@
 html,
 body {
   height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 ion-app {
   height: 100%;
 }
 
-/**
- * Inactive tab routes stay in the DOM under ion-router-outlet. Full-viewport pages
- * (e.g. 100vh video feed) can still sit above the active tab and eat all touches.
- */
-ion-page.ion-page-hidden,
-ion-page.ion-page-invisible {
-  pointer-events: none !important;
+/** Ensure the routed pages are solid and visible */
+ion-router-outlet {
+  display: block;
+  position: relative;
+  height: 100%;
 }
 
-/* Ionic stacked tabs: visible route must accept clicks (override rule above when Post/Account is focused). */
-body[data-active-tab="post"] ion-page:has(app-post-ad),
-body[data-active-tab="account"] ion-page:has(app-account) {
-  pointer-events: auto !important;
-  visibility: visible !important;
+ion-page {
+  background: var(--ion-background-color, #fff);
+  display: block !important;
 }
 
-body[data-active-tab="post"] app-tabs,
-body[data-active-tab="account"] app-tabs {
-  pointer-events: auto !important;
+ion-page.ion-page-hidden {
+  display: none !important;
 }
 
-body[data-active-tab="post"] app-post-ad .postAd-btn:not(:disabled) {
-  cursor: pointer !important;
-}
-
-body[data-active-tab="post"] app-post-ad ion-textarea {
-  cursor: text !important;
-  pointer-events: auto !important;
-}
-
-/**
- * Tabs shell: stretch inside `ion-page` so content starts under the status bar,
- * not vertically centered with empty space above.
- */
-ion-router-outlet ion-page app-tabs {
-  flex: 1;
+/** Tabs shell: stretch inside `ion-page` */
+app-tabs {
   display: flex;
   flex-direction: column;
-  min-height: 0;
   height: 100%;
 }
 
@@ -105,25 +89,6 @@ app-post-ad .postAdScroll {
   min-height: 0;
 }
 
-/* app.component.ts sets body[data-active-tab] from location.hash (authoritative for useHash). */
-body[data-active-tab="post"] app-video-feed,
-body[data-active-tab="account"] app-video-feed {
-  display: none !important;
-  pointer-events: none !important;
-  visibility: hidden !important;
-}
-
-/*
- * `dataset.activeTab` can be correct while taps still fail: the Feed route’s **ion-page**
- * wrapper often stays full-viewport above Post. Hiding `app-video-feed` is not enough —
- * collapse the whole page shell that contains it, and lift the Post page shell.
- */
-body[data-active-tab="post"] ion-page:has(app-video-feed),
-body[data-active-tab="account"] ion-page:has(app-video-feed) {
-  display: none !important;
-  pointer-events: none !important;
-  visibility: hidden !important;
-}
 
 /**
  * Do not set `position: relative` on `ion-page` — Ionic uses absolute inset fill here.
@@ -163,25 +128,26 @@ body[data-active-tab="post"] app-post-ad .postAdScroll {
 
 .coco-label {
   display: block;
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 4px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 2px;
   padding-left: 4px;
   color: var(--ion-text-color);
+  opacity: 0.9;
 }
 
 .coco-input {
   width: 100%;
   box-sizing: border-box;
-  min-height: 44px;
-  padding: 10px 14px;
-  border-radius: 12px;
+  min-height: 42px;
+  padding: 8px 14px;
+  border-radius: 10px;
   border: 1px solid rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.14);
   background: var(--ion-background-color);
   color: var(--ion-text-color);
   font: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .coco-input:focus {
