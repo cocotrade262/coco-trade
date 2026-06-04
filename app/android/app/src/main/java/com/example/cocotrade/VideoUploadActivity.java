@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ public class VideoUploadActivity extends AppCompatActivity {
     private Button btnSelect, btnUpload;
     private ProgressBar progressBar;
     private TextView statusText;
+    private EditText etName, etMobile, etArea, etCost, etCaption;
     private Uri selectedVideoUri;
 
     private DatabaseReference mDatabase;
@@ -46,7 +48,7 @@ public class VideoUploadActivity extends AppCompatActivity {
                     videoPreview.setVideoURI(selectedVideoUri);
                     videoPreview.start();
                     btnUpload.setEnabled(true);
-                    statusText.setText("Video selected: " + selectedVideoUri.getLastPathSegment());
+                    statusText.setText("Video selected");
                 }
             }
     );
@@ -57,7 +59,7 @@ public class VideoUploadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video_upload);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
 
         videoPreview = findViewById(R.id.video_preview);
         btnSelect = findViewById(R.id.btn_select_video);
@@ -65,39 +67,42 @@ public class VideoUploadActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.upload_progress);
         statusText = findViewById(R.id.status_text);
 
-        btnSelect.setOnClickListener(v -> selectVideo());
-        btnUpload.setOnClickListener(v -> uploadVideo());
-    }
+        etName = findViewById(R.id.et_post_name);
+        etMobile = findViewById(R.id.et_post_mobile);
+        etArea = findViewById(R.id.et_post_area);
+        etCost = findViewById(R.id.et_post_cost);
+        etCaption = findViewById(R.id.et_post_caption);
 
-    private void selectVideo() {
-        pickVideoLauncher.launch("video/mp4");
+        btnSelect.setOnClickListener(v -> pickVideoLauncher.launch("video/*"));
+        btnUpload.setOnClickListener(v -> uploadVideo());
     }
 
     private void uploadVideo() {
         if (selectedVideoUri == null) return;
 
+        String name = etName.getText().toString().trim();
+        if (name.isEmpty()) {
+            Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
-            Toast.makeText(this, "Please sign in with Google first.", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(VideoUploadActivity.this, LoginActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
 
         btnUpload.setEnabled(false);
-        btnSelect.setEnabled(false);
         progressBar.setVisibility(View.VISIBLE);
-        statusText.setText("Uploading to Cloudinary...");
+        statusText.setText("Uploading...");
 
         MediaManager.get().upload(selectedVideoUri)
                 .unsigned("ml_default")
                 .option("resource_type", "video")
                 .callback(new UploadCallback() {
                     @Override
-                    public void onStart(String requestId) {
-                        Log.d(TAG, "Upload started: " + requestId);
-                    }
+                    public void onStart(String requestId) {}
 
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
@@ -107,68 +112,48 @@ public class VideoUploadActivity extends AppCompatActivity {
 
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
-                        String videoUrl = (String) resultData.get("secure_url");
-                        Log.d(TAG, "Upload success: " + videoUrl);
-                        saveVideoMetadataToFirebase(videoUrl, user.getUid());
+                        String url = (String) resultData.get("secure_url");
+                        saveToFirebase(url, user.getUid());
                     }
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
-                        Log.e(TAG, "Cloudinary Error: " + error.getDescription());
                         runOnUiThread(() -> {
-                            resetUI();
-                            Toast.makeText(VideoUploadActivity.this, "Upload failed: " + error.getDescription(), Toast.LENGTH_LONG).show();
+                            progressBar.setVisibility(View.GONE);
+                            btnUpload.setEnabled(true);
+                            Toast.makeText(VideoUploadActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
                         });
                     }
 
                     @Override
-                    public void onReschedule(String requestId, ErrorInfo error) {
-                        Log.d(TAG, "Upload rescheduled");
-                    }
+                    public void onReschedule(String requestId, ErrorInfo error) {}
                 })
                 .dispatch();
     }
 
-    private void saveVideoMetadataToFirebase(String url, String userId) {
-        runOnUiThread(() -> statusText.setText("Saving metadata to Firebase..."));
+    private void saveToFirebase(String url, String userId) {
+        String videoId = mDatabase.push().getKey();
 
-        String videoId = mDatabase.child("UserVideos").push().getKey();
-
-        Map<String, Object> videoData = new HashMap<>();
-        videoUrlData(videoData, url, userId);
+        Map<String, Object> data = new HashMap<>();
+        data.put("objectUrl", url);
+        data.put("uploadedBy", userId);
+        data.put("createdAt", System.currentTimeMillis());
+        data.put("name", etName.getText().toString().trim());
+        data.put("mobile", etMobile.getText().toString().trim());
+        data.put("area", etArea.getText().toString().trim());
+        data.put("cost", etCost.getText().toString().trim());
+        data.put("caption", etCaption.getText().toString().trim());
 
         if (videoId != null) {
-            mDatabase.child("UserVideos").child(videoId).setValue(videoData)
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d(TAG, "Firebase write success");
-                        runOnUiThread(() -> {
-                            resetUI();
-                            Toast.makeText(VideoUploadActivity.this, "Video uploaded and saved!", Toast.LENGTH_LONG).show();
-                        });
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "Firebase Error: " + e.getMessage());
-                        runOnUiThread(() -> {
-                            resetUI();
-                            Toast.makeText(VideoUploadActivity.this, "Failed to save metadata: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        });
-                    });
+            mDatabase.child(videoId).setValue(data).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(this, "Success!", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                    btnUpload.setEnabled(true);
+                }
+            });
         }
-    }
-
-    private void videoUrlData(Map<String, Object> data, String url, String userId) {
-        data.put("videoUrl", url);
-        data.put("uploadedBy", userId);
-        data.put("timestamp", System.currentTimeMillis());
-    }
-
-    private void resetUI() {
-        btnUpload.setEnabled(false);
-        btnSelect.setEnabled(true);
-        progressBar.setVisibility(View.GONE);
-        progressBar.setProgress(0);
-        statusText.setText("");
-        videoPreview.stopPlayback();
-        selectedVideoUri = null;
     }
 }

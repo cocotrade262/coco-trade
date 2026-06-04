@@ -3,66 +3,93 @@ package com.example.cocotrade;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.WindowManager;
-import com.getcapacitor.BridgeActivity;
-import com.getcapacitor.JSObject;
-import com.getcapacitor.Plugin;
-import com.getcapacitor.PluginCall;
-import com.getcapacitor.PluginMethod;
-import com.getcapacitor.annotation.CapacitorPlugin;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends BridgeActivity {
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    // Explicitly allow screenshots by clearing FLAG_SECURE
-    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+public class MainActivity extends AppCompatActivity {
 
-    // Register custom plugin
-    registerPlugin(NativeAuthPlugin.class);
-  }
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
+    private RecyclerView recyclerView;
+    private VideoAdapter adapter;
+    private List<VideoAdapter.VideoPost> videoList;
 
-  @CapacitorPlugin(name = "NativeAuth")
-  public static class NativeAuthPlugin extends Plugin {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    @PluginMethod
-    public void login(PluginCall call) {
-      Intent intent = new Intent(getContext(), LoginActivity.class);
-      // Clear stack to ensure clean transition
-      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-      getContext().startActivity(intent);
-      call.resolve();
-    }
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
 
-    @PluginMethod
-    public void getCurrentUser(PluginCall call) {
-      FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-      if (user != null) {
-        JSObject ret = new JSObject();
-        ret.put("uid", user.getUid());
-        ret.put("email", user.getEmail());
-        ret.put("displayName", user.getDisplayName());
-        ret.put("photoUrl", user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null);
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        // Also try to get a fresh ID token for the JS side to use
-        user.getIdToken(false).addOnCompleteListener(task -> {
-           if (task.isSuccessful()) {
-             ret.put("idToken", task.getResult().getToken());
-             call.resolve(ret);
-           } else {
-             call.resolve(ret); // Resolve without token if failed
-           }
+        if (currentUser == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        setContentView(R.layout.activity_main);
+        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
+
+        recyclerView = findViewById(R.id.recycler_view_videos);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Add snap helper for Reels-style scrolling
+        PagerSnapHelper snapHelper = new PagerSnapHelper();
+        snapHelper.attachToRecyclerView(recyclerView);
+
+        videoList = new ArrayList<>();
+        adapter = new VideoAdapter(videoList);
+        recyclerView.setAdapter(adapter);
+
+        loadVideos();
+
+        FloatingActionButton fab = findViewById(R.id.fab_add_video);
+        fab.setOnClickListener(view -> {
+            startActivity(new Intent(MainActivity.this, VideoUploadActivity.class));
         });
-      } else {
-        call.reject("No user logged in");
-      }
+
+        findViewById(R.id.btn_logout).setOnClickListener(v -> {
+            mAuth.signOut();
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        });
     }
 
-    @PluginMethod
-    public void logout(PluginCall call) {
-      FirebaseAuth.getInstance().signOut();
-      call.resolve();
+    private void loadVideos() {
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                videoList.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    VideoAdapter.VideoPost post = data.getValue(VideoAdapter.VideoPost.class);
+                    if (post != null) {
+                        post.id = data.getKey();
+                        videoList.add(0, post); // Newest first
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MainActivity.this, "Failed to load videos", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
-  }
 }
