@@ -18,6 +18,15 @@
             android:layout_height="match_parent"
             android:layout_centerInParent="true" />
 
+        <ImageView
+            android:id="@+id/iv_mute_toggle"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_centerInParent="true"
+            android:src="@android:drawable/ic_lock_silent_mode"
+            android:alpha="0"
+            app:tint="#FFFFFF" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,14 +35,48 @@
             android:padding="16dp"
             android:background="@drawable/gradient_overlay">
 
-            <TextView
-                android:id="@+id/tv_item_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Seller Name"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_item_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Seller Name"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_sold_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:background="#FF4444"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:text="SOLD"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btn_mark_sold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_alignParentEnd="true"
+                    android:backgroundTint="#FF4444"
+                    android:padding="0dp"
+                    android:text="Mark Sold"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/tv_item_caption"
@@ -74,6 +117,39 @@
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp">
+
+                <Button
+                    android:id="@+id/btn_item_contact"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Contact"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:backgroundTint="#3880ff"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
+                <Button
+                    android:id="@+id/btn_item_share"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Share"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:backgroundTint="#666666"
+                    android:textColor="#FFFFFF"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>

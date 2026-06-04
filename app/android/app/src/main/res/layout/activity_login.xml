@@ -17,75 +17,18 @@
             android:id="@+id/tv_login_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
-            android:textSize="32sp"
+            android:text="Welcome to CocoTrade"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="#000000"
-            android:layout_marginBottom="40dp"/>
+            android:layout_marginBottom="40dp"
+            android:gravity="center"/>
 
-        <EditText
-            android:id="@+id/et_name"
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/btn_google_sign_in"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:hint="Full Name"
-            android:inputType="textPersonName"
-            android:padding="16dp"
-            android:textColor="#000000"
-            android:textColorHint="#999999"
-            android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="16dp"
-            android:visibility="gone"
-            android:fontFamily="sans-serif-medium"/>
-
-        <EditText
-            android:id="@+id/et_email"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:hint="Email Address"
-            android:inputType="textEmailAddress"
-            android:padding="16dp"
-            android:textColor="#000000"
-            android:textColorHint="#999999"
-            android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="16dp"
-            android:fontFamily="sans-serif-medium"/>
-
-        <EditText
-            android:id="@+id/et_password"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:padding="16dp"
-            android:textColor="#000000"
-            android:textColorHint="#999999"
-            android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="32dp"
-            android:fontFamily="sans-serif-medium"/>
-
-        <Button
-            android:id="@+id/btn_login"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Login"
-            android:textAllCaps="false"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#3880ff"
-            android:layout_marginBottom="24dp" />
-
-        <TextView
-            android:id="@+id/tv_toggle_mode"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Don't have an account? Sign Up"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#3880ff"
-            android:padding="12dp"
-            android:clickable="true"
-            android:focusable="true"/>
+            android:layout_marginBottom="24dp" />
 
         <ProgressBar
             android:id="@+id/progress_bar"

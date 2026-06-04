@@ -10,43 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app
+        working-directory: app/android
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: app/package-lock.json
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Build web app
-        run: npm run build
-
-      - name: Sync Capacitor (Android)
-        run: npx cap sync android
-
-      - name: Create Placeholder google-services.json
-        run: |
-          if [ ! -f "android/app/google-services.json" ]; then
-            echo '{"project_info":{"project_number":"0","project_id":"placeholder","storage_bucket":"placeholder"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.example.cocotrade"}},"api_key":[{"current_key":"placeholder"}],"services":{"appinvite_service":{"status":1}}}]}' > android/app/google-services.json
-          fi
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
+          cache: 'gradle'
 
       - name: Build debug AAB
         run: |
-          cd android
           chmod +x gradlew
           ./gradlew :app:bundleDebug
 

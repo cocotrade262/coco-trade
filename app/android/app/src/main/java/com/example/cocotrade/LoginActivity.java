@@ -4,28 +4,50 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.TextView;
-import android.widget.EditText;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
+    private static final String WEB_CLIENT_ID = "274853330536-kfkancenrtdb93nv3pgcagdnonjeotp5.apps.googleusercontent.com";
+
     private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
     private ProgressBar progressBar;
-    private Button btnLogin;
-    private EditText etEmail, etPassword, etName;
-    private TextView tvToggleMode, tvTitle;
-    private boolean isLoginMode = true;
+    private SignInButton btnGoogleSignIn;
+
+    private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Intent data = result.getData();
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                    handleSignInResult(task);
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                    btnGoogleSignIn.setEnabled(true);
+                    Log.e(TAG, "Google Sign In failed with result code: " + result.getResultCode());
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +56,15 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         progressBar = findViewById(R.id.progress_bar);
-        btnLogin = findViewById(R.id.btn_login);
-        etEmail = findViewById(R.id.et_email);
-        etPassword = findViewById(R.id.et_password);
-        etName = findViewById(R.id.et_name);
-        tvToggleMode = findViewById(R.id.tv_toggle_mode);
-        tvTitle = findViewById(R.id.tv_login_title);
+        btnGoogleSignIn = findViewById(R.id.btn_google_sign_in);
+
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(WEB_CLIENT_ID)
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         // Check if user is already signed in
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -47,134 +72,51 @@ public class LoginActivity extends AppCompatActivity {
             updateUI(currentUser);
         }
 
-        btnLogin.setOnClickListener(v -> handleAuthAction());
-        tvToggleMode.setOnClickListener(v -> toggleAuthMode());
+        btnGoogleSignIn.setOnClickListener(v -> signIn());
     }
 
-    private void toggleAuthMode() {
-        isLoginMode = !isLoginMode;
-        if (isLoginMode) {
-            tvTitle.setText("Login");
-            btnLogin.setText("Login");
-            etName.setVisibility(View.GONE);
-            tvToggleMode.setText("Don't have an account? Sign Up");
-        } else {
-            tvTitle.setText("Sign Up");
-            btnLogin.setText("Sign Up");
-            etName.setVisibility(View.VISIBLE);
-            tvToggleMode.setText("Already have an account? Login");
-        }
-    }
-
-    private void handleAuthAction() {
-        if (isLoginMode) {
-            handleEmailLogin();
-        } else {
-            handleEmailSignup();
-        }
-    }
-
-    private void handleEmailLogin() {
-        String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Email and password required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    private void signIn() {
         progressBar.setVisibility(View.VISIBLE);
-        btnLogin.setEnabled(false);
+        btnGoogleSignIn.setEnabled(false);
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
 
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            firebaseAuthWithGoogle(account.getIdToken());
+        } catch (ApiException e) {
+            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
             progressBar.setVisibility(View.GONE);
-            btnLogin.setEnabled(true);
-            if (task.isSuccessful()) {
-                updateUI(mAuth.getCurrentUser());
-            } else {
-                showFriendlyError(task.getException());
-            }
-        });
+            btnGoogleSignIn.setEnabled(true);
+            Toast.makeText(this, "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void handleEmailSignup() {
-        String name = etName.getText().toString().trim();
-        String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (password.length() < 6) {
-            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        progressBar.setVisibility(View.VISIBLE);
-        btnLogin.setEnabled(false);
-
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
-            if (task.isSuccessful()) {
-                FirebaseUser user = mAuth.getCurrentUser();
-                if (user != null) {
-                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(name)
-                            .build();
-
-                    user.updateProfile(profileUpdates).addOnCompleteListener(profileTask -> {
-                        progressBar.setVisibility(View.GONE);
-                        btnLogin.setEnabled(true);
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    progressBar.setVisibility(View.GONE);
+                    btnGoogleSignIn.setEnabled(true);
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
                         updateUI(user);
-                    });
-                }
-            } else {
-                progressBar.setVisibility(View.GONE);
-                btnLogin.setEnabled(true);
-                showFriendlyError(task.getException());
-            }
-        });
-    }
-
-    private void showFriendlyError(Exception exception) {
-        String message = "Authentication failed";
-        if (exception instanceof FirebaseAuthException) {
-            String errorCode = ((FirebaseAuthException) exception).getErrorCode();
-            switch (errorCode) {
-                case "ERROR_INVALID_EMAIL":
-                    message = "The email address is badly formatted.";
-                    break;
-                case "ERROR_WRONG_PASSWORD":
-                    message = "The password you entered is incorrect.";
-                    break;
-                case "ERROR_USER_NOT_FOUND":
-                    message = "No account found with this email.";
-                    break;
-                case "ERROR_EMAIL_ALREADY_IN_USE":
-                    message = "This email is already registered.";
-                    break;
-                case "ERROR_WEAK_PASSWORD":
-                    message = "The password is too weak.";
-                    break;
-                default:
-                    message = exception.getMessage();
-            }
-        } else {
-            message = exception != null ? exception.getMessage() : "Unknown error";
-        }
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                    } else {
+                        Log.e(TAG, "Firebase auth with Google failed", task.getException());
+                        Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Welcome " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            });
+            Toast.makeText(this, "Welcome " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         }
     }
 }
