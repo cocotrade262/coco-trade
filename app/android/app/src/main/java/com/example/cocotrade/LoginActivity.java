@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -37,15 +36,16 @@ public class LoginActivity extends AppCompatActivity {
     private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                Log.d(TAG, "ActivityResult: " + result.getResultCode());
-                if (result.getResultCode() == RESULT_OK) {
-                    Intent data = result.getData();
+                Log.d(TAG, "ActivityResult code: " + result.getResultCode());
+                // Always try to parse data, as errors might be returned even with RESULT_CANCELED (0)
+                Intent data = result.getData();
+                if (data != null) {
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                     handleSignInResult(task);
                 } else {
                     progressBar.setVisibility(View.GONE);
                     btnGoogleSignIn.setEnabled(true);
-                    String msg = "Google Sign In cancelled or failed. Code: " + result.getResultCode();
+                    String msg = "Google Sign In failed (No data returned). Code: " + result.getResultCode();
                     Log.e(TAG, msg);
                     Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                 }
@@ -94,10 +94,21 @@ public class LoginActivity extends AppCompatActivity {
                 throw new ApiException(new com.google.android.gms.common.api.Status(13, "Account or ID Token is null"));
             }
         } catch (ApiException e) {
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+            // Log full exception details to help with debugging Code 0/12500/etc
+            Log.e(TAG, "signInResult:failed code=" + e.getStatusCode(), e);
             progressBar.setVisibility(View.GONE);
             btnGoogleSignIn.setEnabled(true);
-            Toast.makeText(this, "Google sign in failed (Code " + e.getStatusCode() + "): " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+            String errorMessage = "Google sign in failed (Code " + e.getStatusCode() + ")";
+            if (e.getStatusCode() == 12500) {
+                errorMessage += ": Sign-in failed on the device. Check SHA-1 configuration.";
+            } else if (e.getStatusCode() == 10) {
+                errorMessage += ": Developer error. Check Web Client ID or SHA-1.";
+            } else if (e.getStatusCode() == 7) {
+                errorMessage += ": Network error.";
+            }
+
+            Toast.makeText(this, errorMessage + " Details: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
