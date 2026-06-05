@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
+                Log.d(TAG, "ActivityResult: " + result.getResultCode());
                 if (result.getResultCode() == RESULT_OK) {
                     Intent data = result.getData();
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -44,7 +45,9 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     progressBar.setVisibility(View.GONE);
                     btnGoogleSignIn.setEnabled(true);
-                    Log.e(TAG, "Google Sign In failed with result code: " + result.getResultCode());
+                    String msg = "Google Sign In cancelled or failed. Code: " + result.getResultCode();
+                    Log.e(TAG, msg);
+                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                 }
             }
     );
@@ -85,12 +88,16 @@ public class LoginActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            firebaseAuthWithGoogle(account.getIdToken());
+            if (account != null && account.getIdToken() != null) {
+                firebaseAuthWithGoogle(account.getIdToken());
+            } else {
+                throw new ApiException(new com.google.android.gms.common.api.Status(13, "Account or ID Token is null"));
+            }
         } catch (ApiException e) {
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
             progressBar.setVisibility(View.GONE);
             btnGoogleSignIn.setEnabled(true);
-            Toast.makeText(this, "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Google sign in failed (Code " + e.getStatusCode() + "): " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -105,7 +112,8 @@ public class LoginActivity extends AppCompatActivity {
                         updateUI(user);
                     } else {
                         Log.e(TAG, "Firebase auth with Google failed", task.getException());
-                        Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                        Toast.makeText(this, "Firebase Auth failed: " + error, Toast.LENGTH_LONG).show();
                     }
                 });
     }
