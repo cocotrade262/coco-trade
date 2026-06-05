@@ -20,7 +20,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
     private List<VideoPost> videoPosts;
     private static boolean isMuted = false;
-    private MediaPlayer currentMediaPlayer;
 
     public VideoAdapter(List<VideoPost> videoPosts) {
         this.videoPosts = videoPosts;
@@ -75,27 +74,24 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         });
 
         if (post.objectUrl != null) {
-            // Check if it's the same video to avoid restart
             String tag = (String) holder.videoView.getTag();
             if (tag == null || !tag.equals(post.objectUrl)) {
                 holder.videoView.setVideoPath(post.objectUrl);
                 holder.videoView.setTag(post.objectUrl);
                 holder.videoView.setOnPreparedListener(mp -> {
                     mp.setLooping(true);
-                    currentMediaPlayer = mp;
+                    holder.mPlayer = mp;
                     applyMuteState(mp);
                     holder.videoView.start();
                 });
-            } else if (currentMediaPlayer != null) {
-                applyMuteState(currentMediaPlayer);
+            } else if (holder.mPlayer != null) {
+                applyMuteState(holder.mPlayer);
             }
         }
 
         holder.itemView.setOnClickListener(v -> {
             isMuted = !isMuted;
-            if (currentMediaPlayer != null) {
-                applyMuteState(currentMediaPlayer);
-            }
+            notifyDataSetChanged(); // In a real app, notify specifically what changed or use an EventBus/Shared ViewModel
             showMuteIcon(holder.ivMuteToggle);
         });
     }
@@ -124,6 +120,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel;
         Button btnMarkSold, btnContact, btnShare;
         ImageView ivMuteToggle;
+        MediaPlayer mPlayer;
 
         public VideoViewHolder(@NonNull View itemView) {
             super(itemView);
