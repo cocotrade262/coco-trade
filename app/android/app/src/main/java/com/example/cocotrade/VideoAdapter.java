@@ -91,9 +91,18 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
         holder.itemView.setOnClickListener(v -> {
             isMuted = !isMuted;
-            notifyDataSetChanged(); // In a real app, notify specifically what changed or use an EventBus/Shared ViewModel
+            notifyDataSetChanged();
             showMuteIcon(holder.ivMuteToggle);
         });
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        if (holder.videoView != null) {
+            holder.videoView.stopPlayback();
+            holder.videoView.setTag(null);
+        }
     }
 
     private void applyMuteState(MediaPlayer mp) {
