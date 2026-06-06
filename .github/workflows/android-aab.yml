@@ -23,17 +23,32 @@ jobs:
           java-version: 21
           cache: 'gradle'
 
-      - name: Create Placeholder google-services.json
+      - name: Create google-services.json
         run: |
           mkdir -p app
-          if [ ! -f "app/google-services.json" ]; then
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
+          else
             echo '{"project_info":{"project_number":"0","project_id":"placeholder","storage_bucket":"placeholder"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.example.cocotrade"}},"oauth_client":[{"client_id":"placeholder.apps.googleusercontent.com","client_type":3}],"api_key":[{"current_key":"placeholder"}],"services":{"appinvite_service":{"status":1}}}]}' > app/google-services.json
           fi
+
+      - name: Decode Keystore
+        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        run: |
+          echo $ANDROID_KEYSTORE_BASE64 | base64 --decode > release.keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
 
       - name: Build debug AAB
         run: |
           chmod +x gradlew
           ./gradlew :app:bundleDebug
+        env:
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          ANDROID_KEYSTORE_FILE: ../release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
