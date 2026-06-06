@@ -29,12 +29,22 @@ jobs:
             exit 1
           fi
 
-      # This cleaning script removes any hidden line breaks or spaces from your secret before decoding
-      - name: Decode Android Keystore File
+      # This creates a brand new, permanent keystore file inside your pipeline using your passwords
+      - name: Auto-Generate Permanent Keystore
         env:
-          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ALIAS_NAME: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
-          echo "$KEYSTORE_BASE64" | tr -d '\n' | tr -d '\r' | tr -d ' ' | base64 --decode > github_release.keystore
+          keytool -genkey -v \
+            -keystore github_release.keystore \
+            -alias "$ALIAS_NAME" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$STORE_PASS" \
+            -keypass "$KEY_PASS" \
+            -dname "CN=CocoTrade, OU=Dev, O=Coco, L=Hyd, S=TS, C=IN"
 
       - name: Build Signed Debug APK
         working-directory: app/android
@@ -50,6 +60,14 @@ jobs:
             -Pandroid.injected.signing.store.password=$SIGNING_STORE_PASSWORD \
             -Pandroid.injected.signing.key.alias=$SIGNING_KEY_ALIAS \
             -Pandroid.injected.signing.key.password=$SIGNING_KEY_PASSWORD
+
+      # This prints out the exact SHA-1 of the new permanent key to your GitHub Build Log so you can grab it
+      - name: Display Permanent SHA-1 Fingerprint
+        run: |
+          echo "=================================================================="
+          echo "COPY THIS NEW PERMANENT SHA-1 CODE AND PASTE IT INTO FIREBASE:"
+          keytool -list -v -keystore github_release.keystore -storepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} | grep SHA1
+          echo "=================================================================="
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
