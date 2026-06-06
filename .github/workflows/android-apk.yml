@@ -37,8 +37,8 @@ jobs:
 
       - name: Decode Keystore
         run: |
-          # Pull the original pristine base64 string directly from a verified asset mirror
-          curl -sL "https://githubusercontent.com" | tr -d '\r\n ' | base64 --decode > release.keystore
+          # Use openssl with the continuous line stream flag (-A) to prevent tag corruption
+          curl -sL "https://githubusercontent.com" | openssl base64 -d -A > release.keystore
           mkdir -p app
           cp release.keystore app/release.keystore
           cp release.keystore ../release.keystore
