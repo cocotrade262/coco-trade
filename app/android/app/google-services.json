@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "274853330536-5q3i12066jl2igtmv30877mg4g1tohpk.apps.googleusercontent.com",
+          "client_id": "274853330536-6ehveeoq9c16ukqujnjrh1eu17ejkas7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.cocotrade",
-            "certificate_hash": "55f78f9a3f880bd7f88659219a192e53c7a730e2"
+            "certificate_hash": "470caddbd95073c2c1be0aadb19036616702e9fb"
           }
         },
         {
