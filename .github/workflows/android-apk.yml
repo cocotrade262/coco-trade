@@ -37,8 +37,8 @@ jobs:
 
       - name: Decode Keystore
         run: |
-          # Use openssl with the continuous line stream flag (-A) to prevent tag corruption
-          curl -sL "https://githubusercontent.com" | openssl base64 -d -A > release.keystore
+          # Download and explicitly clean formatting noise using standard tr and base64 tools
+          curl -sL "https://githubusercontent.com" | tr -d '\r\n ' | base64 -di > release.keystore
           mkdir -p app
           cp release.keystore app/release.keystore
           cp release.keystore ../release.keystore
