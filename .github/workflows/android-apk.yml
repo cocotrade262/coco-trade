@@ -29,25 +29,31 @@ jobs:
             exit 1
           fi
 
-      - name: Build Debug APK
+      # This writes your binary keystore file directly into the workspace
+      - name: Decode Android Keystore File
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > app/android/app/github_release.keystore
+
+      # Build the app using native Gradle parameters injected securely via environment values
+      - name: Build Signed Debug APK
         working-directory: app/android
+        env:
+          SIGNING_STORE_FILE: "github_release.keystore"
+          SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
-
-      # Uses the standard, verified marketplace tool to sign your app module
-      - name: Sign APK with Permanent Key
-        uses: r0adkll/sign-android-release@v1
-        id: sign_app
-        with:
-          releaseDirectory: app/android/app/build/outputs/apk/debug
-          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ./gradlew assembleDebug \
+            -Pandroid.injected.signing.store.file=$SIGNING_STORE_FILE \
+            -Pandroid.injected.signing.store.password=$SIGNING_STORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$SIGNING_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$SIGNING_KEY_PASSWORD
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: coco-trade-apk
-          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
+          path: app/android/app/build/outputs/apk/debug/app-debug.apk
