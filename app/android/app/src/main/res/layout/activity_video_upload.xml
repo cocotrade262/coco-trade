@@ -9,44 +9,46 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Post Coconut Video"
-            android:textSize="22sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#000000"
-            android:layout_marginBottom="12dp"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="4dp"/>
 
         <VideoView
             android:id="@+id/video_preview"
             android:layout_width="match_parent"
-            android:layout_height="140dp"
-            android:layout_marginBottom="12dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="8dp"
             android:background="#000000"/>
 
         <Button
             android:id="@+id/btn_select_video"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="44dp"
             android:text="Select Video"
             android:textAllCaps="false"
             android:backgroundTint="#3880ff"
-            android:layout_marginBottom="12dp"
-            android:fontFamily="sans-serif-medium"/>
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:padding="0dp"/>
 
         <EditText
             android:id="@+id/et_post_caption"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="44dp"
             android:hint="Caption"
-            android:padding="12dp"
+            android:padding="10dp"
             android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="6dp"
             android:maxLength="50"
+            android:textSize="14sp"
             android:fontFamily="sans-serif-medium"/>
 
         <LinearLayout
@@ -58,25 +60,27 @@
             <EditText
                 android:id="@+id/et_post_name"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:hint="Name"
-                android:padding="12dp"
+                android:padding="10dp"
                 android:background="@drawable/rounded_edittext"
                 android:layout_marginEnd="6dp"
                 android:maxLength="20"
+                android:textSize="14sp"
                 android:fontFamily="sans-serif-medium"/>
 
             <EditText
                 android:id="@+id/et_post_mobile"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:hint="Mobile"
                 android:inputType="phone"
-                android:padding="12dp"
+                android:padding="10dp"
                 android:background="@drawable/rounded_edittext"
                 android:maxLength="10"
+                android:textSize="14sp"
                 android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
@@ -84,51 +88,54 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:baselineAligned="false">
 
             <EditText
                 android:id="@+id/et_post_area"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:hint="Area"
-                android:padding="12dp"
+                android:padding="10dp"
                 android:background="@drawable/rounded_edittext"
                 android:layout_marginEnd="6dp"
                 android:maxLength="30"
+                android:textSize="14sp"
                 android:fontFamily="sans-serif-medium"/>
 
             <EditText
                 android:id="@+id/et_post_cost"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:hint="Cost"
                 android:inputType="numberDecimal"
-                android:padding="12dp"
+                android:padding="10dp"
                 android:background="@drawable/rounded_edittext"
                 android:maxLength="10"
+                android:textSize="14sp"
                 android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
         <Button
             android:id="@+id/btn_upload_video"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:text="Post to Feed"
             android:textAllCaps="false"
             android:textStyle="bold"
             android:backgroundTint="#2dd36f"
-            android:layout_marginTop="20dp"
-            android:enabled="false"/>
+            android:layout_marginTop="16dp"
+            android:enabled="false"
+            android:padding="0dp"/>
 
         <ProgressBar
             android:id="@+id/upload_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:visibility="gone"/>
 
         <TextView
@@ -138,7 +145,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="4dp"
             android:textColor="#3880ff"
-            android:textSize="12sp"/>
+            android:textSize="11sp"/>
 
     </LinearLayout>
 </ScrollView>
