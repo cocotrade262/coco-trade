@@ -13,11 +13,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # Swapped to Java 17 to match your project's Android build tools
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "17"
           cache: 'gradle'
 
       - name: Verify google-services.json Location
@@ -29,18 +30,18 @@ jobs:
             exit 1
           fi
 
-      # This writes your binary keystore file directly into the workspace
+      # Decodes the keystore directly into the workspace root with a clean file path
       - name: Decode Android Keystore File
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 --decode > app/android/app/github_release.keystore
+          echo "$KEYSTORE_BASE64" | base64 --decode > github_release.keystore
 
-      # Build the app using native Gradle parameters injected securely via environment values
+      # Build using the absolute workspace path ($GITHUB_WORKSPACE) to guarantee Gradle finds it
       - name: Build Signed Debug APK
         working-directory: app/android
         env:
-          SIGNING_STORE_FILE: "github_release.keystore"
+          SIGNING_STORE_FILE: "${{ github.workspace }}/github_release.keystore"
           SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
