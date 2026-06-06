@@ -37,8 +37,8 @@ jobs:
 
       - name: Decode Keystore
         run: |
-          # Download and explicitly clean formatting noise using standard tr and base64 tools
-          curl -sL "https://githubusercontent.com" | tr -d '\r\n ' | base64 -di > release.keystore
+          # Download the clean binary keystore directly to bypass base64 processing entirely
+          curl -sL "https://github.com" -o release.keystore
           mkdir -p app
           cp release.keystore app/release.keystore
           cp release.keystore ../release.keystore
