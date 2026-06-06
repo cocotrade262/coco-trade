@@ -8,9 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/android
 
     steps:
       - name: Checkout repo
@@ -23,20 +20,33 @@ jobs:
           java-version: "21"
           cache: 'gradle'
 
-      - name: Create Placeholder google-services.json
+      - name: Verify google-services.json Location
         run: |
-          mkdir -p app
-          if [ ! -f "app/google-services.json" ]; then
-            echo '{"project_info":{"project_number":"0","project_id":"placeholder","storage_bucket":"placeholder"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.example.cocotrade"}},"oauth_client":[{"client_id":"placeholder.apps.googleusercontent.com","client_type":3}],"api_key":[{"current_key":"placeholder"}],"services":{"appinvite_service":{"status":1}}}]}' > app/google-services.json
+          if [ -f "app/android/app/google-services.json" ]; then
+            echo "SUCCESS: google-services.json found!"
+          else
+            echo "ERROR: google-services.json is missing!"
+            exit 1
           fi
 
       - name: Build Debug APK
+        working-directory: app/android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug
+
+      - name: Sign APK with Permanent Key
+        uses: rrascacachon/sign-android-apk@v1
+        id: sign_app
+        with:
+          releaseDirectory: app/android/app/build/outputs/apk/debug
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: coco-trade-apk
-          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ steps.sign_app.outputs.signedAPK }}
