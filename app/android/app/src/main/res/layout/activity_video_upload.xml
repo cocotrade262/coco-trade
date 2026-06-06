@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#FFFFFF">
+    android:background="@color/backgroundColor">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
             android:text="Post Coconut Video"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#000000"
+            android:textColor="@color/textColorPrimary"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="4dp"/>
 
@@ -34,7 +34,7 @@
             android:layout_height="44dp"
             android:text="Select Video"
             android:textAllCaps="false"
-            android:backgroundTint="#3880ff"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif-medium"
             android:padding="0dp"/>
@@ -49,6 +49,8 @@
             android:layout_marginBottom="6dp"
             android:maxLength="50"
             android:textSize="14sp"
+            android:textColor="@color/textColorPrimary"
+            android:textColorHint="@color/textColorSecondary"
             android:fontFamily="sans-serif-medium"/>
 
         <LinearLayout
@@ -68,6 +70,8 @@
                 android:layout_marginEnd="6dp"
                 android:maxLength="20"
                 android:textSize="14sp"
+                android:textColor="@color/textColorPrimary"
+                android:textColorHint="@color/textColorSecondary"
                 android:fontFamily="sans-serif-medium"/>
 
             <EditText
@@ -81,6 +85,8 @@
                 android:background="@drawable/rounded_edittext"
                 android:maxLength="10"
                 android:textSize="14sp"
+                android:textColor="@color/textColorPrimary"
+                android:textColorHint="@color/textColorSecondary"
                 android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
@@ -102,6 +108,8 @@
                 android:layout_marginEnd="6dp"
                 android:maxLength="30"
                 android:textSize="14sp"
+                android:textColor="@color/textColorPrimary"
+                android:textColorHint="@color/textColorSecondary"
                 android:fontFamily="sans-serif-medium"/>
 
             <EditText
@@ -115,6 +123,8 @@
                 android:background="@drawable/rounded_edittext"
                 android:maxLength="10"
                 android:textSize="14sp"
+                android:textColor="@color/textColorPrimary"
+                android:textColorHint="@color/textColorSecondary"
                 android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
@@ -125,7 +135,7 @@
             android:text="Post to Feed"
             android:textAllCaps="false"
             android:textStyle="bold"
-            android:backgroundTint="#2dd36f"
+            android:backgroundTint="@color/colorSuccess"
             android:layout_marginTop="16dp"
             android:enabled="false"
             android:padding="0dp"/>
@@ -136,7 +146,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:progressTint="@color/colorPrimary"/>
 
         <TextView
             android:id="@+id/status_text"
@@ -144,7 +155,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="4dp"
-            android:textColor="#3880ff"
+            android:textColor="@color/colorPrimary"
             android:textSize="11sp"/>
 
     </LinearLayout>

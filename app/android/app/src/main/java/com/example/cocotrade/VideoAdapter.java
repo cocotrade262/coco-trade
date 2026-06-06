@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -73,6 +74,15 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             v.getContext().startActivity(Intent.createChooser(intent, "Share via"));
         });
 
+        holder.btnReport.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("mailto:"));
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"report@cocotrade.com"});
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Report Video: " + post.id);
+            intent.putExtra(Intent.EXTRA_TEXT, "I would like to report this video for inappropriate content.");
+            v.getContext().startActivity(Intent.createChooser(intent, "Send Report..."));
+        });
+
         if (post.objectUrl != null) {
             String tag = (String) holder.videoView.getTag();
             if (tag == null || !tag.equals(post.objectUrl)) {
@@ -128,6 +138,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         VideoView videoView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel;
         Button btnMarkSold, btnContact, btnShare;
+        ImageButton btnReport;
         ImageView ivMuteToggle;
         MediaPlayer mPlayer;
 
@@ -142,6 +153,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             btnMarkSold = itemView.findViewById(R.id.btn_mark_sold);
             btnContact = itemView.findViewById(R.id.btn_item_contact);
             btnShare = itemView.findViewById(R.id.btn_item_share);
+            btnReport = itemView.findViewById(R.id.btn_report);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }
     }

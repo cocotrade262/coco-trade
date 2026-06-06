@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#3880ff</color>
-    <color name="colorPrimaryDark">#3171e0</color>
+    <color name="colorPrimaryDark">#121212</color>
     <color name="colorAccent">#3dc2ff</color>
     <color name="colorSuccess">#2dd36f</color>
     <color name="colorDanger">#eb445a</color>
+
+    <!-- Dark Theme Colors -->
+    <color name="backgroundColor">#121212</color>
+    <color name="surfaceColor">#1E1E1E</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="textColorSecondary">#B0B0B0</color>
+    <color name="dividerColor">#333333</color>
 </resources>

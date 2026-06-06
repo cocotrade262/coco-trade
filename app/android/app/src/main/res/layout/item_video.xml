@@ -27,6 +27,17 @@
             android:alpha="0"
             app:tint="#FFFFFF" />
 
+        <ImageButton
+            android:id="@+id/btn_report"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_report_image"
+            app:tint="#CCFFFFFF" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -133,7 +144,7 @@
                     android:text="Contact"
                     android:textAllCaps="false"
                     android:textSize="14sp"
-                    android:backgroundTint="#3880ff"
+                    android:backgroundTint="@color/colorPrimary"
                     android:textColor="#FFFFFF"
                     android:layout_marginEnd="8dp"
                     style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
@@ -146,7 +157,7 @@
                     android:text="Share"
                     android:textAllCaps="false"
                     android:textSize="14sp"
-                    android:backgroundTint="#666666"
+                    android:backgroundTint="#444444"
                     android:textColor="#FFFFFF"
                     style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
