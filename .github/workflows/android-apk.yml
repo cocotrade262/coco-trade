@@ -5,13 +5,6 @@ on:
     branches: ["**"]
   workflow_dispatch:
 
-jobs:name: Build Android APK
-
-on:
-  push:
-    branches: ["**"]
-  workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,180 +36,67 @@ jobs:
           fi
 
       - name: Decode Keystore
+        env:
+          EMBEDDED_B64: |
+            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
+            EpVxZqlz5t5/uSAICJxA=
         run: |
           python3 -c '
-          import base64
-          # Using triple quotes lets the multi-line block pass cleanly without syntax errors
-          raw_multiline = """
-          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
-          EpVxZqlz5t5/uSAICJxA=
-          """
-          # Clean out newlines and spaces before parsing
-          clean_b64 = raw_multiline.strip().replace("\n", "").replace("\r", "").replace(" ", "")
-          with open("release.keystore", "wb") as f:
-              f.write(base64.b64decode(clean_b64))
-          '
-          mkdir -p app
-          cp release.keystore app/release.keystore
-          cp release.keystore ../release.keystore
-
-      - name: Build Debug APK
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug
-        env:
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-          ANDROID_KEYSTORE_FILE: release.keystore
-          ANDROID_KEYSTORE_PASSWORD: "android"
-          ANDROID_KEY_ALIAS: "androiddebugkey"
-          ANDROID_KEY_PASSWORD: "android"
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coco-trade-apk
-          path: app/android/app/build/outputs/apk/debug/app-debug.apk
-
-  build:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/android
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-          cache: 'gradle'
-
-      - name: Create google-services.json
-        env:
-          GS_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: |
-          mkdir -p app/src/main/res/values
-          if [ -n "$GS_JSON" ]; then
-            echo "$GS_JSON" > app/google-services.json
-          else
-            echo '{"project_info":{"project_number":"0","project_id":"placeholder","storage_bucket":"placeholder"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.example.cocotrade"}},"oauth_client":[{"client_id":"://googleusercontent.com","client_type":3}],"api_key":[{"current_key":"placeholder"}]}]}' > app/google-services.json
-            echo '<resources><string name="default_web_client_id">placeholder</string></resources>' > app/src/main/res/values/ci_strings.xml
-          fi
-
-      - name: Decode Keystore
-        run: |
-          python3 -c '
-          import base64
-          # Chunking the pure base64 string directly inside python blocks to completely avoid shell layout bugs
-          b64_data = (
-              "MIIKZgIBAzCCChAGCSqGSIb3DQEHAaCCCgEEggn9MIIJ+TCCBcAGCSqGSIb3DQEHAaCCBbEE"
-              "ggWtMIIFqTCCBaUGCyqGSIb3DQEMCgECoIIFQDCCBTwwZgYJKoZIhvcNAQUNMFkwOAYJKoZI"
-              "hvcNAQUMMCsEFIaQkJdez3B9CDcsj+QjTAhx9M3SAgInEAIBIDAMBggqhkiG9w0CCQUAMB0G
-              "CWCGSAFlAwQBKgQQmIAaoB2qICbdZVRyR0kstASCBNDCqA/Nug2DS+kWvrNmjUnVgYhmQtYo"
-              "tagHhBooHDXKTUSsD3R/PGM69/amneVlwPIvYI+XlZ07pi2RpKEzPZaF6USBnJNtpWgvYU/C"
-              "VpwPiQJUiSQIOYXLkxY/xqLG/wC+pn5fgt2Dd2ApXaeQZdLWZ1Xy/8KyvNV5L+c26crDf8ga"
-              "Ap/NDSQZm8gXx1lwk2bjrW422J7xu6gA4Q1zW6vGwbcacqKRuakMiuYTRtTPEXN54+SxNwhv"
-              "CdrZXfhhRNdJIN43L73xSO9CnK/IFuHWeYQ9firoTBPmnNtua/hKlhjq23Obnw6T+4b2VSb2"
-              "6m9oiqfI+tiRNwz4hMITP9njfH1ue3A4oSUAqwj8kIUFGSQ8hGCovKlV6KzRGNXw2F8PRYxJ"
-              "1xcnpRfQJsyGUE96k10HIH8exooVjVvNMs9c1j4CHmoxiClalZzUh0bm/PnpTbJaRqNzjrr"
-              "+0hlCkabe0ebDMSIZpJ6Ea3PRJHhePoYV1ECx5k8nM78c46xT87IajvDEaQIEYi2/hzP4jW"
-              "ltGlnXxplzRWpkSpLgPaYeGJXL+ypE0duiHooxwKaL/MCWbeNEHztt9MIkHcC/DJl+Jki2Q"
-              "DriKpPHv69xWc8tWm/KvZVSw/T6HWNuaGS2IrUxgy9UuM2ZiLgB4bF9HIaFRzvPIYfgK8fK"
-              "Zne62Il+KTxyqSi4o49ctsb73FWPlmin+uQn4vl116ZnAwH0AX0DfI0J6daovaI6H/Ou9L/"
-              "zIFrKWKtT6XrDL8efCjua8UZ/Le/BuKrvrJGpXW4lNh4R40kmBUBMguV0BZjA4w7iK8p+cQ"
-              "0BIKJrW6a4EkgJdaCcDshUDzgV+eQ2lOpADPv/2pbL6xliBW/2nPO+wHWmiUHJKuzm42i0E"
-              "XrNwQwOqdcXSq4yyTZb6Ts3R72UXt3n82blgjUWznSZ9rpFiYExLqpBwWVBIxFFbISr7LV3"
-              "zaYeHTU9cMfc8dW0NCZiGX15k33XoXKSPOEMwnT7ATELveJ5FO2/bZdQBWZ/40bxDwObqCA"
-              "WWVcTR3ZvgmXyWgMf3gcyO3K3rkchMAyttYJb5S2GqSgxpQQMXxxI55wrEGHwcTaTAIF7QL"
-              "T7+9IbDNmhDU3QGle7Q4E6b8m+khM7cu+4CIGgO2n1w7KigycBf+kJh/hOHtGc+hW3sYaY3"
-              "R1m/8SeMKIeBVvHKVNgD7/yzRM9J34PQ+/W4PQkadrPLgu3rhGsi5n4MQMsUL2zioh1QxeE"
-              "hD7j3Rdxe38gYEVCXrpkdunSrRwv+xNNNQlU3JBeHO2KvH8iUF7IWUiUEFVIsJkuktAr3XU"
-              "EHzU03IJcV6GkigXSTImzouOdpiSQDtROpgJuui8fxpHjMeTvWTkIiy8I3qd8Q7ELlZOjau"
-              "K0npqkAru/XyR/VVssTTvyLT9CRhCewl1ZRHyDUHPVbfYLLHUvwfEfMXREMk8pfBregb3Wg"
-              "TrpCbMmS5f7VkehZu9e5EyP/qjmGEbXiGHx9f5R/wRbsnYmzJCBp4r2v3y5ROoef1Pr4rNq"
-              "ckl02zbnxm62Ou3Ij/ACryZNi3fKuEWtxteeW+igggyeP7awlDpieL4ahwP3MT/AiAX172"
-              "NzhX/0UfSXTtn+XVfv3Go2GDMxZr8/XFDK/OnjeFZGY0tE6UzFSMC0GCSqGSIb3DQEJFDEg"
-              "Hh4AYQBuAGQAcgBvAGkAZABkAGUAYgB1AGcAawBlAHkwIQYJKoZIhvcNAQkVMRQEElRp"
-              "bWUgMTc3OTcyNTA4NjY4MTCCBDEGCSqGSIb3DQEHBqCCBCIwggQeAgEAMIIEFwYJKoZI"
-              "hvcNAQcBMGYGCSqGSIb3DQEFDTBZMDgGCSqGSIb3DQEFDDArBBT0REXaOe8kZDDBKxd/"
-              "TfaK8FiafwICJxACASAwDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEP/8DSOJdUlo"
-              "dzv8BFJ8vvaAggOgWhHwuJq+eLBs84EsZUlHJamXQmGzbBHUXBt5AU1qXmIN1JJcN0sc"
-              "4rGgFgrl/rH+OIf0qs6bD/vRK12YmQR7N5rCH/wrcuC8rb9RZ2WU76H9BcHpFoyqv"
-              "7HS0QH9QDPmtDzOjAORUWRxg69Pv++t7XWF4MrNDFNYzZOPgpWwNRWv0dhn7gUMzuAQ"
-              "0RrUp37UvY8REUujP+6myeC3gYJUbmldA6Bq0XZqicR2Flt9l+xri27P1Zh8j9PtWYu"
-              "VChTiYTjM40KjzUrsrs3E3Ohu7WITwCXn0i7JT+p3DA0BNlRb3fnKiAqx4i9vbjfkTG"
-              "mrYW5A3OPvvF1BoRbaAchkVFqlZu2u4W6wRccBbXY2k7VU+ZNnbDrmXNt+aWYDqrG5Z"
-              "SdTvsfZEQnrJ+HdSs1LjfGl3k3dj82MGdNT6/NONyQ7XFHz4CkgX3r0SrJ4ouWbnbgL"
-              "GJYaOgjL5TobUADpXj9x8WY376dv3WhJKMCGwCJtNj/d58092vr/ubmq9p6my9/ZWum"
-              "vp1ce5N2sJwqO7DusQg3X6f9hGHwvoJ5ZsghqEPGexRYi/OJgD6Q4II0L+j6BAj9YKVK"
-              "7iO0tnzpSknlxMotGCOW6VZ9VohrNLozM0cNtTJ2Jw/wfxx3aX4OeIprAsxba6jRfB1"
-              "X87TwPJltCWZ4tSrqz0mObcD0DVtBcC0uLwAxbvDXsEzleIw7ZZ4a3aiqQk6frlayrJ"
-              "hSVlrZ+hLZY3Mldvyoy9ixQiFKNXkXQx9PiYPHe8MFFOUpF7xq5lZhqQdhUQNXArAYx"
-              "V0NOaxCzF0EtLzDQuuDSCN7LMfG6C4wmyEdFYvxmA3HywJVuNGOrEHtrVMSMbkZxKe9"
-              "O7FVO3HTszJZ3HEhhoXmC78uPrZc73U2nkhIzjm45bj0Impc/CSgoMMtWoY8QHC2SZ9"
-              "DQ4BUneaClMNHtsAqYBXYjp5GBrE+La60rDLar4XmbgtUJl5hWGOUZsfgHotM0OHZU"
-              "meal3KOycVpqIxNB+6e511koWE8tJ6Jq1MtYK5ZiNBWXtONntyAZffcMRNEeKFNUY8"
-              "bagd3Oz5auEBJ7ayQ7Wl6qMHyo8F1sA1bUExI1g2eIgIzQ2S1LT9CvqJ/wnLxYBBOgm"
-              "6AubPl929gPn6AoCd+c76ACr8qZocP4G2h162WTIyT3WnPTxpA50D6EbWfeNQeszpqu"
-              "n/z2rH5xNbHmNXxo3e+CLxfeCzbnpc3mN9oagya1O9ICb8o5DBNMDEwDQYJYIZIAWUD"
-              "BAIBBQAEIGQxpkWqTEYSMRMuIT7NxjNuyiN9ztW6Hd49mA+OKfQBBBR6Dzql0TKtoHA"
-              "EpVxZqlz5t5/uSAICJxA="
-          )
-          with open("release.keystore", "wb") as f:
-              f.write(base64.b64decode(b64_data))
+          import base64, os
+          clean_b64 = os.environ.get("EMBEDDED_B64", "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
+          if clean_b64:
+              with open("release.keystore", "wb") as f:
+                  f.write(base64.b64decode(clean_b64))
           '
           mkdir -p app
           cp release.keystore app/release.keystore
