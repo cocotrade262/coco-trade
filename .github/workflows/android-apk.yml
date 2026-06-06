@@ -35,8 +35,9 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      # Uses the standard, verified marketplace tool to sign your app module
       - name: Sign APK with Permanent Key
-        uses: rrascacachon/sign-android-apk@v1
+        uses: r0adkll/sign-android-release@v1
         id: sign_app
         with:
           releaseDirectory: app/android/app/build/outputs/apk/debug
@@ -49,4 +50,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coco-trade-apk
-          path: ${{ steps.sign_app.outputs.signedAPK }}
+          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
