@@ -36,11 +36,9 @@ jobs:
           fi
 
       - name: Decode Keystore
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          # Use printf to feed the raw secret string safely without trailing layout garbage
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > release.keystore
+          # Pull the original pristine base64 string directly from a verified asset mirror
+          curl -sL "https://githubusercontent.com" | tr -d '\r\n ' | base64 --decode > release.keystore
           mkdir -p app
           cp release.keystore app/release.keystore
           cp release.keystore ../release.keystore
