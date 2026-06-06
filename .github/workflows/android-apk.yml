@@ -35,11 +35,27 @@ jobs:
             echo '<resources><string name="default_web_client_id">placeholder</string></resources>' > app/src/main/res/values/ci_strings.xml
           fi
 
+      - name: Pre-generate Android Debug Keystore
+        run: |
+          # Create the exact configuration folder structure that the plugin is looking for
+          mkdir -p /home/runner/.config/.android/
+          
+          # Generate a standard, official debug certificate straight into that folder path
+          keytool -genkeypair \
+            -v \
+            -keystore /home/runner/.config/.android/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Build Debug APK
         run: |
           chmod +x gradlew
-          # Force Gradle to bypass manual signing configurations and use its own clean debug key
-          ./gradlew assembleDebug -Pandroid.packageBuildConfig=false -x :app:validateSigningDebug
+          ./gradlew assembleDebug -Pandroid.packageBuildConfig=false
         env:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
