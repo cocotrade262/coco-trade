@@ -29,47 +29,28 @@ jobs:
             exit 1
           fi
 
-      # Automatically checks for an existing saved key, preventing a new random SHA-1
-      - name: Load or Generate Permanent Keystore File
+      # Decodes your clean, permanent keystore file from your GitHub Secrets
+      - name: Decode Android Keystore File
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          if [ -f "app/android/app/permanent_debug.keystore" ]; then
-            echo "Permanent key found! Reusing it to lock down your SHA-1..."
-            cp app/android/app/permanent_debug.keystore ~/.android/debug.keystore
-          else
-            echo "First run: Creating a brand new permanent key file..."
-            mkdir -p ~/.android
-            keytool -genkey -v \
-              -keystore ~/.android/debug.keystore \
-              -storepass android \
-              -alias androiddebugkey \
-              -keypass android \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000 \
-              -dname "CN=Android Debug,O=Android,C=US"
-          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > github_release.keystore
 
-      - name: Build Debug APK
+      # Compiles the app with your frozen signature parameters
+      - name: Build Signed Debug APK
         working-directory: app/android
+        env:
+          SIGNING_STORE_FILE: "${{ github.workspace }}/github_release.keystore"
+          SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
-
-      # Automatically commits the generated key back to your GitHub repo so it freezes forever
-      - name: Commit Keystore Back To Repository
-        run: |
-          if [ ! -f "app/android/app/permanent_debug.keystore" ]; then
-            echo "Freezing this signature in your code branch permanently..."
-            mkdir -p app/android/app
-            cp ~/.android/debug.keystore app/android/app/permanent_debug.keystore
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]@://github.com"
-            git add app/android/app/permanent_debug.keystore
-            git commit -m "chore: freeze android signature key [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
-          else
-            echo "Key is already frozen in your repository. Skipping save."
-          fi
+          ./gradlew assembleDebug \
+            -Pandroid.injected.signing.store.file=$SIGNING_STORE_FILE \
+            -Pandroid.injected.signing.store.password=$SIGNING_STORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$SIGNING_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$SIGNING_KEY_PASSWORD
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
