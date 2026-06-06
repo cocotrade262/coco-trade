@@ -13,7 +13,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Swapped to Java 17 to match your project's Android build tools
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -30,14 +29,13 @@ jobs:
             exit 1
           fi
 
-      # Decodes the keystore directly into the workspace root with a clean file path
+      # This cleaning script removes any hidden line breaks or spaces from your secret before decoding
       - name: Decode Android Keystore File
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 --decode > github_release.keystore
+          echo "$KEYSTORE_BASE64" | tr -d '\n' | tr -d '\r' | tr -d ' ' | base64 --decode > github_release.keystore
 
-      # Build using the absolute workspace path ($GITHUB_WORKSPACE) to guarantee Gradle finds it
       - name: Build Signed Debug APK
         working-directory: app/android
         env:
