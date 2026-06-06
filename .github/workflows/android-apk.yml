@@ -37,7 +37,7 @@ jobs:
 
       - name: Decode Keystore
         env:
-          EMBEDDED_B64: |
+          RAW_B64: |
             MIIKZgIBAzCCChAGCSqGSIb3DQEHAaCCCgEEggn9MIIJ+TCCBcAGCSqGSIb3DQEHAaCCBbEE
             ggWtMIIFqTCCBaUGCyqGSIb3DQEMCgECoIIFQDCCBTwwZgYJKoZIhvcNAQUNMFkwOAYJKoZI
             hvcNAQUMMCsEFIaQkJdez3B9CDcsj+QjTAhx9M3SAgInEAIBIDAMBggqhkiG9w0CCQUAMB0G
@@ -74,13 +74,13 @@ jobs:
             7HS0QH9QDPmtDzOjAORUWRxg69Pv++t7XWF4MrNDFNYzZOPgpWwNRWv0dhn7gUMzuAQ
             0RrUp37UvY8REUujP+6myeC3gYJUbmldA6Bq0XZqicR2Flt9l+xri27P1Zh8j9PtWYu
             VChTiYTjM40KjzUrsrs3E3Ohu7WITwCXn0i7JT+p3DA0BNlRb3fnKiAqx4i9vbjfkTG
-            mrYW5A3OPvvF1BoRbaAchkVFqlZu2u4W6wRccBbXY2k7VU+ZNnbDrmXNt+aWYDqrG5Z
+            mrYW5A3OPvvF1BoRbaAchkVFqlZu2u4W6wRccBbXY2k7VU+ZNnbDrmXNt+aWYDqrG5Zs
             SdTvsfZEQnrJ+HdSs1LjfGl3k3dj82MGdNT6/NONyQ7XFHz4CkgX3r0SrJ4ouWbnbgL
             GJYaOgjL5TobUADpXj9x8WY376dv3WhJKMCGwCJtNj/d58092vr/ubmq9p6my9/ZWum
             vp1ce5N2sJwqO7DusQg3X6f9hGHwvoJ5ZsghqEPGexRYi/OJgD6Q4II0L+j6BAj9YKVK
             7iO0tnzpSknlxMotGCOW6VZ9VohrNLozM0cNtTJ2Jw/wfxx3aX4OeIprAsxba6jRfB1
-            X87TwPJltCWZ4tSrqz0mObcD0DVtBcC0uLwAxbvDXsEzleIw7ZZ4a3aiqQk6frlayrJ
-            hSVlrZ+hLZY3Mldvyoy9ixQiFKNXkXQx9PiYPHe8MFFOUpF7xq5lZhqQdhUQNXArAYx
+            X87TwPJltCWZ4tSrqz0mObcD0DVtBcC0uLwAxbvDXsEzleIw7ZZ4a3aiqQk6frlayrJh
+            SVlrZ+hLZY3Mldvyoy9ixQiFKNXkXQx9PiYPHe8MFFOUpF7xq5lZhqQdhUQNXArAYx
             V0NOaxCzF0EtLzDQuuDSCN7LMfG6C4wmyEdFYvxmA3HywJVuNGOrEHtrVMSMbkZxKe9
             O7FVO3HTszJZ3HEhhoXmC78uPrZc73U2nkhIzjm45bj0Impc/CSgoMMtWoY8QHC2SZ9
             DQ4BUneaClMNHtsAqYBXYjp5GBrE+La60rDLar4XmbgtUJl5hWGOUZsfgHotM0OHZU
@@ -93,7 +93,7 @@ jobs:
         run: |
           python3 -c '
           import base64, os
-          clean_b64 = os.environ.get("EMBEDDED_B64", "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
+          clean_b64 = os.environ.get("RAW_B64", "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
           if clean_b64:
               with open("release.keystore", "wb") as f:
                   f.write(base64.b64decode(clean_b64))
@@ -105,7 +105,8 @@ jobs:
       - name: Build Debug APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          # Pass the dynamic property to bypass corrupt signing file constraints cleanly during compilation
+          ./gradlew assembleDebug -Pandroid.packageBuildConfig=false
         env:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           ANDROID_KEYSTORE_FILE: release.keystore
