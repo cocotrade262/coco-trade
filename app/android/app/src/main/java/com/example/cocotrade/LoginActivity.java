@@ -14,12 +14,12 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -37,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private ProgressBar progressBar;
-    private SignInButton btnGoogleSignIn;
+    private CardView btnGoogleCustom;
 
     private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
                     handleSignInResult(task);
                 } else {
                     progressBar.setVisibility(View.GONE);
-                    btnGoogleSignIn.setEnabled(true);
+                    btnGoogleCustom.setEnabled(true);
                     String msg = "Google Sign In failed (No data). Code: " + result.getResultCode();
                     Log.e(TAG, msg);
                     Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         progressBar = findViewById(R.id.progress_bar);
-        btnGoogleSignIn = findViewById(R.id.btn_google_sign_in);
+        btnGoogleCustom = findViewById(R.id.btn_google_custom);
 
         String webClientId = getString(R.string.default_web_client_id);
 
@@ -80,12 +80,12 @@ public class LoginActivity extends AppCompatActivity {
             updateUI(currentUser);
         }
 
-        btnGoogleSignIn.setOnClickListener(v -> signIn());
+        btnGoogleCustom.setOnClickListener(v -> signIn());
     }
 
     private void signIn() {
         progressBar.setVisibility(View.VISIBLE);
-        btnGoogleSignIn.setEnabled(false);
+        btnGoogleCustom.setEnabled(false);
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         googleSignInLauncher.launch(signInIntent);
     }
@@ -101,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
         } catch (ApiException e) {
             Log.e(TAG, "signInResult:failed code=" + e.getStatusCode(), e);
             progressBar.setVisibility(View.GONE);
-            btnGoogleSignIn.setEnabled(true);
+            btnGoogleCustom.setEnabled(true);
 
             String fingerprint = getCertificateFingerprint();
             String errorMessage = "Google sign in failed (Code " + e.getStatusCode() + ")\n";
@@ -142,7 +142,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     progressBar.setVisibility(View.GONE);
-                    btnGoogleSignIn.setEnabled(true);
+                    btnGoogleCustom.setEnabled(true);
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         updateUI(user);
