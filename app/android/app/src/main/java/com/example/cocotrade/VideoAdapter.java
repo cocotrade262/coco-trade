@@ -77,7 +77,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         holder.btnReport.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.parse("mailto:"));
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"report@cocotrade.com"});
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"cocotrade262@gmail.com"});
             intent.putExtra(Intent.EXTRA_SUBJECT, "Report Video: " + post.id);
             intent.putExtra(Intent.EXTRA_TEXT, "I would like to report this video for inappropriate content.");
             v.getContext().startActivity(Intent.createChooser(intent, "Send Report..."));
