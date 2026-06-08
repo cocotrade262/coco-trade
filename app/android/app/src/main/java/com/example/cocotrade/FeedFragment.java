@@ -42,8 +42,65 @@ public class FeedFragment extends Fragment {
         adapter = new VideoAdapter(videoList);
         recyclerView.setAdapter(adapter);
 
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    playVisibleVideo();
+                }
+            }
+        });
+
         loadVideos();
         return view;
+    }
+
+    private void playVisibleVideo() {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        if (layoutManager == null) return;
+
+        int firstVisible = layoutManager.findFirstVisibleItemPosition();
+        int lastVisible = layoutManager.findLastVisibleItemPosition();
+
+        for (int i = firstVisible; i <= lastVisible; i++) {
+            VideoAdapter.VideoViewHolder holder = (VideoAdapter.VideoViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
+            if (holder != null) {
+                View itemView = holder.itemView;
+                int[] location = new int[2];
+                itemView.getLocationOnScreen(location);
+                int viewTop = location[1];
+                int viewBottom = viewTop + itemView.getHeight();
+                int screenCenter = recyclerView.getContext().getResources().getDisplayMetrics().heightPixels / 2;
+
+                if (viewTop <= screenCenter && viewBottom >= screenCenter) {
+                    if (!holder.videoView.isPlaying()) {
+                        holder.videoView.start();
+                    }
+                } else {
+                    if (holder.videoView.isPlaying()) {
+                        holder.videoView.pause();
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        pauseAllVideos();
+    }
+
+    private void pauseAllVideos() {
+        if (recyclerView == null) return;
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            View child = recyclerView.getChildAt(i);
+            VideoAdapter.VideoViewHolder holder = (VideoAdapter.VideoViewHolder) recyclerView.getChildViewHolder(child);
+            if (holder != null && holder.videoView.isPlaying()) {
+                holder.videoView.pause();
+            }
+        }
     }
 
     private void loadVideos() {
@@ -54,7 +111,7 @@ public class FeedFragment extends Fragment {
                 videoList.clear();
                 for (DataSnapshot data : snapshot.getChildren()) {
                     VideoAdapter.VideoPost post = data.getValue(VideoAdapter.VideoPost.class);
-                    if (post != null) {
+                    if (post != null && !post.isSold) {
                         post.id = data.getKey();
                         videoList.add(0, post);
                     }

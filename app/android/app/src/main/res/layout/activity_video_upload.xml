@@ -15,6 +15,16 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Post Coconut Video"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/textColorPrimary"
+            android:fontFamily="sans-serif-medium"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Max 30 seconds video."
             android:textSize="16sp"
             android:textColor="@color/textColorSecondary"

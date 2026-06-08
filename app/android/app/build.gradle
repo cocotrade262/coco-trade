@@ -24,11 +24,14 @@ android {
 
     signingConfigs {
         config {
-            // Use the committed keystore for consistent SHA-1 across all builds
-            storeFile file('permanent_debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            // Use custom keystore if available, otherwise fallback to default
+            def keystoreFile = file('permanent_debug.keystore')
+            if (keystoreFile.exists()) {
+                storeFile keystoreFile
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
         }
     }
 
@@ -38,12 +41,16 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.config
+            if (signingConfigs.config.storeFile != null) {
+                signingConfig signingConfigs.config
+            }
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
+            if (signingConfigs.config.storeFile != null) {
+                signingConfig signingConfigs.config
+            }
         }
     }
 }

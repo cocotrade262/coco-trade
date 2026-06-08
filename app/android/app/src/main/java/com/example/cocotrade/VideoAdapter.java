@@ -108,7 +108,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                     mp.setLooping(true);
                     holder.mPlayer = mp;
                     applyMuteState(mp);
-                    holder.videoView.start();
+                    // Do not auto-start here, FeedFragment will manage playback
                 });
             } else if (holder.mPlayer != null) {
                 applyMuteState(holder.mPlayer);

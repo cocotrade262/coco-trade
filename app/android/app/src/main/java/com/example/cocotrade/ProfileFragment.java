@@ -43,6 +43,7 @@ public class ProfileFragment extends Fragment {
         TextView tvName = view.findViewById(R.id.tv_profile_name);
         TextView tvEmail = view.findViewById(R.id.tv_profile_email);
         Button btnLogout = view.findViewById(R.id.btn_logout);
+        Button btnReport = view.findViewById(R.id.btn_report_suggestion);
 
         if (user != null) {
             tvName.setText(user.getDisplayName() != null ? user.getDisplayName() : "Anonymous User");
@@ -61,6 +62,14 @@ public class ProfileFragment extends Fragment {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             if (getActivity() != null) getActivity().finish();
+        });
+
+        btnReport.setOnClickListener(v -> {
+            Intent intent = new Intent(android.content.Intent.ACTION_SENDTO);
+            intent.setData(android.net.Uri.parse("mailto:"));
+            intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"cocotrade262@gmail.com"});
+            intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Report / Suggestion from " + (user != null ? user.getEmail() : "Anonymous"));
+            startActivity(android.content.Intent.createChooser(intent, "Send Feedback..."));
         });
 
         if (user != null) {

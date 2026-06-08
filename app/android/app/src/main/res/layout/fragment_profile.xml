@@ -64,6 +64,20 @@
                 android:padding="0dp"
                 app:cornerRadius="24dp"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
+            <Button
+                android:id="@+id/btn_report_suggestion"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:text="Report / Suggestion"
+                android:textAllCaps="false"
+                android:textSize="14sp"
+                android:backgroundTint="#262626"
+                android:textColor="#B0FFFFFF"
+                android:padding="0dp"
+                app:cornerRadius="24dp"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
         </LinearLayout>
     </LinearLayout>
 
