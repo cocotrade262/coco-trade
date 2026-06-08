@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -18,35 +18,59 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/textColorPrimary"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="12dp"
             android:layout_marginTop="16dp"
             android:fontFamily="sans-serif-medium"/>
 
         <VideoView
             android:id="@+id/video_preview"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="120dp"
             android:layout_marginBottom="8dp"
             android:background="#000000"/>
 
         <Button
             android:id="@+id/btn_select_video"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="44dp"
             android:text="Select Video"
             android:textAllCaps="false"
             android:backgroundTint="@color/colorPrimary"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="12dp"
             android:fontFamily="sans-serif-medium"
             android:padding="0dp"
             android:textSize="14sp"/>
 
         <EditText
+            android:id="@+id/et_post_caption"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:hint="Write a caption..."
+            android:padding="12dp"
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="12dp"
+            android:maxLength="100"
+            android:textSize="14sp"
+            android:textColor="@color/textColorPrimary"
+            android:textColorHint="@color/textColorSecondary"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contact Information"
+            android:textSize="12sp"
+            android:textColor="@color/textColorSecondary"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="sans-serif-medium"/>
+
+        <EditText
             android:id="@+id/et_post_name"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="44dp"
             android:hint="Name"
-            android:padding="8dp"
+            android:padding="12dp"
             android:background="@drawable/rounded_edittext"
             android:layout_marginBottom="8dp"
             android:maxLength="30"
@@ -65,11 +89,11 @@
             <EditText
                 android:id="@+id/et_post_mobile"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:hint="Mobile"
                 android:inputType="phone"
-                android:padding="8dp"
+                android:padding="12dp"
                 android:background="@drawable/rounded_edittext"
                 android:layout_marginEnd="8dp"
                 android:maxLength="10"
@@ -82,10 +106,10 @@
             <EditText
                 android:id="@+id/et_post_area"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:hint="Area"
-                android:padding="8dp"
+                android:padding="12dp"
                 android:background="@drawable/rounded_edittext"
                 android:maxLength="30"
                 android:textSize="14sp"
@@ -98,10 +122,10 @@
         <EditText
             android:id="@+id/et_post_cost"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="44dp"
             android:hint="Cost"
             android:inputType="numberDecimal"
-            android:padding="8dp"
+            android:padding="12dp"
             android:background="@drawable/rounded_edittext"
             android:layout_marginTop="8dp"
             android:maxLength="10"
@@ -114,12 +138,12 @@
         <Button
             android:id="@+id/btn_upload_video"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:text="Post to Feed"
+            android:layout_height="48dp"
+            android:text="Share to Feed"
             android:textAllCaps="false"
             android:textStyle="bold"
             android:backgroundTint="@color/colorSuccess"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="20dp"
             android:enabled="false"
             android:padding="0dp"
             android:fontFamily="sans-serif-medium"/>

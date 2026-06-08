@@ -45,7 +45,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         holder.tvName.setText(post.name != null ? post.name : "Coconut Seller");
         holder.tvArea.setText(post.area != null ? post.area : "Unknown Area");
         holder.tvCost.setText(post.cost != null ? "₹" + post.cost : "");
-        holder.tvCaption.setText(post.caption);
+        holder.tvCaption.setText(post.caption != null ? post.caption : "");
+        holder.tvCaption.setVisibility((post.caption != null && !post.caption.isEmpty()) ? View.VISIBLE : View.GONE);
 
         if (post.createdAt > 0) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());

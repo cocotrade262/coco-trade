@@ -18,33 +18,29 @@
             android:layout_centerInParent="true" />
 
         <!-- Mute Toggle Top Right -->
-        <FrameLayout
-            android:id="@+id/mute_container"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+        <ImageView
+            android:id="@+id/iv_mute_toggle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
             android:background="@drawable/badge_background"
-            android:backgroundTint="#66000000">
-
-            <ImageView
-                android:id="@+id/iv_mute_toggle"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center"
-                android:src="@android:drawable/ic_lock_silent_mode"
-                app:tint="#FFFFFF" />
-        </FrameLayout>
+            android:backgroundTint="#66000000"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_lock_silent_mode"
+            app:tint="#FFFFFF" />
 
         <!-- Right Side Vertical Buttons -->
         <LinearLayout
+            android:id="@+id/side_buttons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
+            android:layout_alignParentBottom="true"
             android:layout_marginEnd="12dp"
+            android:layout_marginBottom="100dp"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -54,11 +50,13 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="8dp">
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:src="@android:drawable/ic_menu_call"
                     app:tint="#FFFFFF" />
 
@@ -67,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:text="Contact"
                     android:textColor="#FFFFFF"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-medium" />
             </LinearLayout>
 
@@ -78,11 +76,13 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:padding="8dp"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:src="@android:drawable/stat_notify_chat"
                     app:tint="#FFFFFF" />
 
@@ -91,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:text="Comment"
                     android:textColor="#FFFFFF"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-medium" />
             </LinearLayout>
 
@@ -102,11 +102,13 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:padding="8dp"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:src="@android:drawable/ic_menu_send"
                     app:tint="#FFFFFF" />
 
@@ -115,7 +117,7 @@
                     android:layout_height="wrap_content"
                     android:text="Share"
                     android:textColor="#FFFFFF"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-medium" />
             </LinearLayout>
 
@@ -126,10 +128,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/right_side_dummy"
+            android:layout_toStartOf="@id/side_buttons"
             android:orientation="vertical"
             android:padding="16dp"
-            android:background="@drawable/gradient_overlay">
+            android:layout_marginBottom="20dp"
+            android:background="@android:color/transparent">
 
             <TextView
                 android:id="@+id/tv_item_name"
@@ -137,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:text="Seller Name"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"/>
 
@@ -147,7 +150,7 @@
                 android:layout_height="wrap_content"
                 android:text="07 Jun 2026"
                 android:textColor="#DDFFFFFF"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:layout_marginTop="2dp"
                 android:fontFamily="sans-serif-medium"/>
 
@@ -166,19 +169,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical">
 
                 <TextView
                     android:id="@+id/tv_item_area"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/badge_background"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="4dp"
+                    android:backgroundTint="#44FFFFFF"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
                     android:text="Area"
                     android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium" />
 
                 <TextView
                     android:id="@+id/tv_item_cost"
@@ -186,12 +191,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:background="@drawable/badge_background_success"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="4dp"
+                    android:backgroundTint="#4400FF00"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
                     android:text="₹100"
                     android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium" />
 
                 <TextView
                     android:id="@+id/tv_sold_label"
@@ -199,46 +205,53 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:background="#FF4444"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="4dp"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
                     android:text="SOLD"
                     android:textColor="#FFFFFF"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
-
-                <Button
-                    android:id="@+id/btn_mark_sold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="28dp"
-                    android:layout_marginStart="8dp"
-                    android:backgroundTint="#FF4444"
-                    android:padding="0dp"
-                    android:text="Mark Sold"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    android:textSize="10sp"
-                    android:visibility="gone"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
             </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_mark_sold"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#FF4444"
+                android:padding="0dp"
+                android:text="Mark Sold"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
         </LinearLayout>
 
-        <View
-            android:id="@+id/right_side_dummy"
-            android:layout_width="80dp"
-            android:layout_height="0dp"
-            android:layout_alignParentEnd="true"/>
+        <!-- Video Progress Bar at the very bottom -->
+        <ProgressBar
+            android:id="@+id/video_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_alignParentBottom="true"
+            android:progressDrawable="@android:drawable/progress_horizontal"
+            android:progressTint="#FFFFFF"
+            android:background="#33FFFFFF"
+            android:max="100"
+            android:progress="30" />
 
         <ImageButton
             android:id="@+id/btn_report"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_margin="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_report_image"
-            app:tint="#88FFFFFF" />
+            app:tint="#66FFFFFF" />
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

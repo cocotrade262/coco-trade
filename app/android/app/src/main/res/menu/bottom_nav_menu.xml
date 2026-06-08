@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_feed"
-        android:icon="@android:drawable/ic_menu_slideshow"
+        android:icon="@android:drawable/ic_media_play"
         android:title="Feed" />
     <item
         android:id="@+id/nav_upload"
-        android:icon="@android:drawable/ic_menu_add"
+        android:icon="@android:drawable/ic_input_add"
         android:title="Post" />
     <item
         android:id="@+id/nav_profile"
         android:icon="@android:drawable/ic_menu_myplaces"
-        android:title="Profile" />
+        android:title="Account" />
 </menu>

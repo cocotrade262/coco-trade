@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,7 +28,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private RecyclerView recyclerView;
-    private VideoAdapter adapter;
+    private VideoGridAdapter adapter;
     private List<VideoAdapter.VideoPost> myVideos;
 
     @Nullable
@@ -50,9 +50,9 @@ public class ProfileFragment extends Fragment {
         }
 
         recyclerView = view.findViewById(R.id.recycler_view_my_videos);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         myVideos = new ArrayList<>();
-        adapter = new VideoAdapter(myVideos);
+        adapter = new VideoGridAdapter(myVideos);
         recyclerView.setAdapter(adapter);
 
         btnLogout.setOnClickListener(v -> {
