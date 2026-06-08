@@ -18,8 +18,7 @@
             android:layout_width="160dp"
             android:layout_height="160dp"
             android:src="@drawable/ic_coconut_tree"
-            android:layout_marginBottom="24dp"
-            app:tint="#2dd36f" />
+            android:layout_marginBottom="24dp" />
 
         <TextView
             android:id="@+id/tv_login_title"
@@ -28,7 +27,7 @@
             android:text="CocoTrade"
             android:textSize="36sp"
             android:textStyle="bold"
-            android:textColor="#2dd36f"
+            android:textColor="#388E3C"
             android:layout_marginBottom="8dp"
             android:gravity="center"
             android:fontFamily="sans-serif-black"/>
@@ -46,8 +45,8 @@
             android:id="@+id/btn_google_custom"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            app:cardBackgroundColor="#FFFFFF"
-            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="#EEEEEE"
+            app:cardCornerRadius="28dp"
             app:cardElevation="2dp"
             android:foreground="?attr/selectableItemBackground"
             android:clickable="true"

@@ -31,7 +31,8 @@ public class VideoUploadActivity extends AppCompatActivity {
 
     private static final String TAG = "VideoUploadActivity";
     private VideoView videoPreview;
-    private Button btnSelect, btnUpload;
+    private View btnRecord, btnSelect;
+    private Button btnUpload;
     private ProgressBar progressBar;
     private TextView statusText;
     private EditText etName, etMobile, etArea, etCost, etCaption;
@@ -45,13 +46,28 @@ public class VideoUploadActivity extends AppCompatActivity {
             uri -> {
                 if (uri != null) {
                     selectedVideoUri = uri;
-                    videoPreview.setVideoURI(selectedVideoUri);
-                    videoPreview.start();
-                    btnUpload.setEnabled(true);
-                    statusText.setText("Video selected");
+                    onVideoSelected();
                 }
             }
     );
+
+    private final ActivityResultLauncher<Intent> recordVideoLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    selectedVideoUri = result.getData().getData();
+                    onVideoSelected();
+                }
+            }
+    );
+
+    private void onVideoSelected() {
+        videoPreview.setVideoURI(selectedVideoUri);
+        videoPreview.setVisibility(View.VISIBLE);
+        videoPreview.start();
+        btnUpload.setEnabled(true);
+        statusText.setText("Video selected");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +78,7 @@ public class VideoUploadActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
 
         videoPreview = findViewById(R.id.video_preview);
+        btnRecord = findViewById(R.id.btn_record_video);
         btnSelect = findViewById(R.id.btn_select_video);
         btnUpload = findViewById(R.id.btn_upload_video);
         progressBar = findViewById(R.id.upload_progress);
@@ -72,6 +89,12 @@ public class VideoUploadActivity extends AppCompatActivity {
         etArea = findViewById(R.id.et_post_area);
         etCost = findViewById(R.id.et_post_cost);
         etCaption = findViewById(R.id.et_post_caption);
+
+        btnRecord.setOnClickListener(v -> {
+            Intent intent = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
+            intent.putExtra(android.provider.MediaStore.EXTRA_DURATION_LIMIT, 30);
+            recordVideoLauncher.launch(intent);
+        });
 
         btnSelect.setOnClickListener(v -> pickVideoLauncher.launch("video/*"));
         btnUpload.setOnClickListener(v -> uploadVideo());
