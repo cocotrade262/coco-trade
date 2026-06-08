@@ -34,7 +34,7 @@ public class VideoUploadActivity extends AppCompatActivity {
     private Button btnSelect, btnUpload;
     private ProgressBar progressBar;
     private TextView statusText;
-    private EditText etName, etMobile, etArea, etCost, etCaption;
+    private EditText etName, etMobile, etArea, etCost;
     private Uri selectedVideoUri;
 
     private DatabaseReference mDatabase;
@@ -71,7 +71,6 @@ public class VideoUploadActivity extends AppCompatActivity {
         etMobile = findViewById(R.id.et_post_mobile);
         etArea = findViewById(R.id.et_post_area);
         etCost = findViewById(R.id.et_post_cost);
-        etCaption = findViewById(R.id.et_post_caption);
 
         btnSelect.setOnClickListener(v -> pickVideoLauncher.launch("video/*"));
         btnUpload.setOnClickListener(v -> uploadVideo());
@@ -142,7 +141,6 @@ public class VideoUploadActivity extends AppCompatActivity {
         data.put("mobile", etMobile.getText().toString().trim());
         data.put("area", etArea.getText().toString().trim());
         data.put("cost", etCost.getText().toString().trim());
-        data.put("caption", etCaption.getText().toString().trim());
 
         if (videoId != null) {
             mDatabase.child(videoId).setValue(data).addOnCompleteListener(task -> {

@@ -9,13 +9,19 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
@@ -41,6 +47,11 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         holder.tvCost.setText(post.cost != null ? "₹" + post.cost : "");
         holder.tvCaption.setText(post.caption);
 
+        if (post.createdAt > 0) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+            holder.tvDate.setText(sdf.format(new Date(post.createdAt)));
+        }
+
         String currentUserId = FirebaseAuth.getInstance().getUid();
         boolean isOwner = post.uploadedBy != null && post.uploadedBy.equals(currentUserId);
 
@@ -59,7 +70,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             }
         });
 
-        holder.btnContact.setOnClickListener(v -> {
+        holder.layoutContact.setOnClickListener(v -> {
             if (post.mobile != null && !post.mobile.isEmpty()) {
                 Intent intent = new Intent(Intent.ACTION_DIAL);
                 intent.setData(Uri.parse("tel:" + post.mobile));
@@ -67,11 +78,15 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             }
         });
 
-        holder.btnShare.setOnClickListener(v -> {
+        holder.layoutShare.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, "Check out this coconut trade: " + post.objectUrl);
             v.getContext().startActivity(Intent.createChooser(intent, "Share via"));
+        });
+
+        holder.layoutComment.setOnClickListener(v -> {
+            Toast.makeText(v.getContext(), "Comments coming soon!", Toast.LENGTH_SHORT).show();
         });
 
         holder.btnReport.setOnClickListener(v -> {
@@ -136,8 +151,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
         VideoView videoView;
-        TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel;
-        Button btnMarkSold, btnContact, btnShare;
+        TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate;
+        Button btnMarkSold;
+        LinearLayout layoutContact, layoutShare, layoutComment;
         ImageButton btnReport;
         ImageView ivMuteToggle;
         MediaPlayer mPlayer;
@@ -150,9 +166,11 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             tvCost = itemView.findViewById(R.id.tv_item_cost);
             tvCaption = itemView.findViewById(R.id.tv_item_caption);
             tvSoldLabel = itemView.findViewById(R.id.tv_sold_label);
+            tvDate = itemView.findViewById(R.id.tv_item_date);
             btnMarkSold = itemView.findViewById(R.id.btn_mark_sold);
-            btnContact = itemView.findViewById(R.id.btn_item_contact);
-            btnShare = itemView.findViewById(R.id.btn_item_share);
+            layoutContact = itemView.findViewById(R.id.btn_item_contact_layout);
+            layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
+            layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);
             btnReport = itemView.findViewById(R.id.btn_report);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }
