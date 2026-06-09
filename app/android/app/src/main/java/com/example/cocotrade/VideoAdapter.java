@@ -13,6 +13,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
+import android.graphics.Outline;
+import android.view.ViewOutlineProvider;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -117,9 +119,27 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
         holder.itemView.setOnClickListener(v -> {
             isMuted = !isMuted;
-            notifyDataSetChanged();
+            applyMuteToAllVisibleHolders(v);
             showMuteIcon(holder.ivMuteToggle);
         });
+    }
+
+    private void applyMuteToAllVisibleHolders(View view) {
+        RecyclerView rv = null;
+        View parent = (View) view.getParent();
+        while (parent != null && !(parent instanceof RecyclerView)) {
+            parent = (View) parent.getParent();
+        }
+        if (parent instanceof RecyclerView) {
+            rv = (RecyclerView) parent;
+            for (int i = 0; i < rv.getChildCount(); i++) {
+                View child = rv.getChildAt(i);
+                VideoViewHolder vh = (VideoViewHolder) rv.getChildViewHolder(child);
+                if (vh != null && vh.mPlayer != null) {
+                    applyMuteState(vh.mPlayer);
+                }
+            }
+        }
     }
 
     @Override
@@ -162,6 +182,17 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         public VideoViewHolder(@NonNull View itemView) {
             super(itemView);
             videoView = itemView.findViewById(R.id.video_view_item);
+
+            // Apply outline provider for rounded corners on VideoView
+            videoView.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    float radius = view.getContext().getResources().getDisplayMetrics().density * 24;
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+                }
+            });
+            videoView.setClipToOutline(true);
+
             tvName = itemView.findViewById(R.id.tv_item_name);
             tvArea = itemView.findViewById(R.id.tv_item_area);
             tvCost = itemView.findViewById(R.id.tv_item_cost);

@@ -23,13 +23,13 @@ jobs:
           java-version: "21"
           cache: 'gradle'
 
-      - name: Create placeholder google-services.json if missing
+      - name: Verify google-services.json
         run: |
-          if [ ! -f "app/google-services.json" ]; then
-            echo "Creating placeholder google-services.json"
-            echo '{"project_info":{"project_number":"123","project_id":"dummy","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:123:android:123","android_client_info":{"package_name":"com.example.cocotrade"}},"api_key":[{"current_key":"dummy_key"}],"services":{"appinvite_service":{"status":1}}}]}' > app/google-services.json
+          if [ -f "app/google-services.json" ]; then
+            echo "SUCCESS: google-services.json found!"
           else
-            echo "google-services.json already exists"
+            echo "ERROR: google-services.json is missing!"
+            exit 1
           fi
 
       - name: Build Debug APK

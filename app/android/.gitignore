@@ -60,11 +60,11 @@ captures/
 .cxx/
 
 # Google Services (e.g. APIs or Firebase)
-app/google-services.json
+# app/google-services.json (Explicitly allowed per user request)
 
 # Keystore
-*.jks
-*.keystore
+# *.jks
+# *.keystore
 
 # Freeline
 freeline.py
