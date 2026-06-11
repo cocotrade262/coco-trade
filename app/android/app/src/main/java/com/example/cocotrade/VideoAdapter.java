@@ -73,7 +73,19 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             }
         });
 
+        holder.tvDetailName.setText("Seller: " + (post.name != null ? post.name : "N/A"));
+        holder.tvDetailMobile.setText("Call: " + (post.mobile != null ? post.mobile : "N/A"));
+
         holder.layoutContact.setOnClickListener(v -> {
+            if (holder.layoutContactDetails.getVisibility() == View.VISIBLE) {
+                holder.layoutContactDetails.setVisibility(View.GONE);
+            } else {
+                holder.layoutContactDetails.setVisibility(View.VISIBLE);
+                // Also trigger dial if user clicks mobile text specifically
+            }
+        });
+
+        holder.tvDetailMobile.setOnClickListener(v -> {
             if (post.mobile != null && !post.mobile.isEmpty()) {
                 Intent intent = new Intent(Intent.ACTION_DIAL);
                 intent.setData(Uri.parse("tel:" + post.mobile));
@@ -160,9 +172,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     }
 
     private void showMuteIcon(ImageView iv) {
-        iv.setImageResource(isMuted ? android.R.drawable.ic_lock_silent_mode : android.R.drawable.ic_lock_silent_mode_off);
+        iv.setImageResource(isMuted ? R.drawable.ic_mute_outline : R.drawable.ic_unmute_outline);
         iv.setAlpha(1.0f);
-        iv.animate().alpha(0f).setDuration(1000).start();
+        iv.animate().alpha(0f).setStartDelay(500).setDuration(1000).start();
     }
 
     @Override
@@ -173,8 +185,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
         VideoView videoView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate;
+        TextView tvDetailName, tvDetailMobile;
         Button btnMarkSold;
-        LinearLayout layoutContact, layoutShare, layoutComment;
+        LinearLayout layoutContact, layoutShare, layoutComment, layoutContactDetails;
         ImageButton btnReport;
         ImageView ivMuteToggle;
         MediaPlayer mPlayer;
@@ -199,10 +212,13 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             tvCaption = itemView.findViewById(R.id.tv_item_caption);
             tvSoldLabel = itemView.findViewById(R.id.tv_sold_label);
             tvDate = itemView.findViewById(R.id.tv_item_date);
+            tvDetailName = itemView.findViewById(R.id.tv_detail_name);
+            tvDetailMobile = itemView.findViewById(R.id.tv_detail_mobile);
             btnMarkSold = itemView.findViewById(R.id.btn_mark_sold);
             layoutContact = itemView.findViewById(R.id.btn_item_contact_layout);
             layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
             layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);
+            layoutContactDetails = itemView.findViewById(R.id.layout_contact_details);
             btnReport = itemView.findViewById(R.id.btn_report);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }

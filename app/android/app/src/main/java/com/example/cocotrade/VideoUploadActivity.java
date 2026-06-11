@@ -64,7 +64,18 @@ public class VideoUploadActivity extends AppCompatActivity {
     private void onVideoSelected() {
         videoPreview.setVideoURI(selectedVideoUri);
         videoPreview.setVisibility(View.VISIBLE);
-        videoPreview.start();
+        videoPreview.setOnPreparedListener(mp -> {
+            mp.setLooping(true);
+            float videoRatio = mp.getVideoWidth() / (float) mp.getVideoHeight();
+            float screenRatio = videoPreview.getWidth() / (float) videoPreview.getHeight();
+            float scale = videoRatio / screenRatio;
+            if (scale >= 1f) {
+                videoPreview.setScaleX(scale);
+            } else {
+                videoPreview.setScaleY(1f / scale);
+            }
+            videoPreview.start();
+        });
         btnUpload.setEnabled(true);
         statusText.setText("Video selected");
     }
