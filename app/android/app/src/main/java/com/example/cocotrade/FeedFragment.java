@@ -117,6 +117,7 @@ public class FeedFragment extends Fragment {
                     }
                 }
                 adapter.notifyDataSetChanged();
+                recyclerView.postDelayed(() -> playVisibleVideo(), 500);
             }
 
             @Override
