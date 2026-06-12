@@ -71,18 +71,91 @@
         android:layout_height="0.5dp"
         android:background="#363636"/>
 
-    <!-- Grid Layout Toggle Icon -->
+    <!-- Tab Bar -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="72dp"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:weightSum="3">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_dialog_dialer"
-            app:tint="#FFFFFF" />
+        <LinearLayout
+            android:id="@+id/tab_my_posts"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:id="@+id/iv_tab_posts"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_posts_grid"
+                app:tint="#3880ff" />
+            <TextView
+                android:id="@+id/tv_tab_posts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Posts"
+                android:textSize="12sp"
+                android:textColor="#3880ff"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tab_settings"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:id="@+id/iv_tab_settings"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_settings_outline"
+                app:tint="#FFFFFF" />
+            <TextView
+                android:id="@+id/tv_tab_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tab_report"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:id="@+id/iv_tab_report"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_report_outline"
+                app:tint="#FFFFFF" />
+            <TextView
+                android:id="@+id/tv_tab_report"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Report"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
     </LinearLayout>
 
     <View

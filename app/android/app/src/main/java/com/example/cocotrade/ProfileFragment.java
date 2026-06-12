@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -61,6 +62,58 @@ public class ProfileFragment extends Fragment {
         myVideos = new ArrayList<>();
         adapter = new VideoGridAdapter(myVideos);
         recyclerView.setAdapter(adapter);
+
+        View tabPosts = view.findViewById(R.id.tab_my_posts);
+        View tabSettings = view.findViewById(R.id.tab_settings);
+        View tabReport = view.findViewById(R.id.tab_report);
+
+        ImageView ivPosts = view.findViewById(R.id.iv_tab_posts);
+        TextView tvPosts = view.findViewById(R.id.tv_tab_posts);
+        ImageView ivSettings = view.findViewById(R.id.iv_tab_settings);
+        TextView tvSettings = view.findViewById(R.id.tv_tab_settings);
+        ImageView ivReport = view.findViewById(R.id.iv_tab_report);
+        TextView tvReport = view.findViewById(R.id.tv_tab_report);
+
+        tabPosts.setOnClickListener(v -> {
+            ivPosts.setColorFilter(0xFF3880FF);
+            tvPosts.setTextColor(0xFF3880FF);
+            ivSettings.setColorFilter(0xFFFFFFFF);
+            tvSettings.setTextColor(0xFFFFFFFF);
+            ivReport.setColorFilter(0xFFFFFFFF);
+            tvReport.setTextColor(0xFFFFFFFF);
+            recyclerView.setVisibility(View.VISIBLE);
+        });
+
+        tabSettings.setOnClickListener(v -> {
+            ivPosts.setColorFilter(0xFFFFFFFF);
+            tvPosts.setTextColor(0xFFFFFFFF);
+            ivSettings.setColorFilter(0xFF3880FF);
+            tvSettings.setTextColor(0xFF3880FF);
+            ivReport.setColorFilter(0xFFFFFFFF);
+            tvReport.setTextColor(0xFFFFFFFF);
+
+            // Sign out for now as specific settings aren't defined
+            mAuth.signOut();
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            if (getActivity() != null) getActivity().finish();
+        });
+
+        tabReport.setOnClickListener(v -> {
+            ivPosts.setColorFilter(0xFFFFFFFF);
+            tvPosts.setTextColor(0xFFFFFFFF);
+            ivSettings.setColorFilter(0xFFFFFFFF);
+            tvSettings.setTextColor(0xFFFFFFFF);
+            ivReport.setColorFilter(0xFF3880FF);
+            tvReport.setTextColor(0xFF3880FF);
+
+            Intent intent = new Intent(android.content.Intent.ACTION_SENDTO);
+            intent.setData(android.net.Uri.parse("mailto:"));
+            intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"cocotrade262@gmail.com"});
+            intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Report / Suggestion from " + (user != null ? user.getEmail() : "Anonymous"));
+            startActivity(android.content.Intent.createChooser(intent, "Send Feedback..."));
+        });
 
         if (user != null) {
             loadMyVideos(user.getUid());
