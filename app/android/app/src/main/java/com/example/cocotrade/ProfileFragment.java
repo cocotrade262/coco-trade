@@ -42,12 +42,18 @@ public class ProfileFragment extends Fragment {
 
         TextView tvName = view.findViewById(R.id.tv_profile_name);
         TextView tvEmail = view.findViewById(R.id.tv_profile_email);
+        TextView tvInitial = view.findViewById(R.id.tv_profile_initial);
         Button btnLogout = view.findViewById(R.id.btn_logout);
         Button btnReport = view.findViewById(R.id.btn_report_suggestion);
 
         if (user != null) {
-            tvName.setText(user.getDisplayName() != null ? user.getDisplayName() : "Anonymous User");
+            String displayName = user.getDisplayName() != null ? user.getDisplayName() : "Anonymous User";
+            tvName.setText(displayName);
             tvEmail.setText(user.getEmail());
+
+            if (!displayName.isEmpty()) {
+                tvInitial.setText(String.valueOf(displayName.charAt(0)).toUpperCase());
+            }
         }
 
         recyclerView = view.findViewById(R.id.recycler_view_my_videos);
