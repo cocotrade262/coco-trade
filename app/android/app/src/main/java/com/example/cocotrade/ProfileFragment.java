@@ -79,7 +79,7 @@ public class ProfileFragment extends Fragment {
         TextView tvReport = view.findViewById(R.id.tv_tab_report);
 
         View layoutSettings = view.findViewById(R.id.layout_settings_content);
-        TextView btnSignOut = view.findViewById(R.id.tv_btn_sign_out);
+        View btnSignOut = view.findViewById(R.id.layout_btn_sign_out);
 
         View layoutReport = view.findViewById(R.id.layout_report_content);
         Spinner spinnerReport = view.findViewById(R.id.spinner_report_type);
