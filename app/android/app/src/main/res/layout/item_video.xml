@@ -4,10 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:cardBackgroundColor="#000000"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="0dp"
     app:cardElevation="0dp"
-    app:cardUseCompatPadding="false"
-    android:layout_margin="12dp">
+    app:cardUseCompatPadding="false">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -31,50 +30,34 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <ImageButton
-                    android:id="@+id/btn_report"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_more"
-                    android:rotation="90"
-                    app:tint="#CCFFFFFF" />
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_item_area"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="8dp">
+                    android:background="@drawable/badge_background"
+                    android:backgroundTint="#3880ff"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="Area"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium" />
 
-                    <TextView
-                        android:id="@+id/tv_item_area"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/badge_background"
-                        android:backgroundTint="#CC000000"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:text="Area"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:id="@+id/tv_item_cost"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:background="@drawable/badge_background_success"
-                        android:backgroundTint="#CC2E7D32"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:text="₹100"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif-medium" />
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_item_cost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/badge_background_success"
+                    android:backgroundTint="#00C853"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="₹100"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 
@@ -238,37 +221,57 @@
                 android:text="Caption goes here..."
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
-                android:layout_marginBottom="6dp"
+                android:layout_marginBottom="12dp"
                 android:fontFamily="sans-serif-medium"
                 android:textStyle="bold"
                 android:visibility="visible"/>
-
-            <TextView
-                android:id="@+id/tv_item_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Seller Name"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-medium"/>
-
-            <TextView
-                android:id="@+id/tv_item_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="07 Jun 2026"
-                android:textColor="#B0FFFFFF"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp"
                 android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_item_initial"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/circular_blue_background"
+                    android:gravity="center"
+                    android:text="S"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:id="@+id/tv_item_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Seller Name"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"/>
+
+                    <TextView
+                        android:id="@+id/tv_item_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="07 Jun 2026"
+                        android:textColor="#B0FFFFFF"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"/>
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_sold_label"
@@ -282,22 +285,8 @@
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
-            </LinearLayout>
 
-            <Button
-                android:id="@+id/btn_mark_sold"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="#FF4444"
-                android:paddingHorizontal="24dp"
-                android:text="Mark Sold"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:visibility="gone"
-                app:cornerRadius="20dp"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Video Progress Bar at the very bottom -->

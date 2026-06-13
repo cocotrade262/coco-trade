@@ -55,23 +55,17 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             holder.tvDate.setText(sdf.format(new Date(post.createdAt)));
         }
 
-        String currentUserId = FirebaseAuth.getInstance().getUid();
-        boolean isOwner = post.uploadedBy != null && post.uploadedBy.equals(currentUserId);
+        if (post.name != null && !post.name.isEmpty()) {
+            holder.tvInitial.setText(String.valueOf(post.name.charAt(0)).toUpperCase());
+        } else {
+            holder.tvInitial.setText("C");
+        }
 
         if (post.isSold) {
             holder.tvSoldLabel.setVisibility(View.VISIBLE);
-            holder.btnMarkSold.setVisibility(View.GONE);
         } else {
             holder.tvSoldLabel.setVisibility(View.GONE);
-            holder.btnMarkSold.setVisibility(isOwner ? View.VISIBLE : View.GONE);
         }
-
-        holder.btnMarkSold.setOnClickListener(v -> {
-            if (post.id != null) {
-                FirebaseDatabase.getInstance().getReference("UserVideos")
-                        .child(post.id).child("isSold").setValue(true);
-            }
-        });
 
         holder.tvDetailName.setText("Seller: " + (post.name != null ? post.name : "N/A"));
         holder.tvDetailMobile.setText("Call: " + (post.mobile != null ? post.mobile : "N/A"));
@@ -102,15 +96,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
         holder.layoutComment.setOnClickListener(v -> {
             Toast.makeText(v.getContext(), "Comments coming soon!", Toast.LENGTH_SHORT).show();
-        });
-
-        holder.btnReport.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_SENDTO);
-            intent.setData(Uri.parse("mailto:"));
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"cocotrade262@gmail.com"});
-            intent.putExtra(Intent.EXTRA_SUBJECT, "Report Video: " + post.id);
-            intent.putExtra(Intent.EXTRA_TEXT, "I would like to report this video for inappropriate content.");
-            v.getContext().startActivity(Intent.createChooser(intent, "Send Report..."));
         });
 
         if (post.objectUrl != null) {
@@ -184,11 +169,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
         VideoView videoView;
-        TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate;
+        TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate, tvInitial;
         TextView tvDetailName, tvDetailMobile;
-        Button btnMarkSold;
         LinearLayout layoutContact, layoutShare, layoutComment, layoutContactDetails;
-        ImageButton btnReport;
         ImageView ivMuteToggle;
         MediaPlayer mPlayer;
 
@@ -212,14 +195,13 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             tvCaption = itemView.findViewById(R.id.tv_item_caption);
             tvSoldLabel = itemView.findViewById(R.id.tv_sold_label);
             tvDate = itemView.findViewById(R.id.tv_item_date);
+            tvInitial = itemView.findViewById(R.id.tv_item_initial);
             tvDetailName = itemView.findViewById(R.id.tv_detail_name);
             tvDetailMobile = itemView.findViewById(R.id.tv_detail_mobile);
-            btnMarkSold = itemView.findViewById(R.id.btn_mark_sold);
             layoutContact = itemView.findViewById(R.id.btn_item_contact_layout);
             layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
             layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);
             layoutContactDetails = itemView.findViewById(R.id.layout_contact_details);
-            btnReport = itemView.findViewById(R.id.btn_report);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }
     }
