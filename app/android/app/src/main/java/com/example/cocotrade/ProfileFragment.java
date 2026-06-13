@@ -74,6 +74,9 @@ public class ProfileFragment extends Fragment {
         ImageView ivReport = view.findViewById(R.id.iv_tab_report);
         TextView tvReport = view.findViewById(R.id.tv_tab_report);
 
+        View layoutSettings = view.findViewById(R.id.layout_settings_content);
+        TextView btnSignOut = view.findViewById(R.id.tv_btn_sign_out);
+
         tabPosts.setOnClickListener(v -> {
             ivPosts.setColorFilter(0xFF3880FF);
             tvPosts.setTextColor(0xFF3880FF);
@@ -81,7 +84,9 @@ public class ProfileFragment extends Fragment {
             tvSettings.setTextColor(0xFFFFFFFF);
             ivReport.setColorFilter(0xFFFFFFFF);
             tvReport.setTextColor(0xFFFFFFFF);
+
             recyclerView.setVisibility(View.VISIBLE);
+            layoutSettings.setVisibility(View.GONE);
         });
 
         tabSettings.setOnClickListener(v -> {
@@ -92,7 +97,11 @@ public class ProfileFragment extends Fragment {
             ivReport.setColorFilter(0xFFFFFFFF);
             tvReport.setTextColor(0xFFFFFFFF);
 
-            // Sign out for now as specific settings aren't defined
+            recyclerView.setVisibility(View.GONE);
+            layoutSettings.setVisibility(View.VISIBLE);
+        });
+
+        btnSignOut.setOnClickListener(v -> {
             mAuth.signOut();
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
