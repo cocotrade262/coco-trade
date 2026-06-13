@@ -61,7 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Camera"
-                    android:textColor="#44000000"
+                    android:textColor="#000000"
                     android:textSize="12sp"/>
             </LinearLayout>
 
@@ -87,7 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Gallery"
-                    android:textColor="#44000000"
+                    android:textColor="#000000"
                     android:textSize="12sp"/>
             </LinearLayout>
         </LinearLayout>
@@ -276,6 +276,7 @@
             android:textStyle="bold"
             android:backgroundTint="#2E7D32"
             android:textColor="#FFFFFF"
+            android:letterSpacing="0"
             android:enabled="false"
             android:padding="0dp"
             app:cornerRadius="12dp"

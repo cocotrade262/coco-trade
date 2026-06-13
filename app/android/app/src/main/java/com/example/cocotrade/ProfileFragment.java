@@ -5,9 +5,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -77,6 +81,16 @@ public class ProfileFragment extends Fragment {
         View layoutSettings = view.findViewById(R.id.layout_settings_content);
         TextView btnSignOut = view.findViewById(R.id.tv_btn_sign_out);
 
+        View layoutReport = view.findViewById(R.id.layout_report_content);
+        Spinner spinnerReport = view.findViewById(R.id.spinner_report_type);
+        EditText etReportMessage = view.findViewById(R.id.et_report_message);
+        Button btnSubmitFeedback = view.findViewById(R.id.btn_submit_feedback);
+
+        String[] reportTypes = {"Report", "Suggestion", "Other"};
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, reportTypes);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerReport.setAdapter(spinnerAdapter);
+
         tabPosts.setOnClickListener(v -> {
             ivPosts.setColorFilter(0xFF3880FF);
             tvPosts.setTextColor(0xFF3880FF);
@@ -87,6 +101,7 @@ public class ProfileFragment extends Fragment {
 
             recyclerView.setVisibility(View.VISIBLE);
             layoutSettings.setVisibility(View.GONE);
+            layoutReport.setVisibility(View.GONE);
         });
 
         tabSettings.setOnClickListener(v -> {
@@ -99,6 +114,7 @@ public class ProfileFragment extends Fragment {
 
             recyclerView.setVisibility(View.GONE);
             layoutSettings.setVisibility(View.VISIBLE);
+            layoutReport.setVisibility(View.GONE);
         });
 
         btnSignOut.setOnClickListener(v -> {
@@ -117,10 +133,25 @@ public class ProfileFragment extends Fragment {
             ivReport.setColorFilter(0xFF3880FF);
             tvReport.setTextColor(0xFF3880FF);
 
+            recyclerView.setVisibility(View.GONE);
+            layoutSettings.setVisibility(View.GONE);
+            layoutReport.setVisibility(View.VISIBLE);
+        });
+
+        btnSubmitFeedback.setOnClickListener(v -> {
+            String type = spinnerReport.getSelectedItem().toString();
+            String message = etReportMessage.getText().toString().trim();
+
+            if (message.isEmpty()) {
+                Toast.makeText(requireContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Intent intent = new Intent(android.content.Intent.ACTION_SENDTO);
             intent.setData(android.net.Uri.parse("mailto:"));
             intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"cocotrade262@gmail.com"});
-            intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Report / Suggestion from " + (user != null ? user.getEmail() : "Anonymous"));
+            intent.putExtra(android.content.Intent.EXTRA_SUBJECT, type + " from " + (user != null ? user.getEmail() : "Anonymous"));
+            intent.putExtra(android.content.Intent.EXTRA_TEXT, message);
             startActivity(android.content.Intent.createChooser(intent, "Send Feedback..."));
         });
 
