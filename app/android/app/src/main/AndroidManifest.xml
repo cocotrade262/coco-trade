@@ -45,11 +45,6 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
 
-        <activity
-            android:name=".VideoUploadActivity"
-            android:label="Upload Video"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

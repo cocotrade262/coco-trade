@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(new FeedFragment());
                 return true;
             } else if (itemId == R.id.nav_upload) {
-                startActivity(new Intent(MainActivity.this, VideoUploadActivity.class));
-                return false; // Don't select the tab, just launch activity
+                replaceFragment(new PostFragment());
+                return true;
             } else if (itemId == R.id.nav_profile) {
                 replaceFragment(new ProfileFragment());
                 return true;
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void replaceFragment(Fragment fragment) {
+    public void replaceFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commit();

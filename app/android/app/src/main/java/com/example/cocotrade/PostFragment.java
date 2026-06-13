@@ -3,8 +3,9 @@ package com.example.cocotrade;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -14,8 +15,12 @@ import android.widget.VideoView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
@@ -27,9 +32,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VideoUploadActivity extends AppCompatActivity {
+import static android.app.Activity.RESULT_OK;
 
-    private static final String TAG = "VideoUploadActivity";
+public class PostFragment extends Fragment {
+
+    private static final String TAG = "PostFragment";
     private VideoView videoPreview;
     private View btnRecord, btnSelect;
     private Button btnUpload;
@@ -62,6 +69,7 @@ public class VideoUploadActivity extends AppCompatActivity {
     );
 
     private void onVideoSelected() {
+        if (videoPreview == null) return;
         videoPreview.setVideoURI(selectedVideoUri);
         videoPreview.setVisibility(View.VISIBLE);
         videoPreview.setOnPreparedListener(mp -> {
@@ -80,26 +88,26 @@ public class VideoUploadActivity extends AppCompatActivity {
         statusText.setText("Video selected");
     }
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_upload);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_post, container, false);
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
 
-        videoPreview = findViewById(R.id.video_preview);
-        btnRecord = findViewById(R.id.btn_record_video);
-        btnSelect = findViewById(R.id.btn_select_video);
-        btnUpload = findViewById(R.id.btn_upload_video);
-        progressBar = findViewById(R.id.upload_progress);
-        statusText = findViewById(R.id.status_text);
+        videoPreview = view.findViewById(R.id.video_preview);
+        btnRecord = view.findViewById(R.id.btn_record_video);
+        btnSelect = view.findViewById(R.id.btn_select_video);
+        btnUpload = view.findViewById(R.id.btn_upload_video);
+        progressBar = view.findViewById(R.id.upload_progress);
+        statusText = view.findViewById(R.id.status_text);
 
-        etName = findViewById(R.id.et_post_name);
-        etMobile = findViewById(R.id.et_post_mobile);
-        etArea = findViewById(R.id.et_post_area);
-        etCost = findViewById(R.id.et_post_cost);
-        etCaption = findViewById(R.id.et_post_caption);
+        etName = view.findViewById(R.id.et_post_name);
+        etMobile = view.findViewById(R.id.et_post_mobile);
+        etArea = view.findViewById(R.id.et_post_area);
+        etCost = view.findViewById(R.id.et_post_cost);
+        etCaption = view.findViewById(R.id.et_post_caption);
 
         btnRecord.setOnClickListener(v -> {
             Intent intent = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
@@ -109,6 +117,8 @@ public class VideoUploadActivity extends AppCompatActivity {
 
         btnSelect.setOnClickListener(v -> pickVideoLauncher.launch("video/*"));
         btnUpload.setOnClickListener(v -> uploadVideo());
+
+        return view;
     }
 
     private void uploadVideo() {
@@ -116,14 +126,14 @@ public class VideoUploadActivity extends AppCompatActivity {
 
         String name = etName.getText().toString().trim();
         if (name.isEmpty()) {
-            Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Name is required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            startActivity(new Intent(getActivity(), LoginActivity.class));
+            if (getActivity() != null) getActivity().finish();
             return;
         }
 
@@ -141,7 +151,9 @@ public class VideoUploadActivity extends AppCompatActivity {
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
                         int progress = (int) ((bytes * 100) / totalBytes);
-                        runOnUiThread(() -> progressBar.setProgress(progress));
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> progressBar.setProgress(progress));
+                        }
                     }
 
                     @Override
@@ -152,11 +164,13 @@ public class VideoUploadActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
-                        runOnUiThread(() -> {
-                            progressBar.setVisibility(View.GONE);
-                            btnUpload.setEnabled(true);
-                            Toast.makeText(VideoUploadActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
-                        });
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                progressBar.setVisibility(View.GONE);
+                                btnUpload.setEnabled(true);
+                                Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+                            });
+                        }
                     }
 
                     @Override
@@ -181,8 +195,14 @@ public class VideoUploadActivity extends AppCompatActivity {
         if (videoId != null) {
             mDatabase.child(videoId).setValue(data).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    Toast.makeText(this, "Success!", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
+                    // Clear form or navigate to feed
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).replaceFragment(new FeedFragment());
+                        // Update bottom nav selection
+                        BottomNavigationView nav = getActivity().findViewById(R.id.bottom_navigation);
+                        if (nav != null) nav.setSelectedItemId(R.id.nav_feed);
+                    }
                 } else {
                     progressBar.setVisibility(View.GONE);
                     btnUpload.setEnabled(true);
