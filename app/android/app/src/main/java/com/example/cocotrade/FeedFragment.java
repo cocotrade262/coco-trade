@@ -22,6 +22,7 @@ import java.util.List;
 public class FeedFragment extends Fragment {
 
     private DatabaseReference mDatabase;
+    private ValueEventListener mValueEventListener;
     private RecyclerView recyclerView;
     private VideoAdapter adapter;
     private List<VideoAdapter.VideoPost> videoList;
@@ -74,12 +75,12 @@ public class FeedFragment extends Fragment {
                 int screenCenter = recyclerView.getContext().getResources().getDisplayMetrics().heightPixels / 2;
 
                 if (viewTop <= screenCenter && viewBottom >= screenCenter) {
-                    if (!holder.videoView.isPlaying()) {
-                        holder.videoView.start();
+                    if (holder.mPlayer != null && !holder.mPlayer.isPlaying()) {
+                        holder.mPlayer.play();
                     }
                 } else {
-                    if (holder.videoView.isPlaying()) {
-                        holder.videoView.pause();
+                    if (holder.mPlayer != null && holder.mPlayer.isPlaying()) {
+                        holder.mPlayer.pause();
                     }
                 }
             }
@@ -97,14 +98,14 @@ public class FeedFragment extends Fragment {
         for (int i = 0; i < recyclerView.getChildCount(); i++) {
             View child = recyclerView.getChildAt(i);
             VideoAdapter.VideoViewHolder holder = (VideoAdapter.VideoViewHolder) recyclerView.getChildViewHolder(child);
-            if (holder != null && holder.videoView.isPlaying()) {
-                holder.videoView.pause();
+            if (holder != null && holder.mPlayer != null && holder.mPlayer.isPlaying()) {
+                holder.mPlayer.pause();
             }
         }
     }
 
     private void loadVideos() {
-        mDatabase.addValueEventListener(new ValueEventListener() {
+        mValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded()) return;
@@ -117,7 +118,9 @@ public class FeedFragment extends Fragment {
                     }
                 }
                 adapter.notifyDataSetChanged();
-                recyclerView.postDelayed(() -> playVisibleVideo(), 500);
+                recyclerView.postDelayed(() -> {
+                    if (isAdded()) playVisibleVideo();
+                }, 500);
             }
 
             @Override
@@ -126,6 +129,15 @@ public class FeedFragment extends Fragment {
                     Toast.makeText(getContext(), "Failed to load videos", Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        };
+        mDatabase.addValueEventListener(mValueEventListener);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mDatabase != null && mValueEventListener != null) {
+            mDatabase.removeEventListener(mValueEventListener);
+        }
     }
 }

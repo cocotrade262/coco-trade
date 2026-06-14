@@ -32,6 +32,8 @@ public class ProfileFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    private Query mMyVideosQuery;
+    private ValueEventListener mValueEventListener;
     private RecyclerView recyclerView;
     private VideoGridAdapter adapter;
     private List<VideoAdapter.VideoPost> myVideos;
@@ -163,8 +165,8 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadMyVideos(String userId) {
-        Query query = mDatabase.orderByChild("uploadedBy").equalTo(userId);
-        query.addValueEventListener(new ValueEventListener() {
+        mMyVideosQuery = mDatabase.orderByChild("uploadedBy").equalTo(userId);
+        mValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded()) return;
@@ -182,6 +184,15 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
-        });
+        };
+        mMyVideosQuery.addValueEventListener(mValueEventListener);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mMyVideosQuery != null && mValueEventListener != null) {
+            mMyVideosQuery.removeEventListener(mValueEventListener);
+        }
     }
 }

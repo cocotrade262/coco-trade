@@ -1,21 +1,24 @@
 package com.example.cocotrade;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 import android.graphics.Outline;
 import android.view.ViewOutlineProvider;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -75,7 +78,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                 holder.layoutContactDetails.setVisibility(View.GONE);
             } else {
                 holder.layoutContactDetails.setVisibility(View.VISIBLE);
-                // Also trigger dial if user clicks mobile text specifically
             }
         });
 
@@ -99,16 +101,19 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         });
 
         if (post.objectUrl != null) {
-            String tag = (String) holder.videoView.getTag();
+            String tag = (String) holder.playerView.getTag();
             if (tag == null || !tag.equals(post.objectUrl)) {
-                holder.videoView.setVideoPath(post.objectUrl);
-                holder.videoView.setTag(post.objectUrl);
-                holder.videoView.setOnPreparedListener(mp -> {
-                    mp.setLooping(true);
-                    holder.mPlayer = mp;
-                    applyMuteState(mp);
-                    // Do not auto-start here, FeedFragment will manage playback
-                });
+                if (holder.mPlayer != null) {
+                    holder.mPlayer.release();
+                }
+                ExoPlayer player = new ExoPlayer.Builder(holder.itemView.getContext()).build();
+                player.setMediaItem(MediaItem.fromUri(post.objectUrl));
+                player.setRepeatMode(Player.REPEAT_MODE_ALL);
+                player.prepare();
+                holder.playerView.setPlayer(player);
+                holder.playerView.setTag(post.objectUrl);
+                holder.mPlayer = player;
+                applyMuteState(player);
             } else if (holder.mPlayer != null) {
                 applyMuteState(holder.mPlayer);
             }
@@ -142,17 +147,19 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     @Override
     public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
-        if (holder.videoView != null) {
-            holder.videoView.stopPlayback();
-            holder.videoView.setTag(null);
+        if (holder.mPlayer != null) {
+            holder.mPlayer.release();
+            holder.mPlayer = null;
+            holder.playerView.setPlayer(null);
+            holder.playerView.setTag(null);
         }
     }
 
-    private void applyMuteState(MediaPlayer mp) {
+    private void applyMuteState(ExoPlayer mp) {
         if (isMuted) {
-            mp.setVolume(0, 0);
+            mp.setVolume(0f);
         } else {
-            mp.setVolume(1, 1);
+            mp.setVolume(1f);
         }
     }
 
@@ -168,26 +175,28 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     }
 
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
-        VideoView videoView;
+        PlayerView playerView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate, tvInitial;
         TextView tvDetailName, tvDetailMobile;
         LinearLayout layoutContact, layoutShare, layoutComment, layoutContactDetails;
         ImageView ivMuteToggle;
-        MediaPlayer mPlayer;
+        ExoPlayer mPlayer;
+        ProgressBar progressBar;
 
         public VideoViewHolder(@NonNull View itemView) {
             super(itemView);
-            videoView = itemView.findViewById(R.id.video_view_item);
+            playerView = itemView.findViewById(R.id.video_view_item);
+            progressBar = itemView.findViewById(R.id.video_progress);
 
-            // Apply outline provider for rounded corners on VideoView
-            videoView.setOutlineProvider(new ViewOutlineProvider() {
+            // Apply outline provider for rounded corners on PlayerView
+            playerView.setOutlineProvider(new ViewOutlineProvider() {
                 @Override
                 public void getOutline(View view, Outline outline) {
                     float radius = view.getContext().getResources().getDisplayMetrics().density * 24;
                     outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
                 }
             });
-            videoView.setClipToOutline(true);
+            playerView.setClipToOutline(true);
 
             tvName = itemView.findViewById(R.id.tv_item_name);
             tvArea = itemView.findViewById(R.id.tv_item_area);
