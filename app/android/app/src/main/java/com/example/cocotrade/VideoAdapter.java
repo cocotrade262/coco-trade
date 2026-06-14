@@ -101,22 +101,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         });
 
         if (post.objectUrl != null) {
-            String tag = (String) holder.playerView.getTag();
-            if (tag == null || !tag.equals(post.objectUrl)) {
-                if (holder.mPlayer != null) {
-                    holder.mPlayer.release();
-                }
-                ExoPlayer player = new ExoPlayer.Builder(holder.itemView.getContext()).build();
-                player.setMediaItem(MediaItem.fromUri(post.objectUrl));
-                player.setRepeatMode(Player.REPEAT_MODE_ALL);
-                player.prepare();
-                holder.playerView.setPlayer(player);
-                holder.playerView.setTag(post.objectUrl);
-                holder.mPlayer = player;
-                applyMuteState(player);
-            } else if (holder.mPlayer != null) {
-                applyMuteState(holder.mPlayer);
-            }
+            initializePlayer(holder, post.objectUrl);
         }
 
         holder.itemView.setOnClickListener(v -> {
@@ -144,6 +129,37 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         }
     }
 
+    private void initializePlayer(VideoViewHolder holder, String videoUrl) {
+        String tag = (String) holder.playerView.getTag();
+        if (tag == null || !tag.equals(videoUrl) || holder.mPlayer == null) {
+            if (holder.mPlayer != null) {
+                holder.mPlayer.release();
+            }
+            ExoPlayer player = new ExoPlayer.Builder(holder.itemView.getContext()).build();
+            player.setMediaItem(MediaItem.fromUri(videoUrl));
+            player.setRepeatMode(Player.REPEAT_MODE_ALL);
+            player.prepare();
+            holder.playerView.setPlayer(player);
+            holder.playerView.setTag(videoUrl);
+            holder.mPlayer = player;
+            applyMuteState(player);
+        } else {
+            applyMuteState(holder.mPlayer);
+        }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull VideoViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        int position = holder.getAdapterPosition();
+        if (position != RecyclerView.NO_POSITION && position < videoPosts.size()) {
+            VideoPost post = videoPosts.get(position);
+            if (post.objectUrl != null) {
+                initializePlayer(holder, post.objectUrl);
+            }
+        }
+    }
+
     @Override
     public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
@@ -151,7 +167,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             holder.mPlayer.release();
             holder.mPlayer = null;
             holder.playerView.setPlayer(null);
-            holder.playerView.setTag(null);
+            // We keep the tag so we know what was last loaded,
+            // but initializePlayer will re-create if mPlayer is null
         }
     }
 
