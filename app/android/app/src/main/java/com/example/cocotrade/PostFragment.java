@@ -181,10 +181,13 @@ public class PostFragment extends Fragment {
 
     private void saveToFirebase(String url, String userId) {
         String videoId = mDatabase.push().getKey();
+        FirebaseUser user = mAuth.getCurrentUser();
+        String profileName = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "";
 
         Map<String, Object> data = new HashMap<>();
         data.put("objectUrl", url);
         data.put("uploadedBy", userId);
+        data.put("authorName", profileName);
         data.put("createdAt", System.currentTimeMillis());
         data.put("name", etName.getText().toString().trim());
         data.put("mobile", etMobile.getText().toString().trim());

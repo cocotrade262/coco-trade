@@ -47,7 +47,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
         VideoPost post = videoPosts.get(position);
-        holder.tvName.setText(post.name != null ? "@" + post.name : "Coconut Seller");
+        String profileName = post.authorName != null ? post.authorName : post.name;
+        holder.tvName.setText(profileName != null ? "@" + profileName : "Coconut Seller");
         holder.tvArea.setText(post.area != null ? post.area : "Unknown Area");
         holder.tvCost.setText(post.cost != null ? "₹" + post.cost : "");
         holder.tvCaption.setText(post.caption != null ? post.caption : "");
@@ -240,6 +241,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         public String cost;
         public String caption;
         public String mobile;
+        public String authorName;
         public String uploadedBy;
         public long createdAt;
         public boolean isSold;
