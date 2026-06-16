@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
@@ -104,26 +105,34 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
         String currentUserUid = FirebaseAuth.getInstance().getUid();
         if (currentUserUid != null && currentUserUid.equals(post.uploadedBy) && !post.isSold) {
-            holder.layoutMarkSold.setVisibility(View.VISIBLE);
-            holder.layoutMarkSold.setOnClickListener(v -> {
-                new AlertDialog.Builder(v.getContext())
-                        .setTitle("Mark as Sold")
-                        .setMessage("Are you sure you want to mark this as sold? It will be removed from the feed.")
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            FirebaseDatabase.getInstance().getReference("UserVideos")
-                                    .child(post.id)
-                                    .child("isSold")
-                                    .setValue(true)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(v.getContext(), "Marked as sold", Toast.LENGTH_SHORT).show();
-                                        // The ValueEventListener in FeedFragment will update the list
-                                    });
-                        })
-                        .setNegativeButton("No", null)
-                        .show();
+            holder.ivMoreOptions.setVisibility(View.VISIBLE);
+            holder.ivMoreOptions.setOnClickListener(v -> {
+                PopupMenu popup = new PopupMenu(v.getContext(), v);
+                popup.getMenu().add("Mark as Sold");
+                popup.setOnMenuItemClickListener(item -> {
+                    if (item.getTitle().equals("Mark as Sold")) {
+                        new AlertDialog.Builder(v.getContext())
+                                .setTitle("Mark as Sold")
+                                .setMessage("Are you sure you want to mark this as sold? It will be removed from the feed.")
+                                .setPositiveButton("Yes", (dialog, which) -> {
+                                    FirebaseDatabase.getInstance().getReference("UserVideos")
+                                            .child(post.id)
+                                            .child("isSold")
+                                            .setValue(true)
+                                            .addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(v.getContext(), "Marked as sold", Toast.LENGTH_SHORT).show();
+                                            });
+                                })
+                                .setNegativeButton("No", null)
+                                .show();
+                        return true;
+                    }
+                    return false;
+                });
+                popup.show();
             });
         } else {
-            holder.layoutMarkSold.setVisibility(View.GONE);
+            holder.ivMoreOptions.setVisibility(View.GONE);
         }
 
         if (post.objectUrl != null) {
@@ -221,8 +230,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         PlayerView playerView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate, tvInitial;
         TextView tvDetailName, tvDetailMobile;
-        LinearLayout layoutContact, layoutShare, layoutComment, layoutMarkSold, layoutContactDetails;
-        ImageView ivMuteToggle;
+        LinearLayout layoutContact, layoutShare, layoutComment, layoutContactDetails;
+        ImageView ivMuteToggle, ivMoreOptions;
         ExoPlayer mPlayer;
         ProgressBar progressBar;
 
@@ -253,7 +262,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             layoutContact = itemView.findViewById(R.id.btn_item_contact_layout);
             layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
             layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);
-            layoutMarkSold = itemView.findViewById(R.id.btn_item_mark_sold_layout);
+            ivMoreOptions = itemView.findViewById(R.id.iv_more_options);
             layoutContactDetails = itemView.findViewById(R.id.layout_contact_details);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }
