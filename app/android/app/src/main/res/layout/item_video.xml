@@ -92,7 +92,8 @@
                     android:background="@drawable/circular_background_dark"
                     android:padding="10dp"
                     android:src="@drawable/ic_mute_outline"
-                    app:tint="#FFFFFF" />
+                    app:tint="#FFFFFF"
+                    android:alpha="0" />
             </LinearLayout>
         </RelativeLayout>
 

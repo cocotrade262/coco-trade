@@ -139,6 +139,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             initializePlayer(holder, post.objectUrl);
         }
 
+        holder.ivMuteToggle.setAlpha(0f);
+
         holder.itemView.setOnClickListener(v -> {
             isMuted = !isMuted;
             applyMuteToAllVisibleHolders(v);
