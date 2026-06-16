@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import android.graphics.Outline;
 import android.view.ViewOutlineProvider;
 import androidx.annotation.NonNull;
@@ -100,6 +101,30 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         holder.layoutComment.setOnClickListener(v -> {
             Toast.makeText(v.getContext(), "Comments coming soon!", Toast.LENGTH_SHORT).show();
         });
+
+        String currentUserUid = FirebaseAuth.getInstance().getUid();
+        if (currentUserUid != null && currentUserUid.equals(post.uploadedBy) && !post.isSold) {
+            holder.layoutMarkSold.setVisibility(View.VISIBLE);
+            holder.layoutMarkSold.setOnClickListener(v -> {
+                new AlertDialog.Builder(v.getContext())
+                        .setTitle("Mark as Sold")
+                        .setMessage("Are you sure you want to mark this as sold? It will be removed from the feed.")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            FirebaseDatabase.getInstance().getReference("UserVideos")
+                                    .child(post.id)
+                                    .child("isSold")
+                                    .setValue(true)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(v.getContext(), "Marked as sold", Toast.LENGTH_SHORT).show();
+                                        // The ValueEventListener in FeedFragment will update the list
+                                    });
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+            });
+        } else {
+            holder.layoutMarkSold.setVisibility(View.GONE);
+        }
 
         if (post.objectUrl != null) {
             initializePlayer(holder, post.objectUrl);
@@ -196,7 +221,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         PlayerView playerView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate, tvInitial;
         TextView tvDetailName, tvDetailMobile;
-        LinearLayout layoutContact, layoutShare, layoutComment, layoutContactDetails;
+        LinearLayout layoutContact, layoutShare, layoutComment, layoutMarkSold, layoutContactDetails;
         ImageView ivMuteToggle;
         ExoPlayer mPlayer;
         ProgressBar progressBar;
@@ -228,6 +253,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             layoutContact = itemView.findViewById(R.id.btn_item_contact_layout);
             layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
             layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);
+            layoutMarkSold = itemView.findViewById(R.id.btn_item_mark_sold_layout);
             layoutContactDetails = itemView.findViewById(R.id.layout_contact_details);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }
