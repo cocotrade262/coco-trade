@@ -5,10 +5,12 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.PopupMenu;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
@@ -21,9 +23,16 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -73,24 +82,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             holder.tvSoldLabel.setVisibility(View.GONE);
         }
 
-        holder.tvDetailName.setText("Seller: " + (post.name != null ? post.name : "N/A"));
-        holder.tvDetailMobile.setText("Call: " + (post.mobile != null ? post.mobile : "N/A"));
-
-        holder.layoutContact.setOnClickListener(v -> {
-            if (holder.layoutContactDetails.getVisibility() == View.VISIBLE) {
-                holder.layoutContactDetails.setVisibility(View.GONE);
-            } else {
-                holder.layoutContactDetails.setVisibility(View.VISIBLE);
-            }
-        });
-
-        holder.tvDetailMobile.setOnClickListener(v -> {
-            if (post.mobile != null && !post.mobile.isEmpty()) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:" + post.mobile));
-                v.getContext().startActivity(intent);
-            }
-        });
+        holder.layoutContact.setOnClickListener(v -> showDetailsBottomSheet(v, post));
 
         holder.layoutShare.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SEND);
@@ -99,9 +91,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             v.getContext().startActivity(Intent.createChooser(intent, "Share via"));
         });
 
-        holder.layoutComment.setOnClickListener(v -> {
-            Toast.makeText(v.getContext(), "Comments coming soon!", Toast.LENGTH_SHORT).show();
-        });
+        holder.layoutComment.setOnClickListener(v -> showCommentsBottomSheet(v, post));
 
         String currentUserUid = FirebaseAuth.getInstance().getUid();
         if (currentUserUid != null && currentUserUid.equals(post.uploadedBy) && !post.isSold) {
@@ -217,6 +207,117 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         }
     }
 
+    private void showDetailsBottomSheet(View v, VideoPost post) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(v.getContext());
+        View view = LayoutInflater.from(v.getContext()).inflate(R.layout.layout_details_bottom_sheet, null);
+        bottomSheetDialog.setContentView(view);
+
+        EditText etCaption = view.findViewById(R.id.et_details_caption);
+        EditText etName = view.findViewById(R.id.et_details_name);
+        EditText etMobile = view.findViewById(R.id.et_details_mobile);
+        EditText etArea = view.findViewById(R.id.et_details_area);
+        EditText etCost = view.findViewById(R.id.et_details_cost);
+        Button btnUpdate = view.findViewById(R.id.btn_update_details);
+        Button btnCall = view.findViewById(R.id.btn_call_seller);
+
+        etCaption.setText(post.caption);
+        etName.setText(post.name);
+        etMobile.setText(post.mobile);
+        etArea.setText(post.area);
+        etCost.setText(post.cost);
+
+        String currentUserId = FirebaseAuth.getInstance().getUid();
+        boolean isOwner = currentUserId != null && currentUserId.equals(post.uploadedBy);
+
+        if (isOwner) {
+            etCaption.setEnabled(true);
+            etName.setEnabled(true);
+            etMobile.setEnabled(true);
+            etArea.setEnabled(true);
+            etCost.setEnabled(true);
+            btnUpdate.setVisibility(View.VISIBLE);
+            btnCall.setVisibility(View.GONE);
+            btnUpdate.setOnClickListener(btnV -> {
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("UserVideos").child(post.id);
+                ref.child("caption").setValue(etCaption.getText().toString().trim());
+                ref.child("name").setValue(etName.getText().toString().trim());
+                ref.child("mobile").setValue(etMobile.getText().toString().trim());
+                ref.child("area").setValue(etArea.getText().toString().trim());
+                ref.child("cost").setValue(etCost.getText().toString().trim())
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(v.getContext(), "Updated successfully", Toast.LENGTH_SHORT).show();
+                            bottomSheetDialog.dismiss();
+                        });
+            });
+        } else {
+            etCaption.setEnabled(false);
+            etName.setEnabled(false);
+            etMobile.setEnabled(false);
+            etArea.setEnabled(false);
+            etCost.setEnabled(false);
+            btnUpdate.setVisibility(View.GONE);
+            btnCall.setVisibility(View.VISIBLE);
+            btnCall.setOnClickListener(btnV -> {
+                if (post.mobile != null && !post.mobile.isEmpty()) {
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(Uri.parse("tel:" + post.mobile));
+                    v.getContext().startActivity(intent);
+                }
+            });
+        }
+
+        bottomSheetDialog.show();
+    }
+
+    private void showCommentsBottomSheet(View v, VideoPost post) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(v.getContext());
+        View view = LayoutInflater.from(v.getContext()).inflate(R.layout.layout_comments_bottom_sheet, null);
+        bottomSheetDialog.setContentView(view);
+
+        RecyclerView rvComments = view.findViewById(R.id.recycler_view_comments);
+        EditText etInput = view.findViewById(R.id.et_comment_input);
+        TextView tvPost = view.findViewById(R.id.tv_post_comment);
+
+        java.util.List<CommentAdapter.Comment> comments = new java.util.ArrayList<>();
+        CommentAdapter adapter = new CommentAdapter(comments);
+        rvComments.setLayoutManager(new LinearLayoutManager(v.getContext()));
+        rvComments.setAdapter(adapter);
+
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("Comments").child(post.id);
+        ValueEventListener commentsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                comments.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    CommentAdapter.Comment c = data.getValue(CommentAdapter.Comment.class);
+                    if (c != null) comments.add(c);
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        };
+        commentsRef.addValueEventListener(commentsListener);
+        bottomSheetDialog.setOnDismissListener(dialog -> commentsRef.removeEventListener(commentsListener));
+
+        tvPost.setOnClickListener(btnV -> {
+            String text = etInput.getText().toString().trim();
+            if (text.isEmpty()) return;
+
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) return;
+
+            String userName = user.getDisplayName() != null ? user.getDisplayName() : "User";
+            CommentAdapter.Comment comment = new CommentAdapter.Comment(user.getUid(), userName, text, System.currentTimeMillis());
+            commentsRef.push().setValue(comment).addOnSuccessListener(aVoid -> {
+                etInput.setText("");
+            });
+        });
+
+        bottomSheetDialog.show();
+    }
+
     private void showMuteIcon(ImageView iv) {
         iv.setImageResource(isMuted ? R.drawable.ic_mute_outline : R.drawable.ic_unmute_outline);
         iv.setAlpha(1.0f);
@@ -231,8 +332,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
         PlayerView playerView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate, tvInitial;
-        TextView tvDetailName, tvDetailMobile;
-        LinearLayout layoutContact, layoutShare, layoutComment, layoutContactDetails;
+        LinearLayout layoutContact, layoutShare, layoutComment;
         ImageView ivMuteToggle, ivMoreOptions;
         ExoPlayer mPlayer;
         ProgressBar progressBar;
@@ -259,13 +359,10 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             tvSoldLabel = itemView.findViewById(R.id.tv_sold_label);
             tvDate = itemView.findViewById(R.id.tv_item_date);
             tvInitial = itemView.findViewById(R.id.tv_item_initial);
-            tvDetailName = itemView.findViewById(R.id.tv_detail_name);
-            tvDetailMobile = itemView.findViewById(R.id.tv_detail_mobile);
             layoutContact = itemView.findViewById(R.id.btn_item_contact_layout);
             layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
             layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);
             ivMoreOptions = itemView.findViewById(R.id.iv_more_options);
-            layoutContactDetails = itemView.findViewById(R.id.layout_contact_details);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }
     }
