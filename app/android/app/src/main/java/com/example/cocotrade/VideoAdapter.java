@@ -36,8 +36,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
@@ -92,6 +94,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         });
 
         holder.layoutComment.setOnClickListener(v -> showCommentsBottomSheet(v, post));
+
+        holder.layoutDM.setOnClickListener(v -> showDMBottomSheet(v, post));
 
         String currentUserUid = FirebaseAuth.getInstance().getUid();
         if (currentUserUid != null && currentUserUid.equals(post.uploadedBy) && !post.isSold) {
@@ -269,6 +273,48 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         bottomSheetDialog.show();
     }
 
+    private void showDMBottomSheet(View v, VideoPost post) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(v.getContext());
+        View view = LayoutInflater.from(v.getContext()).inflate(R.layout.layout_dm_bottom_sheet, null);
+        bottomSheetDialog.setContentView(view);
+
+        TextView tvRecipient = view.findViewById(R.id.tv_dm_recipient);
+        EditText etMessage = view.findViewById(R.id.et_dm_message);
+        Button btnSend = view.findViewById(R.id.btn_send_dm);
+
+        String profileName = post.authorName != null ? post.authorName : post.name;
+        tvRecipient.setText("To: @" + (profileName != null ? profileName : "Seller"));
+
+        btnSend.setOnClickListener(btnV -> {
+            String message = etMessage.getText().toString().trim();
+            if (message.isEmpty()) {
+                Toast.makeText(v.getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser == null) return;
+
+            Map<String, Object> dmData = new HashMap<>();
+            dmData.put("fromId", currentUser.getUid());
+            dmData.put("fromName", currentUser.getDisplayName());
+            dmData.put("toId", post.uploadedBy);
+            dmData.put("postId", post.id);
+            dmData.put("message", message);
+            dmData.put("timestamp", System.currentTimeMillis());
+
+            FirebaseDatabase.getInstance().getReference("DirectMessages")
+                    .push()
+                    .setValue(dmData)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(v.getContext(), "Message sent successfully!", Toast.LENGTH_SHORT).show();
+                        bottomSheetDialog.dismiss();
+                    });
+        });
+
+        bottomSheetDialog.show();
+    }
+
     private void showCommentsBottomSheet(View v, VideoPost post) {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(v.getContext());
         View view = LayoutInflater.from(v.getContext()).inflate(R.layout.layout_comments_bottom_sheet, null);
@@ -332,7 +378,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
         PlayerView playerView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate, tvInitial;
-        LinearLayout layoutContact, layoutShare, layoutComment;
+        LinearLayout layoutContact, layoutShare, layoutComment, layoutDM;
         ImageView ivMuteToggle, ivMoreOptions;
         ExoPlayer mPlayer;
         ProgressBar progressBar;
@@ -362,6 +408,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             layoutContact = itemView.findViewById(R.id.btn_item_contact_layout);
             layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
             layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);
+            layoutDM = itemView.findViewById(R.id.btn_item_dm_layout);
             ivMoreOptions = itemView.findViewById(R.id.iv_more_options);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }
