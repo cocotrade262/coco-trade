@@ -142,9 +142,15 @@ public class PostFragment extends Fragment {
     private void uploadVideo() {
         if (selectedVideoUri == null) return;
 
-        String name = etName.getText().toString().trim();
-        if (name.isEmpty()) {
-            Toast.makeText(getContext(), "Name is required", Toast.LENGTH_SHORT).show();
+        String area = etArea.getText().toString().trim();
+        String cost = etCost.getText().toString().trim();
+
+        if (area.isEmpty()) {
+            Toast.makeText(getContext(), "Area is mandatory", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (cost.isEmpty()) {
+            Toast.makeText(getContext(), "Rate is mandatory", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -229,6 +235,15 @@ public class PostFragment extends Fragment {
                     btnUpload.setEnabled(true);
                 }
             });
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mPlayer != null) {
+            mPlayer.pause();
+            mPlayer.setPlayWhenReady(false);
         }
     }
 

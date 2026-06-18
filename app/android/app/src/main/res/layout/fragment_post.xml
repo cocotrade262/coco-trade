@@ -107,7 +107,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Caption"
+            android:text="Caption (optional)"
             android:textSize="13sp"
             android:textStyle="bold"
             android:textColor="@color/textColorSecondary"
@@ -145,7 +145,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Name"
+                    android:text="Name (optional)"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="@color/textColorSecondary"
@@ -176,7 +176,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mobile"
+                    android:text="Mobile (optional)"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="@color/textColorSecondary"
@@ -216,7 +216,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Area"
+                    android:text="Area (mandatory)"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="@color/textColorSecondary"
@@ -247,7 +247,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cost"
+                    android:text="Rate (mandatory)"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="@color/textColorSecondary"

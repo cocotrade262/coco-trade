@@ -33,6 +33,12 @@ public class VideoGridAdapter extends RecyclerView.Adapter<VideoGridAdapter.Grid
                 .centerCrop()
                 .into(holder.ivThumb);
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (v.getContext() instanceof MainActivity) {
+                ((MainActivity) v.getContext()).replaceFragment(new FullPostFragment(videoPosts, position), true);
+            }
+        });
     }
 
     @Override

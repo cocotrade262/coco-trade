@@ -52,9 +52,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void setBottomNavVisibility(int visibility) {
+        BottomNavigationView navView = findViewById(R.id.bottom_navigation);
+        if (navView != null) {
+            navView.setVisibility(visibility);
+        }
+    }
+
     public void replaceFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
+        replaceFragment(fragment, false);
+    }
+
+    public void replaceFragment(Fragment fragment, boolean addToBackStack) {
+        androidx.fragment.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment);
+        if (addToBackStack) {
+            transaction.addToBackStack(null);
+        }
+        transaction.commit();
     }
 }
