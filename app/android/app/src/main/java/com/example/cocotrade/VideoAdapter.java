@@ -95,29 +95,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
         holder.layoutComment.setOnClickListener(v -> showCommentsBottomSheet(v, post));
 
-        holder.layoutDM.setOnClickListener(v -> showDMBottomSheet(v, post));
-
         String currentUserUid = FirebaseAuth.getInstance().getUid();
-        if (currentUserUid != null && currentUserUid.equals(post.uploadedBy)) {
-            holder.layoutDelete.setVisibility(View.VISIBLE);
-            holder.layoutDelete.setOnClickListener(v -> {
-                new AlertDialog.Builder(v.getContext())
-                        .setTitle("Delete Post")
-                        .setMessage("Are you sure you want to permanently delete this video?")
-                        .setPositiveButton("Delete", (dialog, which) -> {
-                            FirebaseDatabase.getInstance().getReference("UserVideos")
-                                    .child(post.id)
-                                    .removeValue()
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(v.getContext(), "Post deleted", Toast.LENGTH_SHORT).show();
-                                    });
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .show();
-            });
-        } else {
-            holder.layoutDelete.setVisibility(View.GONE);
-        }
         if (currentUserUid != null && currentUserUid.equals(post.uploadedBy) && !post.isSold) {
             holder.ivMoreOptions.setVisibility(View.VISIBLE);
             holder.ivMoreOptions.setOnClickListener(v -> {
@@ -412,7 +390,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
         PlayerView playerView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate, tvInitial;
-        LinearLayout layoutContact, layoutShare, layoutComment, layoutDM, layoutDelete;
+        LinearLayout layoutContact, layoutShare, layoutComment;
         ImageView ivMuteToggle, ivMoreOptions;
         ExoPlayer mPlayer;
         ProgressBar progressBar;
@@ -442,8 +420,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             layoutContact = itemView.findViewById(R.id.btn_item_contact_layout);
             layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
             layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);
-            layoutDM = itemView.findViewById(R.id.btn_item_dm_layout);
-            layoutDelete = itemView.findViewById(R.id.btn_item_delete_layout);
             ivMoreOptions = itemView.findViewById(R.id.iv_more_options);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }
