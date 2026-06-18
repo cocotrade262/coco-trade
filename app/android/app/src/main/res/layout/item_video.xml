@@ -163,6 +163,34 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btn_item_delete_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:layout_marginTop="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_delete_outline"
+                    app:tint="#FF4444" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete"
+                    android:textColor="#FF4444"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/btn_item_dm_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

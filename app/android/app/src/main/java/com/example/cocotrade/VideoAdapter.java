@@ -98,6 +98,26 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         holder.layoutDM.setOnClickListener(v -> showDMBottomSheet(v, post));
 
         String currentUserUid = FirebaseAuth.getInstance().getUid();
+        if (currentUserUid != null && currentUserUid.equals(post.uploadedBy)) {
+            holder.layoutDelete.setVisibility(View.VISIBLE);
+            holder.layoutDelete.setOnClickListener(v -> {
+                new AlertDialog.Builder(v.getContext())
+                        .setTitle("Delete Post")
+                        .setMessage("Are you sure you want to permanently delete this video?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            FirebaseDatabase.getInstance().getReference("UserVideos")
+                                    .child(post.id)
+                                    .removeValue()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(v.getContext(), "Post deleted", Toast.LENGTH_SHORT).show();
+                                    });
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            });
+        } else {
+            holder.layoutDelete.setVisibility(View.GONE);
+        }
         if (currentUserUid != null && currentUserUid.equals(post.uploadedBy) && !post.isSold) {
             holder.ivMoreOptions.setVisibility(View.VISIBLE);
             holder.ivMoreOptions.setOnClickListener(v -> {
@@ -325,7 +345,11 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         TextView tvPost = view.findViewById(R.id.tv_post_comment);
 
         java.util.List<CommentAdapter.Comment> comments = new java.util.ArrayList<>();
-        CommentAdapter adapter = new CommentAdapter(comments);
+        CommentAdapter adapter = new CommentAdapter(comments, post.id, comment -> {
+            etInput.setText("@" + comment.userName + " ");
+            etInput.setTag(comment);
+            Toast.makeText(v.getContext(), "Replying privately to " + comment.userName, Toast.LENGTH_SHORT).show();
+        });
         rvComments.setLayoutManager(new LinearLayoutManager(v.getContext()));
         rvComments.setAdapter(adapter);
 
@@ -355,9 +379,19 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             if (user == null) return;
 
             String userName = user.getDisplayName() != null ? user.getDisplayName() : "User";
-            CommentAdapter.Comment comment = new CommentAdapter.Comment(user.getUid(), userName, text, System.currentTimeMillis());
+
+            boolean isPrivate = false;
+            String replyToUserId = null;
+            CommentAdapter.Comment replyTo = (CommentAdapter.Comment) etInput.getTag();
+            if (replyTo != null && text.startsWith("@" + replyTo.userName)) {
+                isPrivate = true;
+                replyToUserId = replyTo.userId;
+            }
+
+            CommentAdapter.Comment comment = new CommentAdapter.Comment(user.getUid(), userName, text, System.currentTimeMillis(), isPrivate, replyToUserId);
             commentsRef.push().setValue(comment).addOnSuccessListener(aVoid -> {
                 etInput.setText("");
+                etInput.setTag(null);
             });
         });
 
@@ -378,7 +412,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
         PlayerView playerView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate, tvInitial;
-        LinearLayout layoutContact, layoutShare, layoutComment, layoutDM;
+        LinearLayout layoutContact, layoutShare, layoutComment, layoutDM, layoutDelete;
         ImageView ivMuteToggle, ivMoreOptions;
         ExoPlayer mPlayer;
         ProgressBar progressBar;
@@ -409,6 +443,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
             layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);
             layoutDM = itemView.findViewById(R.id.btn_item_dm_layout);
+            layoutDelete = itemView.findViewById(R.id.btn_item_delete_layout);
             ivMoreOptions = itemView.findViewById(R.id.iv_more_options);
             ivMuteToggle = itemView.findViewById(R.id.iv_mute_toggle);
         }
