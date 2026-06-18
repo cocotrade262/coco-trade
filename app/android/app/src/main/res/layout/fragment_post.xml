@@ -93,13 +93,16 @@
             </LinearLayout>
         </LinearLayout>
 
-        <VideoView
+        <androidx.media3.ui.PlayerView
             android:id="@+id/video_preview"
             android:layout_width="match_parent"
             android:layout_height="180dp"
             android:layout_marginBottom="12dp"
             android:background="#000000"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:use_controller="false"
+            app:resize_mode="zoom"
+            app:shutter_background_color="@android:color/black" />
 
         <TextView
             android:layout_width="wrap_content"

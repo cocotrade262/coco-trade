@@ -11,7 +11,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
+import android.graphics.Outline;
+import android.view.ViewOutlineProvider;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -19,6 +20,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.cloudinary.android.MediaManager;
@@ -37,7 +42,8 @@ import static android.app.Activity.RESULT_OK;
 public class PostFragment extends Fragment {
 
     private static final String TAG = "PostFragment";
-    private VideoView videoPreview;
+    private PlayerView videoPreview;
+    private ExoPlayer mPlayer;
     private View btnRecord, btnSelect;
     private Button btnUpload;
     private ProgressBar progressBar;
@@ -70,20 +76,20 @@ public class PostFragment extends Fragment {
 
     private void onVideoSelected() {
         if (videoPreview == null) return;
-        videoPreview.setVideoURI(selectedVideoUri);
+
+        if (mPlayer != null) {
+            mPlayer.release();
+        }
+
+        mPlayer = new ExoPlayer.Builder(requireContext()).build();
+        mPlayer.setMediaItem(MediaItem.fromUri(selectedVideoUri));
+        mPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
+        mPlayer.prepare();
+        mPlayer.play();
+
+        videoPreview.setPlayer(mPlayer);
         videoPreview.setVisibility(View.VISIBLE);
-        videoPreview.setOnPreparedListener(mp -> {
-            mp.setLooping(true);
-            float videoRatio = mp.getVideoWidth() / (float) mp.getVideoHeight();
-            float screenRatio = videoPreview.getWidth() / (float) videoPreview.getHeight();
-            float scale = videoRatio / screenRatio;
-            if (scale >= 1f) {
-                videoPreview.setScaleX(scale);
-            } else {
-                videoPreview.setScaleY(1f / scale);
-            }
-            videoPreview.start();
-        });
+
         btnUpload.setEnabled(true);
         statusText.setText("Video selected");
     }
@@ -97,6 +103,17 @@ public class PostFragment extends Fragment {
         mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
 
         videoPreview = view.findViewById(R.id.video_preview);
+
+        // Apply rounded corners to preview
+        videoPreview.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                float radius = view.getContext().getResources().getDisplayMetrics().density * 24;
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+            }
+        });
+        videoPreview.setClipToOutline(true);
+
         btnRecord = view.findViewById(R.id.btn_record_video);
         btnSelect = view.findViewById(R.id.btn_select_video);
         btnUpload = view.findViewById(R.id.btn_upload_video);
@@ -111,7 +128,8 @@ public class PostFragment extends Fragment {
 
         btnRecord.setOnClickListener(v -> {
             Intent intent = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
-            intent.putExtra(android.provider.MediaStore.EXTRA_DURATION_LIMIT, 30);
+            intent.putExtra(android.provider.MediaStore.EXTRA_DURATION_LIMIT, 20);
+            intent.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 0); // 0 for low quality/compression
             recordVideoLauncher.launch(intent);
         });
 
@@ -211,6 +229,15 @@ public class PostFragment extends Fragment {
                     btnUpload.setEnabled(true);
                 }
             });
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mPlayer != null) {
+            mPlayer.release();
+            mPlayer = null;
         }
     }
 }
