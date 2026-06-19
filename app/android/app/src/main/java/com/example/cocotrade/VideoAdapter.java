@@ -366,7 +366,12 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                 replyToUserId = replyTo.userId;
             }
 
-            CommentAdapter.Comment comment = new CommentAdapter.Comment(user.getUid(), userName, text, System.currentTimeMillis(), isPrivate, replyToUserId);
+            String parentCommentId = null;
+            if (replyTo != null) {
+                parentCommentId = replyTo.parentCommentId != null ? replyTo.parentCommentId : replyTo.id;
+            }
+
+            CommentAdapter.Comment comment = new CommentAdapter.Comment(user.getUid(), userName, text, System.currentTimeMillis(), isPrivate, replyToUserId, parentCommentId);
             commentsRef.push().setValue(comment).addOnSuccessListener(aVoid -> {
                 etInput.setText("");
                 etInput.setTag(null);

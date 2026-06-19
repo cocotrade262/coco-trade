@@ -50,8 +50,17 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             return;
         } else {
             holder.itemView.setVisibility(View.VISIBLE);
-            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+            // Indentation for replies (thread style)
+            if (comment.parentCommentId != null) {
+                int margin = (int) (40 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
+                params.setMarginStart(margin);
+            } else {
+                params.setMarginStart(0);
+            }
+            holder.itemView.setLayoutParams(params);
         }
 
         holder.tvUser.setText(comment.userName != null ? comment.userName : "User");
@@ -127,16 +136,18 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         public long timestamp;
         public boolean isPrivate;
         public String replyToUserId;
+        public String parentCommentId;
 
         public Comment() {}
 
-        public Comment(String userId, String userName, String text, long timestamp, boolean isPrivate, String replyToUserId) {
+        public Comment(String userId, String userName, String text, long timestamp, boolean isPrivate, String replyToUserId, String parentCommentId) {
             this.userId = userId;
             this.userName = userName;
             this.text = text;
             this.timestamp = timestamp;
             this.isPrivate = isPrivate;
             this.replyToUserId = replyToUserId;
+            this.parentCommentId = parentCommentId;
         }
     }
 }
