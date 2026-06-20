@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/backgroundColor">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Post Coconut Video"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/textColorPrimary"
+            android:fontFamily="sans-serif-medium"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Max 20 seconds video."
+            android:textSize="14sp"
+            android:textColor="@color/textColorSecondary"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="sans-serif"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:id="@+id/btn_record_video"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_button_blue"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="10dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Record Video"
+                    android:textColor="#000000"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Camera"
+                    android:textColor="#000000"
+                    android:textSize="11sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_select_video"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_button_blue"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Choose Video"
+                    android:textColor="#000000"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gallery"
+                    android:textColor="#000000"
+                    android:textSize="11sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/video_preview"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginBottom="12dp"
+            android:background="#000000"
+            android:visibility="gone"
+            app:use_controller="false"
+            app:resize_mode="zoom"
+            app:shutter_background_color="@android:color/black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Caption (optional)"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/textColorSecondary"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="sans-serif-medium"/>
+
+        <EditText
+            android:id="@+id/et_post_caption"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:hint="Ex: Fresh coconuts available..."
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/rounded_edittext_outlined"
+            android:layout_marginBottom="12dp"
+            android:maxLength="50"
+            android:textSize="15sp"
+            android:textColor="@color/textColorPrimary"
+            android:textColorHint="#44FFFFFF"
+            android:fontFamily="sans-serif"
+            android:singleLine="true"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Name (optional)"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textColorSecondary"
+                    android:layout_marginBottom="4dp"
+                    android:fontFamily="sans-serif-medium"/>
+
+                <EditText
+                    android:id="@+id/et_post_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:hint="Sri"
+                    android:paddingHorizontal="16dp"
+                    android:background="@drawable/rounded_edittext_outlined"
+                    android:maxLength="30"
+                    android:textSize="15sp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="#44FFFFFF"
+                    android:fontFamily="sans-serif"
+                    android:singleLine="true"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mobile (optional)"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textColorSecondary"
+                    android:layout_marginBottom="4dp"
+                    android:fontFamily="sans-serif-medium"/>
+
+                <EditText
+                    android:id="@+id/et_post_mobile"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:hint="9876543210"
+                    android:inputType="phone"
+                    android:paddingHorizontal="16dp"
+                    android:background="@drawable/rounded_edittext_outlined"
+                    android:maxLength="10"
+                    android:textSize="15sp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="#44FFFFFF"
+                    android:fontFamily="sans-serif"
+                    android:singleLine="true"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Area (mandatory)"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textColorSecondary"
+                    android:layout_marginBottom="4dp"
+                    android:fontFamily="sans-serif-medium"/>
+
+                <EditText
+                    android:id="@+id/et_post_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:hint="Town"
+                    android:paddingHorizontal="16dp"
+                    android:background="@drawable/rounded_edittext_outlined"
+                    android:maxLength="30"
+                    android:textSize="15sp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="#44FFFFFF"
+                    android:fontFamily="sans-serif"
+                    android:singleLine="true"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rate (mandatory)"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textColorSecondary"
+                    android:layout_marginBottom="4dp"
+                    android:fontFamily="sans-serif-medium"/>
+
+                <EditText
+                    android:id="@+id/et_post_cost"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:hint="100"
+                    android:inputType="numberDecimal"
+                    android:paddingHorizontal="16dp"
+                    android:background="@drawable/rounded_edittext_outlined"
+                    android:maxLength="10"
+                    android:textSize="15sp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="#44FFFFFF"
+                    android:fontFamily="sans-serif"
+                    android:singleLine="true"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_upload_video"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Post to feed"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:backgroundTint="#2E7D32"
+            android:textColor="#FFFFFF"
+            android:letterSpacing="0"
+            android:enabled="false"
+            android:padding="0dp"
+            app:cornerRadius="28dp"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-medium"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
+
+        <ProgressBar
+            android:id="@+id/upload_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            android:progressTint="@color/colorPrimary"/>
+
+        <TextView
+            android:id="@+id/status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif-medium"/>
+
+    </LinearLayout>
+</ScrollView>
