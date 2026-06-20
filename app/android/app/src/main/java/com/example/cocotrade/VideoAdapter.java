@@ -395,7 +395,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             boolean isPrivate = false;
             String replyToUserId = null;
             CommentAdapter.Comment replyTo = (CommentAdapter.Comment) etInput.getTag();
-            if (replyTo != null && text.startsWith("@" + replyTo.userName)) {
+            if (replyTo != null) {
                 isPrivate = true;
                 replyToUserId = replyTo.userId;
             }
