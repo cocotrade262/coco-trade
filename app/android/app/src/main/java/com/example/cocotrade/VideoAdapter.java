@@ -326,7 +326,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         CommentAdapter adapter = new CommentAdapter(comments, post.id, comment -> {
             etInput.setText("@" + comment.userName + " ");
             etInput.setTag(comment);
-            Toast.makeText(v.getContext(), "Replying to " + comment.userName, Toast.LENGTH_SHORT).show();
+            Toast.makeText(v.getContext(), "Replying in private to " + comment.userName, Toast.LENGTH_SHORT).show();
         });
         rvComments.setLayoutManager(new LinearLayoutManager(v.getContext()));
         rvComments.setAdapter(adapter);

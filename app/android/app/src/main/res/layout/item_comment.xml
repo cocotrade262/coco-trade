@@ -67,7 +67,7 @@
                 android:id="@+id/tv_comment_private"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reply"
+                android:text="Reply in private"
                 android:textColor="#88FFFFFF"
                 android:textSize="11sp"
                 android:textStyle="bold"
