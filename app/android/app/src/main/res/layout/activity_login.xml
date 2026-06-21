@@ -17,7 +17,7 @@
         <ImageView
             android:layout_width="160dp"
             android:layout_height="160dp"
-            android:src="@drawable/ic_coconut_tree"
+            android:src="@mipmap/ic_launcher_round"
             android:layout_marginBottom="24dp" />
 
         <TextView
