@@ -7,8 +7,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import java.util.List;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
@@ -62,14 +66,37 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             holder.tvText.setText("[Private] " + comment.text);
         }
 
-        if (comment.userName != null && !comment.userName.isEmpty()) {
-            holder.tvInitial.setText(String.valueOf(comment.userName.charAt(0)).toUpperCase());
-        } else {
-            holder.tvInitial.setText("U");
+        if (comment.userId != null) {
+            FirebaseDatabase.getInstance().getReference("Users").child(comment.userId)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String photoUrl = snapshot.child("profileImageUrl").getValue(String.class);
+                            if (photoUrl != null && !photoUrl.isEmpty()) {
+                                holder.tvInitial.setVisibility(View.GONE);
+                                holder.ivProfilePhoto.setVisibility(View.VISIBLE);
+                                Glide.with(holder.itemView.getContext())
+                                        .load(photoUrl)
+                                        .circleCrop()
+                                        .into(holder.ivProfilePhoto);
+                            } else {
+                                holder.tvInitial.setVisibility(View.VISIBLE);
+                                holder.ivProfilePhoto.setVisibility(View.GONE);
+                                if (comment.userName != null && !comment.userName.isEmpty()) {
+                                    holder.tvInitial.setText(String.valueOf(comment.userName.charAt(0)).toUpperCase());
+                                } else {
+                                    holder.tvInitial.setText("U");
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {}
+                    });
         }
 
         // Adjust avatar size for replies
-        ViewGroup.LayoutParams avatarParams = holder.tvInitial.getLayoutParams();
+        ViewGroup.LayoutParams avatarParams = holder.layoutAvatar.getLayoutParams();
         float density = holder.itemView.getContext().getResources().getDisplayMetrics().density;
         if (comment.parentCommentId != null) {
             avatarParams.width = (int) (24 * density);
@@ -80,7 +107,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             avatarParams.height = (int) (32 * density);
             holder.tvInitial.setTextSize(12);
         }
-        holder.tvInitial.setLayoutParams(avatarParams);
+        holder.layoutAvatar.setLayoutParams(avatarParams);
 
         long diff = System.currentTimeMillis() - comment.timestamp;
         String timeStr = "just now";
@@ -121,11 +148,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     public static class CommentViewHolder extends RecyclerView.ViewHolder {
         TextView tvInitial, tvUser, tvTime, tvText, tvPrivate;
-        ImageView ivDelete;
+        ImageView ivDelete, ivProfilePhoto;
+        View layoutAvatar;
 
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
+            layoutAvatar = itemView.findViewById(R.id.layout_comment_avatar);
             tvInitial = itemView.findViewById(R.id.tv_comment_initial);
+            ivProfilePhoto = itemView.findViewById(R.id.iv_comment_profile_photo);
             tvUser = itemView.findViewById(R.id.tv_comment_user);
             tvTime = itemView.findViewById(R.id.tv_comment_time);
             tvText = itemView.findViewById(R.id.tv_comment_text);

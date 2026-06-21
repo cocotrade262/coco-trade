@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
+import com.bumptech.glide.Glide;
 import android.graphics.Outline;
 import android.view.ViewOutlineProvider;
 import androidx.annotation.NonNull;
@@ -72,9 +73,36 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             holder.tvDate.setText(sdf.format(new Date(post.createdAt)));
         }
 
-        if (post.name != null && !post.name.isEmpty()) {
-            holder.tvInitial.setText(String.valueOf(post.name.charAt(0)).toUpperCase());
+        if (post.uploadedBy != null) {
+            FirebaseDatabase.getInstance().getReference("Users").child(post.uploadedBy)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String photoUrl = snapshot.child("profileImageUrl").getValue(String.class);
+                            if (photoUrl != null && !photoUrl.isEmpty()) {
+                                holder.tvInitial.setVisibility(View.GONE);
+                                holder.ivProfilePhoto.setVisibility(View.VISIBLE);
+                                Glide.with(holder.itemView.getContext())
+                                        .load(photoUrl)
+                                        .circleCrop()
+                                        .into(holder.ivProfilePhoto);
+                            } else {
+                                holder.tvInitial.setVisibility(View.VISIBLE);
+                                holder.ivProfilePhoto.setVisibility(View.GONE);
+                                if (post.name != null && !post.name.isEmpty()) {
+                                    holder.tvInitial.setText(String.valueOf(post.name.charAt(0)).toUpperCase());
+                                } else {
+                                    holder.tvInitial.setText("C");
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {}
+                    });
         } else {
+            holder.tvInitial.setVisibility(View.VISIBLE);
+            holder.ivProfilePhoto.setVisibility(View.GONE);
             holder.tvInitial.setText("C");
         }
 
@@ -429,6 +457,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
         PlayerView playerView;
         TextView tvName, tvArea, tvCost, tvCaption, tvSoldLabel, tvDate, tvInitial;
+        ImageView ivProfilePhoto;
         LinearLayout layoutContact, layoutShare, layoutComment;
         ImageView ivMuteToggle, ivMoreOptions;
         ExoPlayer mPlayer;
@@ -456,6 +485,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             tvSoldLabel = itemView.findViewById(R.id.tv_sold_label);
             tvDate = itemView.findViewById(R.id.tv_item_date);
             tvInitial = itemView.findViewById(R.id.tv_item_initial);
+            ivProfilePhoto = itemView.findViewById(R.id.iv_item_profile_photo);
             layoutContact = itemView.findViewById(R.id.btn_item_contact_layout);
             layoutShare = itemView.findViewById(R.id.btn_item_share_layout);
             layoutComment = itemView.findViewById(R.id.btn_item_comment_layout);

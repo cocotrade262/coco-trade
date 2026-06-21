@@ -1,6 +1,7 @@
 package com.example.cocotrade;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -22,11 +25,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProfileFragment extends Fragment {
 
@@ -38,6 +47,19 @@ public class ProfileFragment extends Fragment {
     private VideoGridAdapter adapter;
     private List<VideoAdapter.VideoPost> myVideos;
     private TextView tvPostCount;
+    private ImageView ivProfilePhoto, ivProfilePreviewLarge;
+    private TextView tvInitial;
+    private View layoutProfilePreview;
+    private String currentProfileImageUrl;
+
+    private final ActivityResultLauncher<String> pickImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    uploadProfilePicture(uri);
+                }
+            }
+    );
 
     @Nullable
     @Override
@@ -50,8 +72,13 @@ public class ProfileFragment extends Fragment {
 
         TextView tvName = view.findViewById(R.id.tv_profile_name);
         TextView tvEmail = view.findViewById(R.id.tv_profile_email);
-        TextView tvInitial = view.findViewById(R.id.tv_profile_initial);
+        tvInitial = view.findViewById(R.id.tv_profile_initial);
+        ivProfilePhoto = view.findViewById(R.id.iv_profile_photo);
         tvPostCount = view.findViewById(R.id.tv_post_count);
+
+        ivProfilePreviewLarge = view.findViewById(R.id.iv_profile_preview_large);
+        layoutProfilePreview = view.findViewById(R.id.layout_profile_preview);
+        View btnClosePreview = view.findViewById(R.id.btn_close_preview);
 
         if (user != null) {
             String displayName = user.getDisplayName() != null ? user.getDisplayName() : "Anonymous User";
@@ -81,6 +108,7 @@ public class ProfileFragment extends Fragment {
         TextView tvReport = view.findViewById(R.id.tv_tab_report);
 
         View layoutSettings = view.findViewById(R.id.layout_settings_content);
+        View btnChangePhoto = view.findViewById(R.id.layout_btn_change_photo);
         View btnSignOut = view.findViewById(R.id.layout_btn_sign_out);
 
         View layoutReport = view.findViewById(R.id.layout_report_content);
@@ -119,6 +147,8 @@ public class ProfileFragment extends Fragment {
             layoutReport.setVisibility(View.GONE);
         });
 
+        btnChangePhoto.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
+
         btnSignOut.setOnClickListener(v -> {
             mAuth.signOut();
             Intent intent = new Intent(getActivity(), LoginActivity.class);
@@ -140,6 +170,16 @@ public class ProfileFragment extends Fragment {
             layoutReport.setVisibility(View.VISIBLE);
         });
 
+        view.findViewById(R.id.layout_profile_image).setOnClickListener(v -> {
+            if (currentProfileImageUrl != null && !currentProfileImageUrl.isEmpty()) {
+                Glide.with(this).load(currentProfileImageUrl).into(ivProfilePreviewLarge);
+                layoutProfilePreview.setVisibility(View.VISIBLE);
+            }
+        });
+
+        btnClosePreview.setOnClickListener(v -> layoutProfilePreview.setVisibility(View.GONE));
+        layoutProfilePreview.setOnClickListener(v -> layoutProfilePreview.setVisibility(View.GONE));
+
         btnSubmitFeedback.setOnClickListener(v -> {
             String type = spinnerReport.getSelectedItem().toString();
             String message = etReportMessage.getText().toString().trim();
@@ -159,9 +199,86 @@ public class ProfileFragment extends Fragment {
 
         if (user != null) {
             loadMyVideos(user.getUid());
+            loadUserProfile(user.getUid());
         }
 
         return view;
+    }
+
+    private void loadUserProfile(String userId) {
+        FirebaseDatabase.getInstance().getReference("Users").child(userId)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (!isAdded()) return;
+                        currentProfileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
+                        if (currentProfileImageUrl != null && !currentProfileImageUrl.isEmpty()) {
+                            tvInitial.setVisibility(View.GONE);
+                            ivProfilePhoto.setVisibility(View.VISIBLE);
+                            Glide.with(ProfileFragment.this)
+                                    .load(currentProfileImageUrl)
+                                    .circleCrop()
+                                    .into(ivProfilePhoto);
+                        } else {
+                            tvInitial.setVisibility(View.VISIBLE);
+                            ivProfilePhoto.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
+    }
+
+    private void uploadProfilePicture(Uri imageUri) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return;
+
+        Toast.makeText(getContext(), "Uploading profile picture...", Toast.LENGTH_SHORT).show();
+
+        MediaManager.get().upload(imageUri)
+                .unsigned("ml_default")
+                .option("resource_type", "image")
+                .callback(new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {}
+
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {}
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        String url = (String) resultData.get("secure_url");
+                        saveProfileUrlToFirebase(url, user.getUid());
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() ->
+                                Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_SHORT).show());
+                        }
+                    }
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {}
+                })
+                .dispatch();
+    }
+
+    private void saveProfileUrlToFirebase(String url, String userId) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("profileImageUrl", url);
+
+        FirebaseDatabase.getInstance().getReference("Users").child(userId)
+                .updateChildren(updates)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Profile picture updated", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void loadMyVideos(String userId) {
