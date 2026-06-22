@@ -111,6 +111,7 @@ public class ProfileFragment extends Fragment {
         View layoutSettings = view.findViewById(R.id.layout_settings_content);
         View btnChangePhoto = view.findViewById(R.id.layout_btn_change_photo);
         View btnTerms = view.findViewById(R.id.layout_btn_terms);
+        View btnPrivacy = view.findViewById(R.id.layout_btn_privacy);
         View btnSignOut = view.findViewById(R.id.layout_btn_sign_out);
 
         View layoutReport = view.findViewById(R.id.layout_report_content);
@@ -152,6 +153,8 @@ public class ProfileFragment extends Fragment {
         btnChangePhoto.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
 
         btnTerms.setOnClickListener(v -> showTermsDialog());
+
+        btnPrivacy.setOnClickListener(v -> showPrivacyDialog());
 
         btnSignOut.setOnClickListener(v -> {
             mAuth.signOut();
@@ -309,6 +312,32 @@ public class ProfileFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Terms and Conditions")
                 .setMessage(termsText)
+                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void showPrivacyDialog() {
+        String privacyText = "COCOTRADE – PRIVACY POLICY\n\n" +
+                "Last Updated: June 22, 2026\n\n" +
+                "This Privacy Policy describes how CocoTrade collects, uses, and shares your personal information when you use our mobile application.\n\n" +
+                "1. Information We Collect\n" +
+                "Account Information: We use Google Sign-In to authenticate you. When you sign in, we receive your basic profile information such as your name, email address, and profile picture URL.\n" +
+                "User-Generated Content: We collect the videos you upload to our platform, along with any metadata you provide, such as captions, location, and contact information.\n\n" +
+                "2. How We Use Your Information\n" +
+                "To provide and maintain our service.\n" +
+                "To authenticate your identity and link your uploaded content to your account.\n\n" +
+                "3. Sharing of Information\n" +
+                "Any content you upload to CocoTrade, including your name, location, and contact information if provided, is shared publicly and can be viewed by all users of the application. We do not sell your personal data to third parties.\n\n" +
+                "4. Data Storage\n" +
+                "We use Firebase (a Google service) for user authentication and database management. Videos are hosted using Cloudinary.\n\n" +
+                "5. Content Deletion\n" +
+                "Users can delete their own uploaded videos. If you wish to delete your account, contact us at cocotrade262@gmail.com.\n\n" +
+                "6. Contact Us\n" +
+                "If you have any questions about this Privacy Policy, please contact us at cocotrade262@gmail.com.";
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Privacy Policy")
+                .setMessage(privacyText)
                 .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
                 .show();
     }

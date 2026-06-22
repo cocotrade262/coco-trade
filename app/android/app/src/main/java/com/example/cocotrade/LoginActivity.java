@@ -177,8 +177,7 @@ public class LoginActivity extends AppCompatActivity {
         ClickableSpan termsSpan = new ClickableSpan() {
             @Override
             public void onClick(@NonNull View widget) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://cotrade262.github.io/terms.html"));
-                startActivity(intent);
+                showTermsDialogWithClose();
             }
             @Override
             public void updateDrawState(@NonNull TextPaint ds) {
@@ -190,8 +189,7 @@ public class LoginActivity extends AppCompatActivity {
         ClickableSpan privacySpan = new ClickableSpan() {
             @Override
             public void onClick(@NonNull View widget) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://cotrade262.github.io/privacy.html"));
-                startActivity(intent);
+                showPrivacyDialog();
             }
             @Override
             public void updateDrawState(@NonNull TextPaint ds) {
@@ -229,7 +227,60 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void showTermsDialog(FirebaseUser user) {
-        String termsText = "COCOTRADE – TERMS AND CONDITIONS\n\n" +
+        String termsText = getTermsText();
+
+        new AlertDialog.Builder(this)
+                .setTitle("Terms and Conditions")
+                .setMessage(termsText)
+                .setCancelable(false)
+                .setPositiveButton("Accept", (dialog, which) -> {
+                    SharedPreferences prefs = getSharedPreferences("cocotrade_prefs", Context.MODE_PRIVATE);
+                    prefs.edit().putBoolean("terms_accepted_" + user.getUid(), true).apply();
+                    proceedToMain(user);
+                })
+                .setNegativeButton("Decline", (dialog, which) -> {
+                    mAuth.signOut();
+                    Toast.makeText(this, "You must accept the terms to use the app", Toast.LENGTH_LONG).show();
+                })
+                .show();
+    }
+
+    private void showTermsDialogWithClose() {
+        new AlertDialog.Builder(this)
+                .setTitle("Terms and Conditions")
+                .setMessage(getTermsText())
+                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void showPrivacyDialog() {
+        String privacyText = "COCOTRADE – PRIVACY POLICY\n\n" +
+                "Last Updated: June 22, 2026\n\n" +
+                "This Privacy Policy describes how CocoTrade collects, uses, and shares your personal information when you use our mobile application.\n\n" +
+                "1. Information We Collect\n" +
+                "Account Information: We use Google Sign-In to authenticate you. When you sign in, we receive your basic profile information such as your name, email address, and profile picture URL.\n" +
+                "User-Generated Content: We collect the videos you upload to our platform, along with any metadata you provide, such as captions, location, and contact information.\n\n" +
+                "2. How We Use Your Information\n" +
+                "To provide and maintain our service.\n" +
+                "To authenticate your identity and link your uploaded content to your account.\n\n" +
+                "3. Sharing of Information\n" +
+                "Any content you upload to CocoTrade, including your name, location, and contact information if provided, is shared publicly and can be viewed by all users of the application. We do not sell your personal data to third parties.\n\n" +
+                "4. Data Storage\n" +
+                "We use Firebase (a Google service) for user authentication and database management. Videos are hosted using Cloudinary.\n\n" +
+                "5. Content Deletion\n" +
+                "Users can delete their own uploaded videos. If you wish to delete your account, contact us at cocotrade262@gmail.com.\n\n" +
+                "6. Contact Us\n" +
+                "If you have any questions about this Privacy Policy, please contact us at cocotrade262@gmail.com.";
+
+        new AlertDialog.Builder(this)
+                .setTitle("Privacy Policy")
+                .setMessage(privacyText)
+                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private String getTermsText() {
+        return "COCOTRADE – TERMS AND CONDITIONS\n\n" +
                 "Last Updated: June 22, 2026\n\n" +
                 "Welcome to CocoTrade. By downloading, installing, or using our mobile application, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you must immediately stop using the app.\n\n" +
                 "1. Informational Purpose Only (No Financial Responsibility)\n" +
@@ -248,21 +299,6 @@ public class LoginActivity extends AppCompatActivity {
                 "Right to Terminate: We reserve the right to delete any video and permanently ban any user who violates these content rules.\n\n" +
                 "5. Limitation of Liability\n" +
                 "To the maximum extent permitted by applicable law, CocoTrade shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or the inability to use this platform.";
-
-        new AlertDialog.Builder(this)
-                .setTitle("Terms and Conditions")
-                .setMessage(termsText)
-                .setCancelable(false)
-                .setPositiveButton("Accept", (dialog, which) -> {
-                    SharedPreferences prefs = getSharedPreferences("cocotrade_prefs", Context.MODE_PRIVATE);
-                    prefs.edit().putBoolean("terms_accepted_" + user.getUid(), true).apply();
-                    proceedToMain(user);
-                })
-                .setNegativeButton("Decline", (dialog, which) -> {
-                    mAuth.signOut();
-                    Toast.makeText(this, "You must accept the terms to use the app", Toast.LENGTH_LONG).show();
-                })
-                .show();
     }
 
     private void proceedToMain(FirebaseUser user) {
