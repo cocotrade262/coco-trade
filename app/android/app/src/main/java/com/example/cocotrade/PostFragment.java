@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -227,11 +228,12 @@ public class PostFragment extends Fragment {
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
+                        Log.e(TAG, "Cloudinary upload error: " + error.getDescription() + " code: " + error.getCode());
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 progressBar.setVisibility(View.GONE);
                                 btnUpload.setEnabled(true);
-                                Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Upload failed: " + error.getDescription(), Toast.LENGTH_LONG).show();
                             });
                         }
                     }

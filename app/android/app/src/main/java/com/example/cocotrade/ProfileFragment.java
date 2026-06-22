@@ -263,7 +263,7 @@ public class ProfileFragment extends Fragment {
                     public void onError(String requestId, ErrorInfo error) {
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() ->
-                                Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_SHORT).show());
+                                Toast.makeText(getContext(), "Upload failed: " + error.getDescription(), Toast.LENGTH_LONG).show());
                         }
                     }
 
