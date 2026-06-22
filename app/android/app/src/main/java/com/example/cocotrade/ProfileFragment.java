@@ -17,6 +17,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -109,6 +110,7 @@ public class ProfileFragment extends Fragment {
 
         View layoutSettings = view.findViewById(R.id.layout_settings_content);
         View btnChangePhoto = view.findViewById(R.id.layout_btn_change_photo);
+        View btnTerms = view.findViewById(R.id.layout_btn_terms);
         View btnSignOut = view.findViewById(R.id.layout_btn_sign_out);
 
         View layoutReport = view.findViewById(R.id.layout_report_content);
@@ -148,6 +150,8 @@ public class ProfileFragment extends Fragment {
         });
 
         btnChangePhoto.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
+
+        btnTerms.setOnClickListener(v -> showTermsDialog());
 
         btnSignOut.setOnClickListener(v -> {
             mAuth.signOut();
@@ -279,6 +283,34 @@ public class ProfileFragment extends Fragment {
                         Toast.makeText(getContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void showTermsDialog() {
+        String termsText = "COCOTRADE – TERMS AND CONDITIONS\n\n" +
+                "Last Updated: June 22, 2026\n\n" +
+                "Welcome to CocoTrade. By downloading, installing, or using our mobile application, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you must immediately stop using the app.\n\n" +
+                "1. Informational Purpose Only (No Financial Responsibility)\n" +
+                "Purely Informational: CocoTrade is strictly an information-sharing platform. We do not facilitate, handle, process, or guarantee any financial transactions.\n" +
+                "No Financial Liability: We are not responsible for any fraud, scams, financial losses, or bad deals that may occur if you contact or trade with other users outside of this app.\n" +
+                "We Don't Pay for Losses: Under no circumstances will CocoTrade, its developers, or owners be liable to pay you anything for monetary or physical losses resulting from your use of the app.\n\n" +
+                "2. User Data & Personal Information Responsibility\n" +
+                "Voluntary Disclosure: When you use this app, you may choose to share your mobile number, name, personal details, location, place, or videos.\n" +
+                "User's Sole Risk: Disclosing this information is 100% your own responsibility.\n" +
+                "No Privacy Liability: We are not responsible for how other users or third parties use your phone number, location, or personal details once you post them publicly on the platform.\n\n" +
+                "3. No Guarantee of Correct Information\n" +
+                "\"As-Is\" Data: We do not verify, screen, or guarantee the accuracy, truthfulness, or correctness of the information shared by users.\n\n" +
+                "4. Strict Video Content Rules\n" +
+                "Coconut Content Only: Only coconut-related videos are permitted.\n" +
+                "No Objectionable Content: You must not upload any illegal, abusive, hateful, defamatory, or pornographic content.\n" +
+                "Right to Terminate: We reserve the right to delete any video and permanently ban any user who violates these content rules.\n\n" +
+                "5. Limitation of Liability\n" +
+                "To the maximum extent permitted by applicable law, CocoTrade shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or the inability to use this platform.";
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Terms and Conditions")
+                .setMessage(termsText)
+                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     private void loadMyVideos(String userId) {
