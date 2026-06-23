@@ -205,9 +205,6 @@ public class PostFragment extends Fragment {
         MediaManager.get().upload(selectedVideoUri)
                 .unsigned("ml_default")
                 .option("resource_type", "video")
-                .option("quality", "auto")
-                .option("fetch_format", "auto")
-                .option("transformation", new com.cloudinary.Transformation().height(480).crop("scale"))
                 .callback(new UploadCallback() {
                     @Override
                     public void onStart(String requestId) {}

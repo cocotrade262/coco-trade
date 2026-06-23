@@ -245,7 +245,6 @@ public class ProfileFragment extends Fragment {
 
         MediaManager.get().upload(imageUri)
                 .unsigned("ml_default")
-                .option("resource_type", "image")
                 .callback(new UploadCallback() {
                     @Override
                     public void onStart(String requestId) {}
