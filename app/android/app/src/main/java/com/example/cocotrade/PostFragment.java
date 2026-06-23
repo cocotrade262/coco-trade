@@ -77,49 +77,6 @@ public class PostFragment extends Fragment {
             }
     );
 
-    private void onVideoSelected() {
-        if (videoPreview == null || selectedVideoUri == null) return;
-
-        // Check file size (max 20MB)
-        long fileSize = getFileSize(selectedVideoUri);
-        if (fileSize > 20 * 1024 * 1024) {
-            Toast.makeText(getContext(), "Video exceeds 20MB limit", Toast.LENGTH_LONG).show();
-            selectedVideoUri = null;
-            return;
-        }
-
-        if (mPlayer != null) {
-            mPlayer.release();
-        }
-
-        mPlayer = new ExoPlayer.Builder(requireContext()).build();
-        mPlayer.setMediaItem(MediaItem.fromUri(selectedVideoUri));
-        mPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
-        mPlayer.addListener(new Player.Listener() {
-            @Override
-            public void onPlaybackStateChanged(int playbackState) {
-                if (playbackState == Player.STATE_READY) {
-                    long duration = mPlayer.getDuration();
-                    if (duration > 31000) { // 30 seconds + 1s buffer
-                        Toast.makeText(getContext(), "Video exceeds 30 seconds limit", Toast.LENGTH_LONG).show();
-                        mPlayer.stop();
-                        selectedVideoUri = null;
-                        btnUpload.setEnabled(false);
-                        statusText.setText("Invalid video duration");
-                    }
-                }
-            }
-        });
-        mPlayer.prepare();
-        mPlayer.play();
-
-        videoPreview.setPlayer(mPlayer);
-        videoPreview.setVisibility(View.VISIBLE);
-
-        btnUpload.setEnabled(true);
-        statusText.setText("Video selected");
-    }
-
     private long getFileSize(Uri uri) {
         Cursor cursor = requireContext().getContentResolver().query(uri, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
@@ -174,6 +131,26 @@ public class PostFragment extends Fragment {
         btnUpload.setOnClickListener(v -> uploadVideo());
 
         return view;
+    }
+
+    private void onVideoSelected() {
+        if (videoPreview == null || selectedVideoUri == null) return;
+
+        if (mPlayer != null) {
+            mPlayer.release();
+        }
+
+        mPlayer = new ExoPlayer.Builder(requireContext()).build();
+        mPlayer.setMediaItem(MediaItem.fromUri(selectedVideoUri));
+        mPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
+        mPlayer.prepare();
+        mPlayer.play();
+
+        videoPreview.setPlayer(mPlayer);
+        videoPreview.setVisibility(View.VISIBLE);
+
+        btnUpload.setEnabled(true);
+        statusText.setText("Video selected");
     }
 
     private void uploadVideo() {

@@ -28,8 +28,12 @@ public class VideoGridAdapter extends RecyclerView.Adapter<VideoGridAdapter.Grid
     public void onBindViewHolder(@NonNull GridViewHolder holder, int position) {
         VideoAdapter.VideoPost post = videoPosts.get(position);
         if (post.objectUrl != null) {
+            String optimizedUrl = post.objectUrl;
+            if (optimizedUrl.contains("/upload/")) {
+                optimizedUrl = optimizedUrl.replace("/upload/", "/upload/f_auto,q_auto,w_240,vc_h264/");
+            }
             Glide.with(holder.itemView.getContext())
-                .load(post.objectUrl)
+                .load(optimizedUrl)
                 .centerCrop()
                 .into(holder.ivThumb);
         }

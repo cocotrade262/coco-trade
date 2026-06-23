@@ -12,7 +12,6 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // Access the API Secret from local.properties or Env
         def localProperties = new Properties()
         def localPropertiesFile = rootProject.file('local.properties')
         if (localPropertiesFile.exists()) {
@@ -24,7 +23,6 @@ android {
 
     signingConfigs {
         config {
-            // Use custom keystore if available, otherwise fallback to default
             def keystoreFile = file('permanent_debug.keystore')
             if (keystoreFile.exists()) {
                 storeFile keystoreFile
@@ -62,24 +60,22 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
     implementation "androidx.fragment:fragment:1.8.1"
 
-    // Firebase BoM, Auth and Realtime Database
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-database'
 
-    // Cloudinary Android SDK
     implementation 'com.cloudinary:cloudinary-android:3.0.2'
 
-    // Glide for image loading
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 
-    // Google Play Services Auth
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
 
-    // Media3 ExoPlayer for stable video playback
     implementation "androidx.media3:media3-exoplayer:1.4.1"
     implementation "androidx.media3:media3-ui:1.4.1"
+    implementation "androidx.media3:media3-common:1.4.1"
+    implementation "androidx.media3:media3-datasource:1.4.1"
+    implementation "androidx.media3:media3-database:1.4.1"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

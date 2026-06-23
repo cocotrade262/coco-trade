@@ -22,7 +22,11 @@ import androidx.annotation.OptIn;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -186,18 +190,35 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         }
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     private void initializePlayer(VideoViewHolder holder, String videoUrl) {
+        String optimizedUrl = videoUrl;
+        if (videoUrl != null && videoUrl.contains("/upload/")) {
+            optimizedUrl = videoUrl.replace("/upload/", "/upload/f_auto,q_auto,w_480,vc_h264/");
+        }
+
         String tag = (String) holder.playerView.getTag();
-        if (tag == null || !tag.equals(videoUrl) || holder.mPlayer == null) {
+        if (tag == null || !tag.equals(optimizedUrl) || holder.mPlayer == null) {
             if (holder.mPlayer != null) {
                 holder.mPlayer.release();
             }
-            ExoPlayer player = new ExoPlayer.Builder(holder.itemView.getContext()).build();
-            player.setMediaItem(MediaItem.fromUri(videoUrl));
+
+            DataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
+                    .setAllowCrossProtocolRedirects(true);
+            DataSource.Factory cacheDataSourceFactory = new CacheDataSource.Factory()
+                    .setCache(VideoCacheManager.getCache(holder.itemView.getContext()))
+                    .setUpstreamDataSourceFactory(httpDataSourceFactory)
+                    .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
+
+            ExoPlayer player = new ExoPlayer.Builder(holder.itemView.getContext())
+                    .setMediaSourceFactory(new DefaultMediaSourceFactory(holder.itemView.getContext()).setDataSourceFactory(cacheDataSourceFactory))
+                    .build();
+
+            player.setMediaItem(MediaItem.fromUri(optimizedUrl));
             player.setRepeatMode(Player.REPEAT_MODE_ALL);
             player.prepare();
             holder.playerView.setPlayer(player);
-            holder.playerView.setTag(videoUrl);
+            holder.playerView.setTag(optimizedUrl);
             holder.mPlayer = player;
             applyMuteState(player);
         } else {
