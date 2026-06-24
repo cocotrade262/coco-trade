@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
 import android.graphics.Outline;
 import android.view.ViewOutlineProvider;
 import androidx.annotation.NonNull;
@@ -45,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
@@ -128,11 +130,14 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         holder.layoutComment.setOnClickListener(v -> showCommentsBottomSheet(v, post));
 
         String currentUserUid = FirebaseAuth.getInstance().getUid();
-        if (currentUserUid != null && currentUserUid.equals(post.uploadedBy) && !post.isSold) {
+        if (currentUserUid != null && currentUserUid.equals(post.uploadedBy)) {
             holder.ivMoreOptions.setVisibility(View.VISIBLE);
             holder.ivMoreOptions.setOnClickListener(v -> {
                 PopupMenu popup = new PopupMenu(v.getContext(), v);
-                popup.getMenu().add("Mark as Sold");
+                if (!post.isSold) {
+                    popup.getMenu().add("Mark as Sold");
+                }
+                popup.getMenu().add("Delete Post");
                 popup.setOnMenuItemClickListener(item -> {
                     if (item.getTitle().equals("Mark as Sold")) {
                         new AlertDialog.Builder(v.getContext())
@@ -148,6 +153,22 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                             });
                                 })
                                 .setNegativeButton("No", null)
+                                .show();
+                        return true;
+                    } else if (item.getTitle().equals("Delete Post")) {
+                        new AlertDialog.Builder(v.getContext())
+                                .setTitle("Delete Post")
+                                .setMessage("Are you sure you want to permanently delete this post and its video?")
+                                .setPositiveButton("Delete", (dialog, which) -> {
+                                    deleteVideoFromCloudinary(post.objectUrl);
+                                    FirebaseDatabase.getInstance().getReference("UserVideos")
+                                            .child(post.id)
+                                            .removeValue()
+                                            .addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(v.getContext(), "Post deleted", Toast.LENGTH_SHORT).show();
+                                            });
+                                })
+                                .setNegativeButton("Cancel", null)
                                 .show();
                         return true;
                     }
@@ -462,6 +483,37 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         });
 
         bottomSheetDialog.show();
+    }
+
+    private void deleteVideoFromCloudinary(String url) {
+        if (url == null || url.isEmpty()) return;
+        String publicId = extractPublicId(url);
+        if (publicId == null) return;
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                Map<String, Object> options = new HashMap<>();
+                options.put("resource_type", "video");
+                MediaManager.get().getCloudinary().uploader().destroy(publicId, options);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private String extractPublicId(String url) {
+        try {
+            // URL format: https://res.cloudinary.com/cloud_name/video/upload/v12345678/public_id.mp4
+            String[] parts = url.split("/");
+            String lastPart = parts[parts.length - 1];
+            int dotIndex = lastPart.lastIndexOf('.');
+            if (dotIndex != -1) {
+                return lastPart.substring(0, dotIndex);
+            }
+            return lastPart;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void showMuteIcon(ImageView iv) {
