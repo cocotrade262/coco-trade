@@ -24,8 +24,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.ExportException;
+import androidx.media3.transformer.ExportResult;
+import androidx.media3.transformer.Transformer;
 import androidx.media3.ui.PlayerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -53,6 +58,7 @@ public class PostFragment extends Fragment {
     private TextView statusText;
     private EditText etName, etMobile, etArea, etCost, etCaption;
     private Uri selectedVideoUri;
+    private View layoutOptimizationOverlay;
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
@@ -113,6 +119,7 @@ public class PostFragment extends Fragment {
         btnUpload = view.findViewById(R.id.btn_upload_video);
         progressBar = view.findViewById(R.id.upload_progress);
         statusText = view.findViewById(R.id.status_text);
+        layoutOptimizationOverlay = view.findViewById(R.id.layout_optimization_overlay);
 
         etName = view.findViewById(R.id.et_post_name);
         etMobile = view.findViewById(R.id.et_post_mobile);
@@ -136,12 +143,87 @@ public class PostFragment extends Fragment {
     private void onVideoSelected() {
         if (videoPreview == null || selectedVideoUri == null) return;
 
+        if (mPlayer != null) mPlayer.release();
+        mPlayer = new ExoPlayer.Builder(requireContext()).build();
+        mPlayer.setMediaItem(MediaItem.fromUri(selectedVideoUri));
+        mPlayer.addListener(new Player.Listener() {
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == Player.STATE_READY) {
+                    long duration = mPlayer.getDuration();
+                    if (duration > 20500) { // If > 20s
+                        optimizeAndTrimVideo(selectedVideoUri);
+                    } else {
+                        preparePreview(selectedVideoUri);
+                    }
+                    mPlayer.removeListener(this);
+                }
+            }
+        });
+        mPlayer.prepare();
+    }
+
+    private void optimizeAndTrimVideo(Uri inputUri) {
+        if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.VISIBLE);
+
+        java.io.File outputDir = requireContext().getCacheDir();
+        java.io.File outputFile;
+        try {
+            outputFile = java.io.File.createTempFile("trimmed_video", ".mp4", outputDir);
+        } catch (java.io.IOException e) {
+            if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
+            Toast.makeText(getContext(), "Failed to create temp file", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Transformer transformer = new Transformer.Builder(requireContext())
+                .setVideoMimeType(MimeTypes.VIDEO_H264)
+                .build();
+
+        MediaItem mediaItem = new MediaItem.Builder()
+                .setUri(inputUri)
+                .setClippingConfiguration(
+                        new MediaItem.ClippingConfiguration.Builder()
+                                .setEndPositionMs(20000)
+                                .build()
+                )
+                .build();
+
+        transformer.addListener(new Transformer.Listener() {
+            @Override
+            public void onCompleted(Composition composition, ExportResult exportResult) {
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
+                        selectedVideoUri = Uri.fromFile(outputFile);
+                        preparePreview(selectedVideoUri);
+                        Toast.makeText(getContext(), "Trimmed to first 20s", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Composition composition, ExportResult exportResult, ExportException exportException) {
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
+                        Toast.makeText(getContext(), "Cropping failed, using original", Toast.LENGTH_SHORT).show();
+                        preparePreview(inputUri);
+                    });
+                }
+            }
+        });
+
+        transformer.start(mediaItem, outputFile.getAbsolutePath());
+    }
+
+    private void preparePreview(Uri uri) {
         if (mPlayer != null) {
             mPlayer.release();
         }
 
         mPlayer = new ExoPlayer.Builder(requireContext()).build();
-        mPlayer.setMediaItem(MediaItem.fromUri(selectedVideoUri));
+        mPlayer.setMediaItem(MediaItem.fromUri(uri));
         mPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
         mPlayer.prepare();
         mPlayer.play();
@@ -150,7 +232,7 @@ public class PostFragment extends Fragment {
         videoPreview.setVisibility(View.VISIBLE);
 
         btnUpload.setEnabled(true);
-        statusText.setText("Video selected");
+        statusText.setText("Video ready");
     }
 
     private void uploadVideo() {
