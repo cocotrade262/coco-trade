@@ -55,7 +55,7 @@ public class PostFragment extends Fragment {
     private View btnRecord, btnSelect;
     private Button btnUpload;
     private ProgressBar progressBar;
-    private TextView statusText;
+    private TextView statusText, tvOverlayText;
     private EditText etName, etMobile, etArea, etCost, etCaption;
     private Uri selectedVideoUri;
     private View layoutOptimizationOverlay;
@@ -120,6 +120,7 @@ public class PostFragment extends Fragment {
         progressBar = view.findViewById(R.id.upload_progress);
         statusText = view.findViewById(R.id.status_text);
         layoutOptimizationOverlay = view.findViewById(R.id.layout_optimization_overlay);
+        tvOverlayText = view.findViewById(R.id.tv_overlay_text);
 
         etName = view.findViewById(R.id.et_post_name);
         etMobile = view.findViewById(R.id.et_post_mobile);
@@ -164,7 +165,10 @@ public class PostFragment extends Fragment {
     }
 
     private void optimizeAndTrimVideo(Uri inputUri) {
-        if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.VISIBLE);
+        if (layoutOptimizationOverlay != null) {
+            layoutOptimizationOverlay.setVisibility(View.VISIBLE);
+            if (tvOverlayText != null) tvOverlayText.setText("Cropping video to 20s...");
+        }
 
         java.io.File outputDir = requireContext().getCacheDir();
         java.io.File outputFile;
@@ -262,6 +266,10 @@ public class PostFragment extends Fragment {
         }
 
         btnUpload.setEnabled(false);
+        if (layoutOptimizationOverlay != null) {
+            layoutOptimizationOverlay.setVisibility(View.VISIBLE);
+            if (tvOverlayText != null) tvOverlayText.setText("Uploading Coconut Video... 0%");
+        }
         progressBar.setVisibility(View.VISIBLE);
         statusText.setText("Uploading...");
 
@@ -276,7 +284,12 @@ public class PostFragment extends Fragment {
                     public void onProgress(String requestId, long bytes, long totalBytes) {
                         int progress = (int) ((bytes * 100) / totalBytes);
                         if (isAdded() && getActivity() != null) {
-                            getActivity().runOnUiThread(() -> progressBar.setProgress(progress));
+                            getActivity().runOnUiThread(() -> {
+                                progressBar.setProgress(progress);
+                                if (tvOverlayText != null) {
+                                    tvOverlayText.setText("Uploading Coconut Video... " + progress + "%");
+                                }
+                            });
                         }
                     }
 
@@ -284,7 +297,10 @@ public class PostFragment extends Fragment {
                     public void onSuccess(String requestId, Map resultData) {
                         String url = (String) resultData.get("secure_url");
                         if (isAdded() && getActivity() != null) {
-                            getActivity().runOnUiThread(() -> saveToFirebase(url, user.getUid(), name, mobile, area, cost, caption));
+                            getActivity().runOnUiThread(() -> {
+                                if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
+                                saveToFirebase(url, user.getUid(), name, mobile, area, cost, caption);
+                            });
                         }
                     }
 
@@ -293,6 +309,7 @@ public class PostFragment extends Fragment {
                         Log.e(TAG, "Cloudinary upload error: " + error.getDescription() + " code: " + error.getCode());
                         if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
+                                if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
                                 progressBar.setVisibility(View.GONE);
                                 btnUpload.setEnabled(true);
                                 Toast.makeText(getContext(), "Upload failed: " + error.getDescription(), Toast.LENGTH_LONG).show();
@@ -307,6 +324,8 @@ public class PostFragment extends Fragment {
     }
 
     private void saveToFirebase(String url, String userId, String name, String mobile, String area, String cost, String caption) {
+        if (!isAdded() || mDatabase == null) return;
+
         String videoId = mDatabase.push().getKey();
         FirebaseUser user = mAuth.getCurrentUser();
         String profileName = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "";
