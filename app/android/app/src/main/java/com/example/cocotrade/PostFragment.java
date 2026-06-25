@@ -238,8 +238,12 @@ public class PostFragment extends Fragment {
     private void uploadVideo() {
         if (selectedVideoUri == null) return;
 
+        // Capture all input values on the UI thread
+        String name = etName.getText().toString().trim();
+        String mobile = etMobile.getText().toString().trim();
         String area = etArea.getText().toString().trim();
         String cost = etCost.getText().toString().trim();
+        String caption = etCaption.getText().toString().trim();
 
         if (area.isEmpty()) {
             Toast.makeText(getContext(), "Area is mandatory", Toast.LENGTH_SHORT).show();
@@ -271,7 +275,7 @@ public class PostFragment extends Fragment {
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
                         int progress = (int) ((bytes * 100) / totalBytes);
-                        if (getActivity() != null) {
+                        if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> progressBar.setProgress(progress));
                         }
                     }
@@ -279,13 +283,15 @@ public class PostFragment extends Fragment {
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
                         String url = (String) resultData.get("secure_url");
-                        saveToFirebase(url, user.getUid());
+                        if (isAdded() && getActivity() != null) {
+                            getActivity().runOnUiThread(() -> saveToFirebase(url, user.getUid(), name, mobile, area, cost, caption));
+                        }
                     }
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
                         Log.e(TAG, "Cloudinary upload error: " + error.getDescription() + " code: " + error.getCode());
-                        if (getActivity() != null) {
+                        if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 progressBar.setVisibility(View.GONE);
                                 btnUpload.setEnabled(true);
@@ -300,7 +306,7 @@ public class PostFragment extends Fragment {
                 .dispatch();
     }
 
-    private void saveToFirebase(String url, String userId) {
+    private void saveToFirebase(String url, String userId, String name, String mobile, String area, String cost, String caption) {
         String videoId = mDatabase.push().getKey();
         FirebaseUser user = mAuth.getCurrentUser();
         String profileName = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "";
@@ -310,26 +316,29 @@ public class PostFragment extends Fragment {
         data.put("uploadedBy", userId);
         data.put("authorName", profileName);
         data.put("createdAt", System.currentTimeMillis());
-        data.put("name", etName.getText().toString().trim());
-        data.put("mobile", etMobile.getText().toString().trim());
-        data.put("area", etArea.getText().toString().trim());
-        data.put("cost", etCost.getText().toString().trim());
-        data.put("caption", etCaption.getText().toString().trim());
+        data.put("name", name);
+        data.put("mobile", mobile);
+        data.put("area", area);
+        data.put("cost", cost);
+        data.put("caption", caption);
 
         if (videoId != null) {
             mDatabase.child(videoId).setValue(data).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
-                    // Clear form or navigate to feed
-                    if (getActivity() instanceof MainActivity) {
-                        ((MainActivity) getActivity()).replaceFragment(new FeedFragment());
-                        // Update bottom nav selection
-                        BottomNavigationView nav = getActivity().findViewById(R.id.bottom_navigation);
-                        if (nav != null) nav.setSelectedItemId(R.id.nav_feed);
+                if (isAdded() && getActivity() != null) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
+                        // Navigate to feed
+                        if (getActivity() instanceof MainActivity) {
+                            ((MainActivity) getActivity()).replaceFragment(new FeedFragment());
+                            // Update bottom nav selection
+                            BottomNavigationView nav = getActivity().findViewById(R.id.bottom_navigation);
+                            if (nav != null) nav.setSelectedItemId(R.id.nav_feed);
+                        }
+                    } else {
+                        progressBar.setVisibility(View.GONE);
+                        btnUpload.setEnabled(true);
+                        Toast.makeText(getContext(), "Firebase save failed", Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                    btnUpload.setEnabled(true);
                 }
             });
         }
