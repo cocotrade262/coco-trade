@@ -282,6 +282,7 @@ public class PostFragment extends Fragment {
 
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
+                        if (totalBytes <= 0) return;
                         int progress = (int) ((bytes * 100) / totalBytes);
                         if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
