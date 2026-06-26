@@ -12,8 +12,8 @@ public class CocoTradeApplication extends Application {
 
         // Initialize Cloudinary
         Map<String, String> config = new HashMap<>();
-        config.put("cloud_name", "dt8dfsjjv");
-        config.put("api_key", "127825961938747");
+        config.put("cloud_name", BuildConfig.CLOUDINARY_CLOUD_NAME);
+        config.put("api_key", BuildConfig.CLOUDINARY_API_KEY);
         config.put("api_secret", BuildConfig.CLOUDINARY_API_SECRET);
         MediaManager.init(this, config);
     }

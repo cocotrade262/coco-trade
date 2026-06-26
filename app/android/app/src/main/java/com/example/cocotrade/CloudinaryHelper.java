@@ -23,16 +23,18 @@ public class CloudinaryHelper {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                String secret = BuildConfig.CLOUDINARY_API_SECRET;
-                if (secret == null || secret.isEmpty()) {
-                    Log.e(TAG, "CRITICAL: Cloudinary API Secret is missing. Deletion aborted.");
-                    return;
+                String cloudName = BuildConfig.CLOUDINARY_CLOUD_NAME;
+                String apiKey = BuildConfig.CLOUDINARY_API_KEY;
+                String apiSecret = BuildConfig.CLOUDINARY_API_SECRET;
+
+                if (apiSecret == null || apiSecret.isEmpty() || apiSecret.equals("your_secret_here")) {
+                    Log.e(TAG, "CRITICAL: Cloudinary API Secret is invalid or missing. Deletion will fail.");
                 }
 
                 Map<String, String> config = new HashMap<>();
-                config.put("cloud_name", "dt8dfsjjv");
-                config.put("api_key", "127825961938747");
-                config.put("api_secret", secret);
+                config.put("cloud_name", cloudName);
+                config.put("api_key", apiKey);
+                config.put("api_secret", apiSecret);
 
                 Cloudinary cloudinary = new Cloudinary(config);
 
@@ -58,11 +60,11 @@ public class CloudinaryHelper {
             options.put("invalidate", true);
 
             Map result = cloudinary.uploader().destroy(publicId, options);
-            Log.d(TAG, resourceType + " deletion attempt for " + publicId + ": " + result.toString());
+            Log.d(TAG, resourceType + " deletion attempt for " + publicId + ": " + (result != null ? result.toString() : "null"));
 
-            return "ok".equals(result.get("result"));
+            return result != null && "ok".equals(result.get("result"));
         } catch (Exception e) {
-            Log.w(TAG, resourceType + " deletion attempt failed for " + publicId, e);
+            Log.w(TAG, resourceType + " deletion attempt failed for " + publicId + ". Error: " + e.getMessage());
             return false;
         }
     }
@@ -71,22 +73,33 @@ public class CloudinaryHelper {
         try {
             if (!url.contains("/upload/")) return null;
 
+            // Remove the part before /upload/ and the /upload/ itself
             String path = url.substring(url.indexOf("/upload/") + 8);
-            // Example: [transformations/]v12345678/optional_folder/public_id.mp4
+
+            // The path now looks like: [transformations/]v12345678/optional_folder/public_id.mp4
             String[] parts = path.split("/");
 
             int startIndex = 0;
             for (int i = 0; i < parts.length; i++) {
                 String segment = parts[i];
+
                 // Skip transformation segments (contain comma or equal sign)
                 if (segment.contains(",") || segment.contains("=")) {
                     continue;
                 }
-                // Version starts with 'v' followed by digits
+
+                // Skip version segment (starts with 'v' followed by digits)
                 if (segment.startsWith("v") && segment.length() > 1 && Character.isDigit(segment.charAt(1))) {
                     startIndex = i + 1;
                     break;
                 }
+
+                // If we encounter a segment that doesn't look like a version or transformation,
+                // it might be the start of the public ID in a URL without a version string.
+                // But Cloudinary URLs almost always have a version.
+                // Let's assume the first non-transformation segment that isn't 'v' is the ID.
+                startIndex = i;
+                break;
             }
 
             StringBuilder sb = new StringBuilder();
@@ -95,12 +108,12 @@ public class CloudinaryHelper {
                 sb.append(parts[i]);
             }
 
-            String fullId = sb.toString();
-            int lastDot = fullId.lastIndexOf('.');
+            String fullIdWithExtension = sb.toString();
+            int lastDot = fullIdWithExtension.lastIndexOf('.');
             if (lastDot != -1) {
-                return fullId.substring(0, lastDot);
+                return fullIdWithExtension.substring(0, lastDot);
             }
-            return fullId;
+            return fullIdWithExtension;
         } catch (Exception e) {
             Log.e(TAG, "Error extracting publicId from URL: " + url, e);
             return null;

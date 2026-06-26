@@ -17,7 +17,12 @@ android {
         if (localPropertiesFile.exists()) {
             localProperties.load(new FileInputStream(localPropertiesFile))
         }
+        def cloudinaryName = localProperties.getProperty('CLOUDINARY_CLOUD_NAME') ?: "dt8dfsjjv"
+        def cloudinaryKey = localProperties.getProperty('CLOUDINARY_API_KEY') ?: "127825961938747"
         def cloudinarySecret = localProperties.getProperty('CLOUDINARY_API_SECRET') ?: System.getenv("CLOUDINARY_API_SECRET") ?: ""
+
+        buildConfigField "String", "CLOUDINARY_CLOUD_NAME", "\"${cloudinaryName}\""
+        buildConfigField "String", "CLOUDINARY_API_KEY", "\"${cloudinaryKey}\""
         buildConfigField "String", "CLOUDINARY_API_SECRET", "\"${cloudinarySecret}\""
     }
 
