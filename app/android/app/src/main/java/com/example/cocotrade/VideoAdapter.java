@@ -146,7 +146,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                 .setTitle("Mark as Sold")
                                 .setMessage("Are you sure you want to mark this as sold? It will be removed from the feed.")
                                 .setPositiveButton("Yes", (dialog, which) -> {
-                                    deleteVideoFromCloudinary(post.objectUrl);
+                                    Toast.makeText(v.getContext(), "Marking as sold and deleting video...", Toast.LENGTH_SHORT).show();
+                                    CloudinaryHelper.deleteAsset(post.publicId != null ? post.publicId : post.objectUrl);
                                     FirebaseDatabase.getInstance().getReference("UserVideos")
                                             .child(post.id)
                                             .child("isSold")
@@ -163,7 +164,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                 .setTitle("Delete Post")
                                 .setMessage("Are you sure you want to permanently delete this post and its video?")
                                 .setPositiveButton("Delete", (dialog, which) -> {
-                                    deleteVideoFromCloudinary(post.objectUrl);
+                                    Toast.makeText(v.getContext(), "Deleting post and video...", Toast.LENGTH_SHORT).show();
+                                    CloudinaryHelper.deleteAsset(post.publicId != null ? post.publicId : post.objectUrl);
                                     FirebaseDatabase.getInstance().getReference("UserVideos")
                                             .child(post.id)
                                             .removeValue()
@@ -488,72 +490,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         bottomSheetDialog.show();
     }
 
-    private void deleteVideoFromCloudinary(String url) {
-        if (url == null || url.isEmpty()) return;
-        String publicId = extractPublicId(url);
-        if (publicId == null) {
-            Log.e(TAG, "Failed to extract publicId from URL: " + url);
-            return;
-        }
-
-        Log.d(TAG, "Attempting to delete Cloudinary asset: " + publicId);
-
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                Map<String, Object> options = new HashMap<>();
-                options.put("resource_type", "video");
-                Map result = MediaManager.get().getCloudinary().uploader().destroy(publicId, options);
-                Log.d(TAG, "Cloudinary destroy result: " + result.toString());
-            } catch (Exception e) {
-                Log.e(TAG, "Cloudinary destroy failed for " + publicId, e);
-            }
-        });
-    }
-
-    private String extractPublicId(String url) {
-        try {
-            // URL format: https://res.cloudinary.com/cloud_name/video/upload/[transformations/]v12345678/optional_folder/public_id.mp4
-            if (!url.contains("/upload/")) return null;
-
-            String afterUpload = url.split("/upload/")[1];
-            String[] segments = afterUpload.split("/");
-
-            int startIndex = 0;
-            // Skip transformations if any (usually don't have them in stored URLs but being safe)
-            // Skip version (starts with 'v' followed by digits)
-            while (startIndex < segments.length) {
-                String segment = segments[startIndex];
-                if (segment.startsWith("v") && segment.length() > 1 && Character.isDigit(segment.charAt(1))) {
-                    startIndex++;
-                    break;
-                }
-                // If it's a transformation segment (contains ',' or '_' and '=' etc), skip it
-                if (segment.contains(",") || segment.contains("=")) {
-                    startIndex++;
-                    continue;
-                }
-                // If we reach here and it doesn't look like a version or transformation,
-                // it might be the start of the public ID.
-                break;
-            }
-
-            StringBuilder publicIdBuilder = new StringBuilder();
-            for (int i = startIndex; i < segments.length; i++) {
-                if (i > startIndex) publicIdBuilder.append("/");
-                publicIdBuilder.append(segments[i]);
-            }
-
-            String fullPath = publicIdBuilder.toString();
-            int dotIndex = fullPath.lastIndexOf('.');
-            if (dotIndex != -1) {
-                return fullPath.substring(0, dotIndex);
-            }
-            return fullPath;
-        } catch (Exception e) {
-            Log.e(TAG, "Error parsing publicId from " + url, e);
-            return null;
-        }
-    }
 
     private void showMuteIcon(ImageView iv) {
         iv.setImageResource(isMuted ? R.drawable.ic_mute_outline : R.drawable.ic_unmute_outline);
@@ -609,6 +545,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     public static class VideoPost {
         public String id;
         public String objectUrl;
+        public String publicId;
         public String name;
         public String area;
         public String cost;

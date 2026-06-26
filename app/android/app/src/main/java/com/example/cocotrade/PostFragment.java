@@ -297,10 +297,11 @@ public class PostFragment extends Fragment {
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
                         String url = (String) resultData.get("secure_url");
+                        String pId = (String) resultData.get("public_id");
                         if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
-                                saveToFirebase(url, user.getUid(), name, mobile, area, cost, caption);
+                                saveToFirebase(url, pId, user.getUid(), name, mobile, area, cost, caption);
                             });
                         }
                     }
@@ -324,7 +325,7 @@ public class PostFragment extends Fragment {
                 .dispatch();
     }
 
-    private void saveToFirebase(String url, String userId, String name, String mobile, String area, String cost, String caption) {
+    private void saveToFirebase(String url, String publicId, String userId, String name, String mobile, String area, String cost, String caption) {
         if (!isAdded() || mDatabase == null) return;
 
         String videoId = mDatabase.push().getKey();
@@ -333,6 +334,7 @@ public class PostFragment extends Fragment {
 
         Map<String, Object> data = new HashMap<>();
         data.put("objectUrl", url);
+        data.put("publicId", publicId);
         data.put("uploadedBy", userId);
         data.put("authorName", profileName);
         data.put("createdAt", System.currentTimeMillis());
