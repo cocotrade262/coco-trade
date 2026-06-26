@@ -2,6 +2,7 @@ package com.example.cocotrade;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,7 @@ import java.util.concurrent.Executors;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
+    private static final String TAG = "VideoAdapter";
     private List<VideoPost> videoPosts;
     private static boolean isMuted = false;
 
@@ -144,6 +146,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                 .setTitle("Mark as Sold")
                                 .setMessage("Are you sure you want to mark this as sold? It will be removed from the feed.")
                                 .setPositiveButton("Yes", (dialog, which) -> {
+                                    deleteVideoFromCloudinary(post.objectUrl);
                                     FirebaseDatabase.getInstance().getReference("UserVideos")
                                             .child(post.id)
                                             .child("isSold")
@@ -488,30 +491,66 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     private void deleteVideoFromCloudinary(String url) {
         if (url == null || url.isEmpty()) return;
         String publicId = extractPublicId(url);
-        if (publicId == null) return;
+        if (publicId == null) {
+            Log.e(TAG, "Failed to extract publicId from URL: " + url);
+            return;
+        }
+
+        Log.d(TAG, "Attempting to delete Cloudinary asset: " + publicId);
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 Map<String, Object> options = new HashMap<>();
                 options.put("resource_type", "video");
-                MediaManager.get().getCloudinary().uploader().destroy(publicId, options);
+                Map result = MediaManager.get().getCloudinary().uploader().destroy(publicId, options);
+                Log.d(TAG, "Cloudinary destroy result: " + result.toString());
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "Cloudinary destroy failed for " + publicId, e);
             }
         });
     }
 
     private String extractPublicId(String url) {
         try {
-            // URL format: https://res.cloudinary.com/cloud_name/video/upload/v12345678/public_id.mp4
-            String[] parts = url.split("/");
-            String lastPart = parts[parts.length - 1];
-            int dotIndex = lastPart.lastIndexOf('.');
-            if (dotIndex != -1) {
-                return lastPart.substring(0, dotIndex);
+            // URL format: https://res.cloudinary.com/cloud_name/video/upload/[transformations/]v12345678/optional_folder/public_id.mp4
+            if (!url.contains("/upload/")) return null;
+
+            String afterUpload = url.split("/upload/")[1];
+            String[] segments = afterUpload.split("/");
+
+            int startIndex = 0;
+            // Skip transformations if any (usually don't have them in stored URLs but being safe)
+            // Skip version (starts with 'v' followed by digits)
+            while (startIndex < segments.length) {
+                String segment = segments[startIndex];
+                if (segment.startsWith("v") && segment.length() > 1 && Character.isDigit(segment.charAt(1))) {
+                    startIndex++;
+                    break;
+                }
+                // If it's a transformation segment (contains ',' or '_' and '=' etc), skip it
+                if (segment.contains(",") || segment.contains("=")) {
+                    startIndex++;
+                    continue;
+                }
+                // If we reach here and it doesn't look like a version or transformation,
+                // it might be the start of the public ID.
+                break;
             }
-            return lastPart;
+
+            StringBuilder publicIdBuilder = new StringBuilder();
+            for (int i = startIndex; i < segments.length; i++) {
+                if (i > startIndex) publicIdBuilder.append("/");
+                publicIdBuilder.append(segments[i]);
+            }
+
+            String fullPath = publicIdBuilder.toString();
+            int dotIndex = fullPath.lastIndexOf('.');
+            if (dotIndex != -1) {
+                return fullPath.substring(0, dotIndex);
+            }
+            return fullPath;
         } catch (Exception e) {
+            Log.e(TAG, "Error parsing publicId from " + url, e);
             return null;
         }
     }
