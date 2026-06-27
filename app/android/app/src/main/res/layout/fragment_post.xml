@@ -338,10 +338,13 @@
             <ProgressBar
                 android:id="@+id/pb_overlay_progress"
                 style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="200dp"
+                android:layout_width="240dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:progressTint="#FFFFFF"
+                android:progressTint="#3880ff"
+                android:progressBackgroundTint="#44FFFFFF"
+                android:indeterminate="false"
+                android:max="100"
                 android:visibility="gone" />
 
             <TextView

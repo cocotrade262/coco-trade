@@ -288,12 +288,19 @@ public class PostFragment extends Fragment {
 
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
-                        if (totalBytes <= 0) return;
-                        int progress = (int) ((bytes * 100) / totalBytes);
+                        // Total bytes might be unknown initially
+                        long effectiveTotal = totalBytes > 0 ? totalBytes : getFileSize(selectedVideoUri);
+                        if (effectiveTotal <= 0) return;
+
+                        final int progress = (int) ((bytes * 100L) / effectiveTotal);
+
                         if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
-                                progressBar.setProgress(progress);
+                                if (progressBar != null) progressBar.setProgress(progress);
                                 if (pbOverlayProgress != null) {
+                                    if (pbOverlayProgress.getVisibility() != View.VISIBLE) {
+                                        pbOverlayProgress.setVisibility(View.VISIBLE);
+                                    }
                                     pbOverlayProgress.setProgress(progress);
                                 }
                             });
