@@ -73,47 +73,43 @@ public class CloudinaryHelper {
         try {
             if (!url.contains("/upload/")) return null;
 
-            // Remove the part before /upload/ and the /upload/ itself
+            // 1. Get the path after /upload/
             String path = url.substring(url.indexOf("/upload/") + 8);
 
-            // The path now looks like: [transformations/]v12345678/optional_folder/public_id.mp4
+            // 2. Split by / to handle transformations, version, and folders
             String[] parts = path.split("/");
 
+            // 3. Find where the actual public ID starts.
+            // We skip transformations (segments with '=' or ',') and the version (vXXXXX)
             int startIndex = 0;
             for (int i = 0; i < parts.length; i++) {
-                String segment = parts[i];
-
-                // Skip transformation segments (contain comma or equal sign)
-                if (segment.contains(",") || segment.contains("=")) {
-                    continue;
-                }
-
-                // Skip version segment (starts with 'v' followed by digits)
-                if (segment.startsWith("v") && segment.length() > 1 && Character.isDigit(segment.charAt(1))) {
+                String part = parts[i];
+                if (part.contains(",") || part.contains("=")) continue; // skip transformations
+                if (part.startsWith("v") && part.length() > 1 && Character.isDigit(part.charAt(1))) {
                     startIndex = i + 1;
                     break;
                 }
-
-                // If we encounter a segment that doesn't look like a version or transformation,
-                // it might be the start of the public ID in a URL without a version string.
-                // But Cloudinary URLs almost always have a version.
-                // Let's assume the first non-transformation segment that isn't 'v' is the ID.
+                // If we find a part that is not a transformation and not a version,
+                // it's likely the start of the folders/publicId.
                 startIndex = i;
                 break;
             }
 
-            StringBuilder sb = new StringBuilder();
+            // 4. Join the remaining parts to get the full public ID (including folders)
+            StringBuilder publicIdBuilder = new StringBuilder();
             for (int i = startIndex; i < parts.length; i++) {
-                if (sb.length() > 0) sb.append("/");
-                sb.append(parts[i]);
+                if (publicIdBuilder.length() > 0) publicIdBuilder.append("/");
+                publicIdBuilder.append(parts[i]);
             }
 
-            String fullIdWithExtension = sb.toString();
-            int lastDot = fullIdWithExtension.lastIndexOf('.');
+            String fullPath = publicIdBuilder.toString();
+
+            // 5. Remove the file extension
+            int lastDot = fullPath.lastIndexOf('.');
             if (lastDot != -1) {
-                return fullIdWithExtension.substring(0, lastDot);
+                return fullPath.substring(0, lastDot);
             }
-            return fullIdWithExtension;
+            return fullPath;
         } catch (Exception e) {
             Log.e(TAG, "Error extracting publicId from URL: " + url, e);
             return null;

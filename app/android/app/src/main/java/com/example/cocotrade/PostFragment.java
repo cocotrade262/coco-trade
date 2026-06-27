@@ -54,7 +54,7 @@ public class PostFragment extends Fragment {
     private ExoPlayer mPlayer;
     private View btnRecord, btnSelect;
     private Button btnUpload;
-    private ProgressBar progressBar;
+    private ProgressBar progressBar, pbOverlayProgress;
     private TextView statusText, tvOverlayText;
     private EditText etName, etMobile, etArea, etCost, etCaption;
     private Uri selectedVideoUri;
@@ -118,6 +118,7 @@ public class PostFragment extends Fragment {
         btnSelect = view.findViewById(R.id.btn_select_video);
         btnUpload = view.findViewById(R.id.btn_upload_video);
         progressBar = view.findViewById(R.id.upload_progress);
+        pbOverlayProgress = view.findViewById(R.id.pb_overlay_progress);
         statusText = view.findViewById(R.id.status_text);
         layoutOptimizationOverlay = view.findViewById(R.id.layout_optimization_overlay);
         tvOverlayText = view.findViewById(R.id.tv_overlay_text);
@@ -168,6 +169,7 @@ public class PostFragment extends Fragment {
         if (layoutOptimizationOverlay != null) {
             layoutOptimizationOverlay.setVisibility(View.VISIBLE);
             if (tvOverlayText != null) tvOverlayText.setText("Cropping video to 20s...");
+            if (pbOverlayProgress != null) pbOverlayProgress.setVisibility(View.GONE);
         }
 
         java.io.File outputDir = requireContext().getCacheDir();
@@ -268,7 +270,11 @@ public class PostFragment extends Fragment {
         btnUpload.setEnabled(false);
         if (layoutOptimizationOverlay != null) {
             layoutOptimizationOverlay.setVisibility(View.VISIBLE);
-            if (tvOverlayText != null) tvOverlayText.setText("Uploading Coconut Video... 0%");
+            if (tvOverlayText != null) tvOverlayText.setText("Uploading Coconut Video...");
+            if (pbOverlayProgress != null) {
+                pbOverlayProgress.setVisibility(View.VISIBLE);
+                pbOverlayProgress.setProgress(0);
+            }
         }
         progressBar.setVisibility(View.VISIBLE);
         statusText.setText("Uploading...");
@@ -287,8 +293,8 @@ public class PostFragment extends Fragment {
                         if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 progressBar.setProgress(progress);
-                                if (tvOverlayText != null) {
-                                    tvOverlayText.setText("Uploading Coconut Video... " + progress + "%");
+                                if (pbOverlayProgress != null) {
+                                    pbOverlayProgress.setProgress(progress);
                                 }
                             });
                         }
