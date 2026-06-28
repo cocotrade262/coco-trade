@@ -68,7 +68,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         }
 
         if (comment.userId != null) {
-            FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(comment.userId)
+            FirebaseDatabase.getInstance().getReference("Users").child(comment.userId)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -128,7 +128,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         if (currentUserId != null && currentUserId.equals(comment.userId)) {
             holder.ivDelete.setVisibility(View.VISIBLE);
             holder.ivDelete.setOnClickListener(v -> {
-                FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Comments")
+                FirebaseDatabase.getInstance().getReference("Comments")
                         .child(postId)
                         .child(comment.id)
                         .removeValue();

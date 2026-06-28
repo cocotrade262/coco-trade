@@ -100,7 +100,7 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos");
+        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
 
         videoPreview = view.findViewById(R.id.video_preview);
 
@@ -341,7 +341,13 @@ public class PostFragment extends Fragment {
     private void saveToFirebase(String url, String publicId, String userId, String name, String mobile, String area, String cost, String caption) {
         if (!isAdded() || mDatabase == null) return;
 
-        Log.d(TAG, "Saving video metadata to Firebase...");
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            Log.d(TAG, "Saving video metadata to Firebase. User UID: " + currentUser.getUid() + ", Email: " + currentUser.getEmail());
+        } else {
+            Log.e(TAG, "Attempting to save to Firebase but currentUser is NULL!");
+        }
+
         String videoId = mDatabase.push().getKey();
         FirebaseUser user = mAuth.getCurrentUser();
         String profileName = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "";
