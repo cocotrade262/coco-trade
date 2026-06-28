@@ -100,7 +100,7 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
+        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos");
 
         videoPreview = view.findViewById(R.id.video_preview);
 
@@ -341,6 +341,7 @@ public class PostFragment extends Fragment {
     private void saveToFirebase(String url, String publicId, String userId, String name, String mobile, String area, String cost, String caption) {
         if (!isAdded() || mDatabase == null) return;
 
+        Log.d(TAG, "Saving video metadata to Firebase...");
         String videoId = mDatabase.push().getKey();
         FirebaseUser user = mAuth.getCurrentUser();
         String profileName = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : "";
@@ -372,7 +373,9 @@ public class PostFragment extends Fragment {
                     } else {
                         progressBar.setVisibility(View.GONE);
                         btnUpload.setEnabled(true);
-                        Toast.makeText(getContext(), "Firebase save failed", Toast.LENGTH_SHORT).show();
+                        String errorMsg = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                        Log.e(TAG, "Firebase save failed: " + errorMsg);
+                        Toast.makeText(getContext(), "Firebase save failed: " + errorMsg, Toast.LENGTH_LONG).show();
                     }
                 }
             });

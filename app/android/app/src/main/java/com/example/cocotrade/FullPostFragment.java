@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FullPostFragment extends Fragment {
@@ -21,9 +22,13 @@ public class FullPostFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public FullPostFragment(List<VideoAdapter.VideoPost> videoPosts, int initialPosition) {
-        this.videoPosts = videoPosts;
-        this.initialPosition = initialPosition;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            videoPosts = (List<VideoAdapter.VideoPost>) getArguments().getSerializable("video_posts");
+            initialPosition = getArguments().getInt("initial_position");
+        }
     }
 
     @Nullable
@@ -42,6 +47,7 @@ public class FullPostFragment extends Fragment {
         PagerSnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(recyclerView);
 
+        if (videoPosts == null) videoPosts = new ArrayList<>();
         VideoAdapter adapter = new VideoAdapter(videoPosts);
         recyclerView.setAdapter(adapter);
         recyclerView.scrollToPosition(initialPosition);

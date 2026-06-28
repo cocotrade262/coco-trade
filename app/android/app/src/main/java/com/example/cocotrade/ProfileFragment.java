@@ -2,6 +2,7 @@ package com.example.cocotrade;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +69,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
+        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos");
         FirebaseUser user = mAuth.getCurrentUser();
 
         TextView tvName = view.findViewById(R.id.tv_profile_name);
@@ -213,7 +214,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserProfile(String userId) {
-        FirebaseDatabase.getInstance().getReference("Users").child(userId)
+        FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(userId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -276,7 +277,7 @@ public class ProfileFragment extends Fragment {
         Map<String, Object> updates = new HashMap<>();
         updates.put("profileImageUrl", url);
 
-        FirebaseDatabase.getInstance().getReference("Users").child(userId)
+        FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(userId)
                 .updateChildren(updates)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -360,7 +361,12 @@ public class ProfileFragment extends Fragment {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (isAdded()) {
+                    Log.e("ProfileFragment", "Load my videos failed: " + error.getMessage());
+                    Toast.makeText(getContext(), "Failed to load your posts: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
         };
         mMyVideosQuery.addValueEventListener(mValueEventListener);
     }

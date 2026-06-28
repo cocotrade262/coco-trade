@@ -32,7 +32,7 @@ public class FeedFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
+        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos");
         recyclerView = view.findViewById(R.id.recycler_view_videos);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -131,7 +131,7 @@ public class FeedFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (getContext() != null) {
-                    Toast.makeText(getContext(), "Failed to load videos", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Failed to load videos: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         };

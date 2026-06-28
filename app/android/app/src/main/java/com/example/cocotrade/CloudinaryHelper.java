@@ -1,5 +1,6 @@
 package com.example.cocotrade;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -12,7 +13,7 @@ import java.util.concurrent.Executors;
 public class CloudinaryHelper {
     private static final String TAG = "CloudinaryHelper";
 
-    public static void deleteAsset(String idOrUrl) {
+    public static void deleteAsset(Context context, String idOrUrl) {
         if (idOrUrl == null || idOrUrl.isEmpty()) return;
 
         final String publicId = idOrUrl.startsWith("http") ? extractPublicId(idOrUrl) : idOrUrl;
@@ -42,13 +43,13 @@ public class CloudinaryHelper {
                 Cloudinary cloudinary = new Cloudinary(config);
 
                 // Attempt 1: Video resource type (Most likely)
-                if (tryDelete(cloudinary, publicId, "video")) return;
+                if (tryDelete(context, cloudinary, publicId, "video")) return;
 
                 // Attempt 2: Image resource type (Fallback for thumbnails or misclassified)
-                if (tryDelete(cloudinary, publicId, "image")) return;
+                if (tryDelete(context, cloudinary, publicId, "image")) return;
 
                 // Attempt 3: Raw resource type (Fallback for non-standard uploads)
-                tryDelete(cloudinary, publicId, "raw");
+                tryDelete(context, cloudinary, publicId, "raw");
 
             } catch (Exception e) {
                 Log.e(TAG, "Unexpected error during deletion of " + publicId, e);
@@ -56,7 +57,7 @@ public class CloudinaryHelper {
         });
     }
 
-    private static boolean tryDelete(Cloudinary cloudinary, String publicId, String resourceType) {
+    private static boolean tryDelete(Context context, Cloudinary cloudinary, String publicId, String resourceType) {
         try {
             Map<String, Object> options = new HashMap<>();
             options.put("resource_type", resourceType);
@@ -67,7 +68,7 @@ public class CloudinaryHelper {
 
             boolean success = result != null && "ok".equals(result.get("result"));
             if (success) {
-                showToast("Cloudinary " + resourceType + " deleted successfully");
+                showToast(context, "Cloudinary " + resourceType + " deleted successfully");
             }
             return success;
         } catch (Exception e) {
@@ -76,10 +77,13 @@ public class CloudinaryHelper {
         }
     }
 
-    private static void showToast(String message) {
-        // MediaManager context isn't public, so we omit toast or implement a better way.
-        // For now, relying on logs as static helper doesn't have Context.
-        Log.i(TAG, "Cloudinary Status: " + message);
+    private static void showToast(Context context, String message) {
+        if (context == null) return;
+        new Handler(Looper.getMainLooper()).post(() -> {
+            try {
+                Toast.makeText(context.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            } catch (Exception ignored) {}
+        });
     }
 
     private static String extractPublicId(String url) {

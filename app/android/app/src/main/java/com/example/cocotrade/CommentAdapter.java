@@ -1,5 +1,6 @@
 package com.example.cocotrade;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +68,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         }
 
         if (comment.userId != null) {
-            FirebaseDatabase.getInstance().getReference("Users").child(comment.userId)
+            FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(comment.userId)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -91,7 +92,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                         }
 
                         @Override
-                        public void onCancelled(@NonNull DatabaseError error) {}
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e("CommentAdapter", "Profile image listener cancelled: " + error.getMessage());
+                        }
                     });
         }
 
@@ -125,7 +128,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         if (currentUserId != null && currentUserId.equals(comment.userId)) {
             holder.ivDelete.setVisibility(View.VISIBLE);
             holder.ivDelete.setOnClickListener(v -> {
-                FirebaseDatabase.getInstance().getReference("Comments")
+                FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Comments")
                         .child(postId)
                         .child(comment.id)
                         .removeValue();

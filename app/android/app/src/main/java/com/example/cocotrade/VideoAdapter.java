@@ -41,6 +41,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,7 +83,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         }
 
         if (post.uploadedBy != null) {
-            FirebaseDatabase.getInstance().getReference("Users").child(post.uploadedBy)
+            FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(post.uploadedBy)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -106,7 +107,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                         }
 
                         @Override
-                        public void onCancelled(@NonNull DatabaseError error) {}
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e(TAG, "Profile image listener cancelled: " + error.getMessage());
+                        }
                     });
         } else {
             holder.tvInitial.setVisibility(View.VISIBLE);
@@ -147,8 +150,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                 .setMessage("Are you sure you want to mark this as sold? It will be removed from the feed.")
                                 .setPositiveButton("Yes", (dialog, which) -> {
                                     Toast.makeText(v.getContext(), "Marking as sold and deleting video...", Toast.LENGTH_SHORT).show();
-                                    CloudinaryHelper.deleteAsset(post.publicId != null ? post.publicId : post.objectUrl);
-                                    FirebaseDatabase.getInstance().getReference("UserVideos")
+                                    CloudinaryHelper.deleteAsset(v.getContext(), post.publicId != null ? post.publicId : post.objectUrl);
+                                    FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos")
                                             .child(post.id)
                                             .child("isSold")
                                             .setValue(true)
@@ -165,8 +168,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                 .setMessage("Are you sure you want to permanently delete this post and its video?")
                                 .setPositiveButton("Delete", (dialog, which) -> {
                                     Toast.makeText(v.getContext(), "Deleting post and video...", Toast.LENGTH_SHORT).show();
-                                    CloudinaryHelper.deleteAsset(post.publicId != null ? post.publicId : post.objectUrl);
-                                    FirebaseDatabase.getInstance().getReference("UserVideos")
+                                    CloudinaryHelper.deleteAsset(v.getContext(), post.publicId != null ? post.publicId : post.objectUrl);
+                                    FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos")
                                             .child(post.id)
                                             .removeValue()
                                             .addOnSuccessListener(aVoid -> {
@@ -315,7 +318,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             btnUpdate.setVisibility(View.VISIBLE);
             btnCall.setVisibility(View.GONE);
             btnUpdate.setOnClickListener(btnV -> {
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("UserVideos").child(post.id);
+                DatabaseReference ref = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos").child(post.id);
                 ref.child("caption").setValue(etCaption.getText().toString().trim());
                 ref.child("name").setValue(etName.getText().toString().trim());
                 ref.child("mobile").setValue(etMobile.getText().toString().trim());
@@ -376,7 +379,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             dmData.put("message", message);
             dmData.put("timestamp", System.currentTimeMillis());
 
-            FirebaseDatabase.getInstance().getReference("DirectMessages")
+            FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("DirectMessages")
                     .push()
                     .setValue(dmData)
                     .addOnSuccessListener(aVoid -> {
@@ -406,7 +409,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         rvComments.setLayoutManager(new LinearLayoutManager(v.getContext()));
         rvComments.setAdapter(adapter);
 
-        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("Comments").child(post.id);
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Comments").child(post.id);
         ValueEventListener commentsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -453,7 +456,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Comments listener cancelled: " + error.getMessage());
+            }
         };
         commentsRef.addValueEventListener(commentsListener);
         bottomSheetDialog.setOnDismissListener(dialog -> commentsRef.removeEventListener(commentsListener));
@@ -489,7 +494,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
         bottomSheetDialog.show();
     }
-
 
     private void showMuteIcon(ImageView iv) {
         iv.setImageResource(isMuted ? R.drawable.ic_mute_outline : R.drawable.ic_unmute_outline);
@@ -542,7 +546,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         }
     }
 
-    public static class VideoPost {
+    public static class VideoPost implements Serializable {
         public String id;
         public String objectUrl;
         public String publicId;

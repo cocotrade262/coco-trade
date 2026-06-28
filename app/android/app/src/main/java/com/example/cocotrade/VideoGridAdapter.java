@@ -1,5 +1,6 @@
 package com.example.cocotrade;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,8 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class VideoGridAdapter extends RecyclerView.Adapter<VideoGridAdapter.GridViewHolder> {
@@ -40,7 +43,12 @@ public class VideoGridAdapter extends RecyclerView.Adapter<VideoGridAdapter.Grid
 
         holder.itemView.setOnClickListener(v -> {
             if (v.getContext() instanceof MainActivity) {
-                ((MainActivity) v.getContext()).replaceFragment(new FullPostFragment(videoPosts, position), true);
+                FullPostFragment fragment = new FullPostFragment();
+                Bundle args = new Bundle();
+                args.putSerializable("video_posts", new ArrayList<>(videoPosts));
+                args.putInt("initial_position", position);
+                fragment.setArguments(args);
+                ((MainActivity) v.getContext()).replaceFragment(fragment, true);
             }
         });
     }
