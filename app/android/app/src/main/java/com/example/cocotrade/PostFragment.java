@@ -100,7 +100,7 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
+        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos");
 
         videoPreview = view.findViewById(R.id.video_preview);
 
@@ -344,6 +344,9 @@ public class PostFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             Log.d(TAG, "Saving video metadata to Firebase. User UID: " + currentUser.getUid() + ", Email: " + currentUser.getEmail());
+            if (currentUser.isAnonymous()) {
+                Log.w(TAG, "User is authenticated ANONYMOUSLY. Ensure security rules allow this.");
+            }
         } else {
             Log.e(TAG, "Attempting to save to Firebase but currentUser is NULL!");
         }

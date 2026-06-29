@@ -69,7 +69,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
+        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos");
         FirebaseUser user = mAuth.getCurrentUser();
 
         TextView tvName = view.findViewById(R.id.tv_profile_name);
@@ -214,7 +214,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserProfile(String userId) {
-        FirebaseDatabase.getInstance().getReference("Users").child(userId)
+        FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(userId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -277,7 +277,7 @@ public class ProfileFragment extends Fragment {
         Map<String, Object> updates = new HashMap<>();
         updates.put("profileImageUrl", url);
 
-        FirebaseDatabase.getInstance().getReference("Users").child(userId)
+        FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(userId)
                 .updateChildren(updates)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

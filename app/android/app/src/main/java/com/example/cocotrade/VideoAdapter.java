@@ -83,7 +83,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         }
 
         if (post.uploadedBy != null) {
-            FirebaseDatabase.getInstance().getReference("Users").child(post.uploadedBy)
+            FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(post.uploadedBy)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -151,7 +151,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                 .setPositiveButton("Yes", (dialog, which) -> {
                                     Toast.makeText(v.getContext(), "Marking as sold and deleting video...", Toast.LENGTH_SHORT).show();
                                     CloudinaryHelper.deleteAsset(v.getContext(), post.publicId != null ? post.publicId : post.objectUrl);
-                                    FirebaseDatabase.getInstance().getReference("UserVideos")
+                                    FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos")
                                             .child(post.id)
                                             .child("isSold")
                                             .setValue(true)
@@ -169,7 +169,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                 .setPositiveButton("Delete", (dialog, which) -> {
                                     Toast.makeText(v.getContext(), "Deleting post and video...", Toast.LENGTH_SHORT).show();
                                     CloudinaryHelper.deleteAsset(v.getContext(), post.publicId != null ? post.publicId : post.objectUrl);
-                                    FirebaseDatabase.getInstance().getReference("UserVideos")
+                                    FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos")
                                             .child(post.id)
                                             .removeValue()
                                             .addOnSuccessListener(aVoid -> {
@@ -318,7 +318,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             btnUpdate.setVisibility(View.VISIBLE);
             btnCall.setVisibility(View.GONE);
             btnUpdate.setOnClickListener(btnV -> {
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("UserVideos").child(post.id);
+                DatabaseReference ref = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos").child(post.id);
                 ref.child("caption").setValue(etCaption.getText().toString().trim());
                 ref.child("name").setValue(etName.getText().toString().trim());
                 ref.child("mobile").setValue(etMobile.getText().toString().trim());
@@ -379,7 +379,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             dmData.put("message", message);
             dmData.put("timestamp", System.currentTimeMillis());
 
-            FirebaseDatabase.getInstance().getReference("DirectMessages")
+            FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("DirectMessages")
                     .push()
                     .setValue(dmData)
                     .addOnSuccessListener(aVoid -> {
@@ -409,7 +409,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         rvComments.setLayoutManager(new LinearLayoutManager(v.getContext()));
         rvComments.setAdapter(adapter);
 
-        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("Comments").child(post.id);
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Comments").child(post.id);
         ValueEventListener commentsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
