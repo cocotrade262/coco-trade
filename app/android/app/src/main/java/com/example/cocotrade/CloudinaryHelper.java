@@ -82,7 +82,9 @@ public class CloudinaryHelper {
         new Handler(Looper.getMainLooper()).post(() -> {
             try {
                 Toast.makeText(context.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                Log.e(TAG, "Error showing toast: " + message, e);
+            }
         });
     }
 

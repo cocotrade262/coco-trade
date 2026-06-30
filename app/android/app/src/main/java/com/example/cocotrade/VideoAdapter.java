@@ -151,7 +151,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                 .setPositiveButton("Yes", (dialog, which) -> {
                                     Toast.makeText(v.getContext(), "Marking as sold and deleting video...", Toast.LENGTH_SHORT).show();
                                     CloudinaryHelper.deleteAsset(v.getContext(), post.publicId != null ? post.publicId : post.objectUrl);
-                                    FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos")
+                                    FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos")
                                             .child(post.id)
                                             .child("isSold")
                                             .setValue(true)
@@ -169,7 +169,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                                 .setPositiveButton("Delete", (dialog, which) -> {
                                     Toast.makeText(v.getContext(), "Deleting post and video...", Toast.LENGTH_SHORT).show();
                                     CloudinaryHelper.deleteAsset(v.getContext(), post.publicId != null ? post.publicId : post.objectUrl);
-                                    FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos")
+                                    FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos")
                                             .child(post.id)
                                             .removeValue()
                                             .addOnSuccessListener(aVoid -> {
@@ -318,7 +318,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             btnUpdate.setVisibility(View.VISIBLE);
             btnCall.setVisibility(View.GONE);
             btnUpdate.setOnClickListener(btnV -> {
-                DatabaseReference ref = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos").child(post.id);
+                DatabaseReference ref = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos").child(post.id);
                 ref.child("caption").setValue(etCaption.getText().toString().trim());
                 ref.child("name").setValue(etName.getText().toString().trim());
                 ref.child("mobile").setValue(etMobile.getText().toString().trim());

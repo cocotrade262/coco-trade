@@ -69,7 +69,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos");
+        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos");
         FirebaseUser user = mAuth.getCurrentUser();
 
         TextView tvName = view.findViewById(R.id.tv_profile_name);

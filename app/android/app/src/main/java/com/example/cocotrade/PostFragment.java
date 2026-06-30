@@ -2,6 +2,7 @@ package com.example.cocotrade;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -84,12 +85,18 @@ public class PostFragment extends Fragment {
     );
 
     private long getFileSize(Uri uri) {
-        Cursor cursor = requireContext().getContentResolver().query(uri, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-            long size = cursor.getLong(sizeIndex);
-            cursor.close();
-            return size;
+        if (uri == null) return 0;
+        if ("file".equals(uri.getScheme())) {
+            java.io.File file = new java.io.File(uri.getPath());
+            return file.exists() ? file.length() : 0;
+        } else {
+            Cursor cursor = requireContext().getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                long size = cursor.getLong(sizeIndex);
+                cursor.close();
+                return size;
+            }
         }
         return 0;
     }
@@ -100,7 +107,7 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("videos");
+        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos");
 
         videoPreview = view.findViewById(R.id.video_preview);
 
@@ -145,27 +152,33 @@ public class PostFragment extends Fragment {
     private void onVideoSelected() {
         if (videoPreview == null || selectedVideoUri == null) return;
 
-        if (mPlayer != null) mPlayer.release();
-        mPlayer = new ExoPlayer.Builder(requireContext()).build();
-        mPlayer.setMediaItem(MediaItem.fromUri(selectedVideoUri));
-        mPlayer.addListener(new Player.Listener() {
-            @Override
-            public void onPlaybackStateChanged(int playbackState) {
-                if (playbackState == Player.STATE_READY) {
-                    long duration = mPlayer.getDuration();
-                    if (duration > 20500) { // If > 20s
-                        optimizeAndTrimVideo(selectedVideoUri);
-                    } else {
-                        preparePreview(selectedVideoUri);
-                    }
-                    mPlayer.removeListener(this);
-                }
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(requireContext(), selectedVideoUri);
+            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            long durationMs = Long.parseLong(time);
+
+            if (durationMs > 20500) {
+                optimizeAndTrimVideo(selectedVideoUri);
+            } else {
+                preparePreview(selectedVideoUri);
             }
-        });
-        mPlayer.prepare();
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking video duration", e);
+            preparePreview(selectedVideoUri); // Fallback
+        } finally {
+            try { retriever.release(); } catch (Exception ignored) {}
+        }
+    }
+
+    private void setButtonsEnabled(boolean enabled) {
+        if (btnRecord != null) btnRecord.setEnabled(enabled);
+        if (btnSelect != null) btnSelect.setEnabled(enabled);
+        if (btnUpload != null) btnUpload.setEnabled(enabled);
     }
 
     private void optimizeAndTrimVideo(Uri inputUri) {
+        setButtonsEnabled(false);
         if (layoutOptimizationOverlay != null) {
             layoutOptimizationOverlay.setVisibility(View.VISIBLE);
             if (tvOverlayText != null) tvOverlayText.setText("Cropping video to 20s...");
@@ -200,6 +213,7 @@ public class PostFragment extends Fragment {
             public void onCompleted(Composition composition, ExportResult exportResult) {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
+                        setButtonsEnabled(true);
                         if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
                         selectedVideoUri = Uri.fromFile(outputFile);
                         preparePreview(selectedVideoUri);
@@ -212,6 +226,7 @@ public class PostFragment extends Fragment {
             public void onError(Composition composition, ExportResult exportResult, ExportException exportException) {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
+                        setButtonsEnabled(true);
                         if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Cropping failed, using original", Toast.LENGTH_SHORT).show();
                         preparePreview(inputUri);
@@ -309,10 +324,12 @@ public class PostFragment extends Fragment {
 
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
+                        deleteTempFile();
                         String url = (String) resultData.get("secure_url");
                         String pId = (String) resultData.get("public_id");
                         if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
+                                setButtonsEnabled(true);
                                 if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
                                 saveToFirebase(url, pId, user.getUid(), name, mobile, area, cost, caption);
                             });
@@ -321,12 +338,13 @@ public class PostFragment extends Fragment {
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
+                        deleteTempFile();
                         Log.e(TAG, "Cloudinary upload error: " + error.getDescription() + " code: " + error.getCode());
                         if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
+                                setButtonsEnabled(true);
                                 if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
                                 progressBar.setVisibility(View.GONE);
-                                btnUpload.setEnabled(true);
                                 Toast.makeText(getContext(), "Upload failed: " + error.getDescription(), Toast.LENGTH_LONG).show();
                             });
                         }
@@ -336,6 +354,20 @@ public class PostFragment extends Fragment {
                     public void onReschedule(String requestId, ErrorInfo error) {}
                 })
                 .dispatch();
+    }
+
+    private void deleteTempFile() {
+        if (selectedVideoUri != null && "file".equals(selectedVideoUri.getScheme())) {
+            try {
+                java.io.File file = new java.io.File(selectedVideoUri.getPath());
+                if (file.exists()) {
+                    boolean deleted = file.delete();
+                    Log.d(TAG, "Temporary trimmed video deleted: " + deleted);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error deleting temp file", e);
+            }
+        }
     }
 
     private void saveToFirebase(String url, String publicId, String userId, String name, String mobile, String area, String cost, String caption) {
