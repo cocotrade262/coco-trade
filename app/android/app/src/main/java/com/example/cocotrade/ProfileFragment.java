@@ -69,7 +69,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos");
+        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
         FirebaseUser user = mAuth.getCurrentUser();
 
         TextView tvName = view.findViewById(R.id.tv_profile_name);
@@ -83,13 +83,19 @@ public class ProfileFragment extends Fragment {
         View btnClosePreview = view.findViewById(R.id.btn_close_preview);
 
         if (user != null) {
-            String displayName = user.getDisplayName() != null ? user.getDisplayName() : "Anonymous User";
+            String displayName = user.getDisplayName() != null && !user.getDisplayName().isEmpty() ? user.getDisplayName() : "Anonymous User";
             tvName.setText(displayName);
             tvEmail.setText(user.getEmail());
 
-            if (!displayName.isEmpty()) {
-                tvInitial.setText(String.valueOf(displayName.charAt(0)).toUpperCase());
+            String initial = "";
+            if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
+                initial = String.valueOf(user.getDisplayName().charAt(0)).toUpperCase();
+            } else if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                initial = String.valueOf(user.getEmail().charAt(0)).toUpperCase();
+            } else {
+                initial = "U";
             }
+            tvInitial.setText(initial);
         }
 
         recyclerView = view.findViewById(R.id.recycler_view_my_videos);
@@ -214,12 +220,21 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserProfile(String userId) {
-        FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(userId)
+        FirebaseDatabase.getInstance().getReference("Users").child(userId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (!isAdded()) return;
                         currentProfileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
+
+                        // If no custom profile image, try falling back to Firebase User profile picture (Google account)
+                        if (currentProfileImageUrl == null || currentProfileImageUrl.isEmpty()) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null && user.getPhotoUrl() != null) {
+                                currentProfileImageUrl = user.getPhotoUrl().toString();
+                            }
+                        }
+
                         if (currentProfileImageUrl != null && !currentProfileImageUrl.isEmpty()) {
                             tvInitial.setVisibility(View.GONE);
                             ivProfilePhoto.setVisibility(View.VISIBLE);
@@ -277,7 +292,7 @@ public class ProfileFragment extends Fragment {
         Map<String, Object> updates = new HashMap<>();
         updates.put("profileImageUrl", url);
 
-        FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("Users").child(userId)
+        FirebaseDatabase.getInstance().getReference("Users").child(userId)
                 .updateChildren(updates)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

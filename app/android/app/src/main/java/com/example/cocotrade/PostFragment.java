@@ -28,11 +28,19 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.common.Effect;
+import androidx.media3.effect.Presentation;
 import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
 import androidx.media3.transformer.Transformer;
+import androidx.media3.transformer.VideoEncoderSettings;
 import androidx.media3.ui.PlayerView;
+
+import com.google.common.collect.ImmutableList;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.cloudinary.android.MediaManager;
@@ -153,23 +161,8 @@ public class PostFragment extends Fragment {
     private void onVideoSelected() {
         if (videoPreview == null || selectedVideoUri == null) return;
 
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            retriever.setDataSource(requireContext(), selectedVideoUri);
-            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            long durationMs = Long.parseLong(time);
-
-            if (durationMs > 20500) {
-                optimizeAndTrimVideo(selectedVideoUri);
-            } else {
-                preparePreview(selectedVideoUri);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error checking video duration", e);
-            preparePreview(selectedVideoUri); // Fallback
-        } finally {
-            try { retriever.release(); } catch (Exception ignored) {}
-        }
+        // Always run through the optimization pipeline to ensure compression and 20s limit
+        optimizeAndTrimVideo(selectedVideoUri);
     }
 
     private void setButtonsEnabled(boolean enabled) {
@@ -182,7 +175,7 @@ public class PostFragment extends Fragment {
         setButtonsEnabled(false);
         if (layoutOptimizationOverlay != null) {
             layoutOptimizationOverlay.setVisibility(View.VISIBLE);
-            if (tvOverlayText != null) tvOverlayText.setText("Cropping video to 20s...");
+            if (tvOverlayText != null) tvOverlayText.setText("Optimizing video quality...");
             if (pbOverlayProgress != null) pbOverlayProgress.setVisibility(View.GONE);
             if (tvOverlayPercentage != null) tvOverlayPercentage.setVisibility(View.GONE);
         }
@@ -190,24 +183,36 @@ public class PostFragment extends Fragment {
         java.io.File outputDir = requireContext().getCacheDir();
         java.io.File outputFile;
         try {
-            outputFile = java.io.File.createTempFile("trimmed_video", ".mp4", outputDir);
+            outputFile = java.io.File.createTempFile("optimized_video", ".mp4", outputDir);
         } catch (java.io.IOException e) {
             if (layoutOptimizationOverlay != null) layoutOptimizationOverlay.setVisibility(View.GONE);
             Toast.makeText(getContext(), "Failed to create temp file", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Configure high compression (approx 2Mbps)
         Transformer transformer = new Transformer.Builder(requireContext())
                 .setVideoMimeType(MimeTypes.VIDEO_H264)
+                .setEncoderFactory(new DefaultEncoderFactory.Builder(requireContext())
+                        .setRequestedVideoEncoderSettings(new VideoEncoderSettings.Builder()
+                                .setBitrate(2000000) // 2 Mbps target for high compression
+                                .build())
+                        .build())
                 .build();
 
-        MediaItem mediaItem = new MediaItem.Builder()
-                .setUri(inputUri)
-                .setClippingConfiguration(
-                        new MediaItem.ClippingConfiguration.Builder()
-                                .setEndPositionMs(20000)
-                                .build()
-                )
+        // Downscale to 720p if higher
+        ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(720));
+
+        EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(
+                new MediaItem.Builder()
+                        .setUri(inputUri)
+                        .setClippingConfiguration(
+                                new MediaItem.ClippingConfiguration.Builder()
+                                        .setEndPositionMs(20000) // Strictly enforced 20s
+                                        .build()
+                        )
+                        .build())
+                .setEffects(new Effects(ImmutableList.of(), videoEffects))
                 .build();
 
         transformer.addListener(new Transformer.Listener() {
@@ -237,7 +242,7 @@ public class PostFragment extends Fragment {
             }
         });
 
-        transformer.start(mediaItem, outputFile.getAbsolutePath());
+        transformer.start(editedMediaItem, outputFile.getAbsolutePath());
     }
 
     private void preparePreview(Uri uri) {
