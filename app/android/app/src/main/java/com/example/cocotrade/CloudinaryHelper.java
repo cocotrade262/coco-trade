@@ -33,6 +33,8 @@ public class CloudinaryHelper {
 
                 if (apiSecret == null || apiSecret.isEmpty() || apiSecret.equals("your_secret_here")) {
                     Log.e(TAG, "CRITICAL: Cloudinary API Secret is invalid or missing. Deletion will fail.");
+                    showToast(context, "Error: Cloudinary API Secret is not configured.");
+                    return;
                 }
 
                 Map<String, String> config = new HashMap<>();
@@ -53,6 +55,7 @@ public class CloudinaryHelper {
 
             } catch (Exception e) {
                 Log.e(TAG, "Unexpected error during deletion of " + publicId, e);
+                showToast(context, "Deletion failed: " + e.getMessage());
             }
         });
     }
@@ -64,11 +67,19 @@ public class CloudinaryHelper {
             options.put("invalidate", true);
 
             Map result = cloudinary.uploader().destroy(publicId, options);
-            Log.d(TAG, resourceType + " deletion attempt for " + publicId + ": " + (result != null ? result.toString() : "null"));
+            String resultStr = (result != null ? result.toString() : "null");
+            Log.d(TAG, resourceType + " deletion attempt for " + publicId + ": " + resultStr);
 
             boolean success = result != null && "ok".equals(result.get("result"));
             if (success) {
-                showToast(context, "Cloudinary " + resourceType + " deleted successfully");
+                showToast(context, "Asset deleted from Cloudinary");
+            } else if (result != null && result.containsKey("error")) {
+                Map error = (Map) result.get("error");
+                String errorMsg = error != null ? (String) error.get("message") : "Unknown Cloudinary error";
+                // If not found, we don't necessarily want to toast every fallback failure
+                if (!"not found".equalsIgnoreCase(errorMsg)) {
+                    showToast(context, "Cloudinary error (" + resourceType + "): " + errorMsg);
+                }
             }
             return success;
         } catch (Exception e) {
@@ -92,37 +103,28 @@ public class CloudinaryHelper {
         try {
             if (!url.contains("/upload/")) return null;
 
-            // 1. Get the path after /upload/
             String path = url.substring(url.indexOf("/upload/") + 8);
-
-            // 2. Split by / to handle transformations, version, and folders
             String[] parts = path.split("/");
 
-            // 3. Find where the actual public ID starts.
-            // We skip transformations (segments with '=' or ',') and the version (vXXXXX)
             int startIndex = 0;
             for (int i = 0; i < parts.length; i++) {
                 String part = parts[i];
-                // Transformations in Cloudinary often contain: , _ . = (e.g. w_400,c_fill or f_auto)
-                // However, folders and IDs can also have _ or .
-                // The most reliable way to skip metadata is to look for the version string 'v' + digits.
+                // Transformations contain , or =
+                if (part.contains(",") || part.contains("=")) continue;
+                // Version starts with v + digits
                 if (part.startsWith("v") && part.length() > 1 && Character.isDigit(part.charAt(1))) {
                     startIndex = i + 1;
                     break;
                 }
-
-                // If we haven't found a version string yet, check if this segment looks like a transformation.
-                // Cloudinary transformations usually have specific flags or =.
-                if (part.contains(",") || part.contains("=") || part.matches("^[a-z]_[a-z0-9]+.*$")) {
+                // Known transformation patterns without =
+                if (part.startsWith("f_") || part.startsWith("q_") || part.startsWith("w_") || part.startsWith("vc_")) {
                     continue;
                 }
-
-                // If it's not a transformation and we haven't seen 'v' yet, it might be the start of folders.
+                // Start of identifiers/folders
                 startIndex = i;
                 break;
             }
 
-            // 4. Join the remaining parts to get the full public ID (including folders)
             StringBuilder publicIdBuilder = new StringBuilder();
             for (int i = startIndex; i < parts.length; i++) {
                 if (publicIdBuilder.length() > 0) publicIdBuilder.append("/");
@@ -130,8 +132,6 @@ public class CloudinaryHelper {
             }
 
             String fullPath = publicIdBuilder.toString();
-
-            // 5. Remove the file extension
             int lastDot = fullPath.lastIndexOf('.');
             if (lastDot != -1) {
                 return fullPath.substring(0, lastDot);

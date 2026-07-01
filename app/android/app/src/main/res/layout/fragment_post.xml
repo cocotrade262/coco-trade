@@ -357,6 +357,18 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"/>
+
+            <TextView
+                android:id="@+id/tv_overlay_percentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="0%"
+                android:textColor="#3880ff"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
     </FrameLayout>
 </FrameLayout>

@@ -56,7 +56,7 @@ public class PostFragment extends Fragment {
     private View btnRecord, btnSelect;
     private Button btnUpload;
     private ProgressBar progressBar, pbOverlayProgress;
-    private TextView statusText, tvOverlayText;
+    private TextView statusText, tvOverlayText, tvOverlayPercentage;
     private EditText etName, etMobile, etArea, etCost, etCaption;
     private Uri selectedVideoUri;
     private View layoutOptimizationOverlay;
@@ -126,6 +126,7 @@ public class PostFragment extends Fragment {
         btnUpload = view.findViewById(R.id.btn_upload_video);
         progressBar = view.findViewById(R.id.upload_progress);
         pbOverlayProgress = view.findViewById(R.id.pb_overlay_progress);
+        tvOverlayPercentage = view.findViewById(R.id.tv_overlay_percentage);
         statusText = view.findViewById(R.id.status_text);
         layoutOptimizationOverlay = view.findViewById(R.id.layout_optimization_overlay);
         tvOverlayText = view.findViewById(R.id.tv_overlay_text);
@@ -183,6 +184,7 @@ public class PostFragment extends Fragment {
             layoutOptimizationOverlay.setVisibility(View.VISIBLE);
             if (tvOverlayText != null) tvOverlayText.setText("Cropping video to 20s...");
             if (pbOverlayProgress != null) pbOverlayProgress.setVisibility(View.GONE);
+            if (tvOverlayPercentage != null) tvOverlayPercentage.setVisibility(View.GONE);
         }
 
         java.io.File outputDir = requireContext().getCacheDir();
@@ -290,9 +292,15 @@ public class PostFragment extends Fragment {
                 pbOverlayProgress.setVisibility(View.VISIBLE);
                 pbOverlayProgress.setProgress(0);
             }
+            if (tvOverlayPercentage != null) {
+                tvOverlayPercentage.setVisibility(View.VISIBLE);
+                tvOverlayPercentage.setText("0%");
+            }
         }
         progressBar.setVisibility(View.VISIBLE);
         statusText.setText("Uploading...");
+
+        final long uploadTotalSize = getFileSize(selectedVideoUri);
 
         MediaManager.get().upload(selectedVideoUri)
                 .unsigned("ml_default")
@@ -303,11 +311,12 @@ public class PostFragment extends Fragment {
 
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
-                        // Total bytes might be unknown initially
-                        long effectiveTotal = totalBytes > 0 ? totalBytes : getFileSize(selectedVideoUri);
+                        // totalBytes from SDK is often 0 or -1. Fallback to our calculated size.
+                        long effectiveTotal = totalBytes > 0 ? totalBytes : uploadTotalSize;
                         if (effectiveTotal <= 0) return;
 
                         final int progress = (int) ((bytes * 100L) / effectiveTotal);
+                        Log.d(TAG, "Upload progress: " + bytes + "/" + effectiveTotal + " (" + progress + "%)");
 
                         if (isAdded() && getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
@@ -317,6 +326,12 @@ public class PostFragment extends Fragment {
                                         pbOverlayProgress.setVisibility(View.VISIBLE);
                                     }
                                     pbOverlayProgress.setProgress(progress);
+                                }
+                                if (tvOverlayPercentage != null) {
+                                    if (tvOverlayPercentage.getVisibility() != View.VISIBLE) {
+                                        tvOverlayPercentage.setVisibility(View.VISIBLE);
+                                    }
+                                    tvOverlayPercentage.setText(progress + "%");
                                 }
                             });
                         }
