@@ -115,7 +115,7 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance("https://cocotrade-fc1a5-default-rtdb.firebaseio.com").getReference("UserVideos");
+        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
 
         videoPreview = view.findViewById(R.id.video_preview);
 

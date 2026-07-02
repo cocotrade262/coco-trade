@@ -245,8 +245,21 @@ public class ProfileFragment extends Fragment {
                                     .circleCrop()
                                     .into(ivProfilePhoto);
                         } else {
+                            // Ensure initial is visible if no image
                             tvInitial.setVisibility(View.VISIBLE);
                             ivProfilePhoto.setVisibility(View.GONE);
+
+                            // Re-apply initial logic to ensure it's up to date
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null) {
+                                String initial = "U";
+                                if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                                    initial = String.valueOf(user.getEmail().charAt(0)).toUpperCase();
+                                } else if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
+                                    initial = String.valueOf(user.getDisplayName().charAt(0)).toUpperCase();
+                                }
+                                tvInitial.setText(initial);
+                            }
                         }
                     }
 
