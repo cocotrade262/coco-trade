@@ -87,11 +87,12 @@ public class ProfileFragment extends Fragment {
             tvName.setText(displayName);
             tvEmail.setText(user.getEmail());
 
+            // User specifically requested the first letter of the EMAIL to be displayed
             String initial = "";
-            if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
-                initial = String.valueOf(user.getDisplayName().charAt(0)).toUpperCase();
-            } else if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            if (user.getEmail() != null && !user.getEmail().isEmpty()) {
                 initial = String.valueOf(user.getEmail().charAt(0)).toUpperCase();
+            } else if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
+                initial = String.valueOf(user.getDisplayName().charAt(0)).toUpperCase();
             } else {
                 initial = "U";
             }
@@ -165,6 +166,7 @@ public class ProfileFragment extends Fragment {
 
         btnSignOut.setOnClickListener(v -> {
             mAuth.signOut();
+            Toast.makeText(getContext(), "Logout successful", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -377,7 +379,7 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                if (isAdded()) {
+                if (isAdded() && mAuth.getCurrentUser() != null) {
                     Log.e("ProfileFragment", "Load my videos failed: " + error.getMessage());
                     Toast.makeText(getContext(), "Failed to load your posts: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
