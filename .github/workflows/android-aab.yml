@@ -1,4 +1,4 @@
-name: Android AAB (debug)
+name: Android AAB (release)
 
 on:
   workflow_dispatch:
@@ -32,15 +32,15 @@ jobs:
             exit 1
           fi
 
-      - name: Build debug AAB
+      - name: Build release AAB
         run: |
           chmod +x gradlew
-          ./gradlew :app:bundleDebug
+          ./gradlew :app:bundleRelease
         env:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-aab
-          path: app/android/app/build/outputs/bundle/debug/app-debug.aab
+          name: app-release-aab
+          path: app/android/app/build/outputs/bundle/release/app-release.aab

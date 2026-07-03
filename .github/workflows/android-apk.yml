@@ -32,15 +32,15 @@ jobs:
             exit 1
           fi
 
-      - name: Build Debug APK
+      - name: Build Release APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
         env:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: coco-trade-apk
-          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          name: coco-trade-release-apk
+          path: app/android/app/build/outputs/apk/release/app-release.apk
