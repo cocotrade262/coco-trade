@@ -1,4 +1,4 @@
-package com.example.cocotrade;
+package com.asn.cocotrade;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

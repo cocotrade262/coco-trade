@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:274853330536:android:35080210deced5d9ec05dd",
         "android_client_info": {
-          "package_name": "com.example.cocotrade"
+          "package_name": "com.asn.cocotrade"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "274853330536-5q3i12066jl2igtmv30877mg4g1tohpk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.cocotrade",
+            "package_name": "com.asn.cocotrade",
             "certificate_hash": "55f78f9a3f880bd7f88659219a192e53c7a730e2"
           }
         },

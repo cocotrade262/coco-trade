@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.example.cocotrade"
+    namespace = "com.asn.cocotrade"
     compileSdk = 34
 
     defaultConfig {
-        applicationId "com.example.cocotrade"
+        applicationId "com.asn.cocotrade"
         minSdkVersion 23
         targetSdkVersion 34
         versionCode 1

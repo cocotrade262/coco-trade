@@ -1,4 +1,4 @@
-package com.example.cocotrade;
+package com.asn.cocotrade;
 
 import android.app.Application;
 import com.cloudinary.android.MediaManager;

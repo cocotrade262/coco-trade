@@ -1,4 +1,4 @@
-package com.example.cocotrade;
+package com.asn.cocotrade;
 
 import android.content.Context;
 import androidx.media3.common.util.UnstableApi;

@@ -1,4 +1,4 @@
-package com.example.cocotrade;
+package com.asn.cocotrade;
 
 import android.content.Intent;
 import android.content.pm.PackageInfo;

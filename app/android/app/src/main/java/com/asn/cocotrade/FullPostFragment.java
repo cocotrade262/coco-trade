@@ -1,65 +1,79 @@
-package com.example.cocotrade;
+package com.asn.cocotrade;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FeedFragment extends Fragment {
+public class FullPostFragment extends Fragment {
 
-    private DatabaseReference mDatabase;
-    private ValueEventListener mValueEventListener;
-    private RecyclerView recyclerView;
-    private VideoAdapter adapter;
-    private List<VideoAdapter.VideoPost> videoList;
+    private List<VideoAdapter.VideoPost> videoPosts;
+    private int initialPosition;
+
+    public FullPostFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            videoPosts = (List<VideoAdapter.VideoPost>) getArguments().getSerializable("video_posts");
+            initialPosition = getArguments().getInt("initial_position");
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_feed, container, false);
+        View view = inflater.inflate(R.layout.fragment_full_post, container, false);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference("UserVideos");
-        recyclerView = view.findViewById(R.id.recycler_view_videos);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setBottomNavVisibility(View.GONE);
+        }
+
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view_full_post);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
 
         PagerSnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(recyclerView);
 
-        videoList = new ArrayList<>();
-        adapter = new VideoAdapter(videoList);
+        if (videoPosts == null) videoPosts = new ArrayList<>();
+        VideoAdapter adapter = new VideoAdapter(videoPosts);
         recyclerView.setAdapter(adapter);
+        recyclerView.scrollToPosition(initialPosition);
+
+        view.findViewById(R.id.btn_back_full_post).setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    playVisibleVideo();
+                    playVisibleVideo(recyclerView);
                 }
             }
         });
 
-        loadVideos();
+        recyclerView.postDelayed(() -> playVisibleVideo(recyclerView), 200);
+
         return view;
     }
 
-    private void playVisibleVideo() {
-        if (!isResumed()) return;
+    private void playVisibleVideo(RecyclerView recyclerView) {
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         if (layoutManager == null) return;
 
@@ -96,6 +110,7 @@ public class FeedFragment extends Fragment {
     }
 
     private void pauseAllVideos() {
+        RecyclerView recyclerView = getView() != null ? getView().findViewById(R.id.recycler_view_full_post) : null;
         if (recyclerView == null) return;
         for (int i = 0; i < recyclerView.getChildCount(); i++) {
             View child = recyclerView.getChildAt(i);
@@ -110,40 +125,11 @@ public class FeedFragment extends Fragment {
         }
     }
 
-    private void loadVideos() {
-        mValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!isAdded()) return;
-                videoList.clear();
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    VideoAdapter.VideoPost post = data.getValue(VideoAdapter.VideoPost.class);
-                    if (post != null && !post.isSold) {
-                        post.id = data.getKey();
-                        videoList.add(0, post);
-                    }
-                }
-                adapter.notifyDataSetChanged();
-                recyclerView.postDelayed(() -> {
-                    if (isAdded() && isResumed()) playVisibleVideo();
-                }, 500);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                if (isAdded() && FirebaseAuth.getInstance().getCurrentUser() != null) {
-                    Toast.makeText(getContext(), "Failed to load videos: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
-        mDatabase.addValueEventListener(mValueEventListener);
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mDatabase != null && mValueEventListener != null) {
-            mDatabase.removeEventListener(mValueEventListener);
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setBottomNavVisibility(View.VISIBLE);
         }
     }
 }
