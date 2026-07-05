@@ -1,4 +1,4 @@
-name: Android AAB (debug)
+name: Android AAB (release)
 
 on:
   workflow_dispatch:
@@ -10,39 +10,37 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app
+        working-directory: app/android
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: app/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build web app
-        run: npm run build
-
-      - name: Sync Capacitor (Android)
-        run: npx cap sync android
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
+          cache: 'gradle'
 
-      - name: Build debug AAB
-        run: cd android && ./gradlew :app:bundleDebug
+      - name: Verify google-services.json
+        run: |
+          if [ -f "app/google-services.json" ]; then
+            echo "SUCCESS: google-services.json found!"
+          else
+            echo "ERROR: google-services.json is missing!"
+            exit 1
+          fi
+
+      - name: Build release AAB
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:bundleRelease
+        env:
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-aab
-          path: app/android/app/build/outputs/bundle/debug/app-debug.aab
+          name: app-release-aab
+          path: app/android/app/build/outputs/bundle/release/app-release.aab

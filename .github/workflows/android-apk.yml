@@ -2,50 +2,45 @@ name: Build Android APK
 
 on:
   push:
-    branches:
-      - main
+    branches: ["**"]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app
+        working-directory: app/android
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: app/package-lock.json
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Ionic / Angular app
-        run: npm run build
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
+          cache: 'gradle'
 
-      - name: Sync Capacitor Android
-        run: npx cap sync android
-
-      - name: Build Debug APK
+      - name: Verify google-services.json
         run: |
-          cd android
+          if [ -f "app/google-services.json" ]; then
+            echo "SUCCESS: google-services.json found!"
+          else
+            echo "ERROR: google-services.json is missing!"
+            exit 1
+          fi
+
+      - name: Build Release APK
+        run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
+        env:
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: coco-trade-apk
-          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          name: coco-trade-release-apk
+          path: app/android/app/build/outputs/apk/release/app-release.apk

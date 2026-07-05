@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "274853330536",
+    "firebase_url": "https://cocotrade-fc1a5-default-rtdb.firebaseio.com",
+    "project_id": "cocotrade-fc1a5",
+    "storage_bucket": "cocotrade-fc1a5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274853330536:android:35080210deced5d9ec05dd",
+        "android_client_info": {
+          "package_name": "com.asn.cocotrade"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "274853330536-5q3i12066jl2igtmv30877mg4g1tohpk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.asn.cocotrade",
+            "certificate_hash": "55f78f9a3f880bd7f88659219a192e53c7a730e2"
+          }
+        },
+        {
+          "client_id": "274853330536-kfkancenrtdb93nv3pgcagdnonjeotp5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo3ff8V73OkrZ5Hh2r-DaLltBX3uyPtQc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274853330536-kfkancenrtdb93nv3pgcagdnonjeotp5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
