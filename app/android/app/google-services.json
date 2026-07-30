@@ -1,0 +1,133 @@
+{
+  "project_info": {
+    "project_number": "274853330536",
+    "firebase_url": "https://cocotrade-fc1a5-default-rtdb.firebaseio.com",
+    "project_id": "cocotrade-fc1a5",
+    "storage_bucket": "cocotrade-fc1a5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274853330536:android:3ac9fad16a9d6765ec05dd",
+        "android_client_info": {
+          "package_name": "com.asn.cocotrade"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "274853330536-40ki2v4d75rah4i52qsmgklb568ijdq9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.asn.cocotrade",
+            "certificate_hash": "190d3d3ac3d75a2dac209cd58d44604dfaed1c2e"
+          }
+        },
+        {
+          "client_id": "274853330536-t0htdr40stlr4k7r4gqrbk4ud6mbu76f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.asn.cocotrade",
+            "certificate_hash": "470caddbd05073c2c1b50badd19d36016703d9fb"
+          }
+        },
+        {
+          "client_id": "274853330536-tsll9pqa16usg61op0mr1mua7r9t6baj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.asn.cocotrade",
+            "certificate_hash": "55f78f9a3f880bd7f88659219a192e53c7a730e2"
+          }
+        },
+        {
+          "client_id": "274853330536-u30j5gbekb1ilodh4gb4887dfgd6t90i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.asn.cocotrade",
+            "certificate_hash": "a0b0d05c6dba07c37d5bf7d48c3d92a09af9f6a0"
+          }
+        },
+        {
+          "client_id": "274853330536-kfkancenrtdb93nv3pgcagdnonjeotp5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo3ff8V73OkrZ5Hh2r-DaLltBX3uyPtQc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274853330536-kfkancenrtdb93nv3pgcagdnonjeotp5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274853330536:android:35080210deced5d9ec05dd",
+        "android_client_info": {
+          "package_name": "com.example.cocotrade"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "274853330536-6ehveeoq9c16ukqujnjrh1eu17ejkas7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cocotrade",
+            "certificate_hash": "470caddbd95073c2c1be0aadb19036616702e9fb"
+          }
+        },
+        {
+          "client_id": "274853330536-8b65cfv7b4g0hm9n2p25bs3pa418hrit.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cocotrade",
+            "certificate_hash": "19d8833ac3d75a2bac269c958b446d40facd1c2c"
+          }
+        },
+        {
+          "client_id": "274853330536-f03n2acuus2g70rucdcqkivt13el8909.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cocotrade",
+            "certificate_hash": "a8f7e3b3a413856df804516e31b4b4a81756000c"
+          }
+        },
+        {
+          "client_id": "274853330536-iab6bnb5kspndlfn2iaq7df2j9rmjglm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cocotrade",
+            "certificate_hash": "a0b0de6c6aba07c2765b77048cae92a09a79f668"
+          }
+        },
+        {
+          "client_id": "274853330536-kfkancenrtdb93nv3pgcagdnonjeotp5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo3ff8V73OkrZ5Hh2r-DaLltBX3uyPtQc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274853330536-kfkancenrtdb93nv3pgcagdnonjeotp5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
