@@ -32,9 +32,8 @@ public class CloudinaryHelper {
                 String apiSecret = BuildConfig.CLOUDINARY_API_SECRET;
 
                 if (apiSecret == null || apiSecret.isEmpty() || apiSecret.equals("your_secret_here")) {
-                    Log.e(TAG, "CRITICAL: Cloudinary API Secret is invalid or missing. Deletion will fail.");
-                    showToast(context, "Error: Cloudinary API Secret is not configured.");
-                    return;
+                    Log.w(TAG, "Cloudinary API Secret is missing or empty in BuildConfig. Using default fallback secret.");
+                    apiSecret = "gxOw2EhEoLi9FUBQcGExoiYJfgM";
                 }
 
                 Map<String, String> config = new HashMap<>();
